@@ -1,0 +1,64 @@
+{
+  "name": "vue-timeline-chart",
+  "version": "0.0.0",
+  "description": "Vue3 Timeline Chart component",
+  "author": "Laurens Bruijn",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laurens94/vue-timeline-chart.git"
+  },
+  "bugs": {
+    "url": "https://github.com/laurens94/vue-timeline-chart/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "component",
+    "timeline",
+    "chart",
+    "vue3-timeline-chart",
+    "graph"
+  ],
+  "type": "module",
+  "main": "./dist/vue-timeline-chart.umd.cjs",
+  "module": "./dist/vue-timeline-chart.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/vue-timeline-chart.js",
+      "require": "./dist/vue-timeline-chart.umd.cjs"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "types": "./dist/vue-timeline-chart.ts",
+  "scripts": {
+    "dev": "vite",
+    "start": "vite",
+    "build": "vue-tsc --noEmit --skipLibCheck && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.3.4"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.6",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "eslint": "^8.0.1",
+    "eslint-config-standard-with-typescript": "^37.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0 || ^16.0.0 ",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-vue": "^9.16.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.4.0",
+    "vue-tsc": "^1.8.5"
+  }
+}
