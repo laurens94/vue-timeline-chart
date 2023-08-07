@@ -28,7 +28,7 @@
         <div
           v-for="(item, index) in items?.filter((i) => i.group === group.id)"
           :key="index"
-          :style="{ left: `${getLeftPos(item.start)}px`, width: `${getWidth(item.start, item.end)}px` }"
+          :style="{ left: `${getLeftPos(item.start)}px`, width: `${getItemWidth(item.start, item.end)}px` }"
           :class="['item', item.type, item.className]"
         >
         </div>
@@ -41,40 +41,47 @@
   import { computed, ref } from 'vue';
   import { useElementSize } from '../composables/useElementSize';
 
-  const props = defineProps<{
+  export interface Props {
     groups: TimelineGroup[];
-    items?: TimelineItem[];
+    items: TimelineItem[];
     viewportMin?: number;
     viewportMax?: number;
-  }>();
+    minViewportDuration?: number;
+    maxViewportDuration?: number;
+  }
 
-  const viewportStart = ref(1691089380000);
-  const viewportEnd = ref(1691101020000);
+  const props = withDefaults(defineProps<Props>(), {
+    viewportMin: undefined,
+    viewportMax: undefined,
+    minViewportDuration: 60,
+    maxViewportDuration: 60 * 60 * 24 * 7 * 4 * 3,
+  });
 
   const rootEl = ref<HTMLElement | null>(null);
-
   const { width: containerWidth } = useElementSize(rootEl);
+
+  const viewportStart = ref(1691089380);
+  const viewportEnd = ref(1691101020);
+  const viewportDuration = computed(() => viewportEnd.value - viewportStart.value);
 
   const visibleTimestamps = computed (() => {
     return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   });
 
   function getLeftPos (ts: number) {
-    const total = viewportEnd.value - viewportStart.value;
     const pos = ts - viewportStart.value;
-    return (pos / total) * containerWidth.value;
+    return (pos / viewportDuration.value) * containerWidth.value;
   }
-  function getWidth (start: number, end?: number) {
-    const total = viewportEnd.value - viewportStart.value;
-    const pos = end - start;
-    return (pos / total) * containerWidth.value;
+  function getItemWidth (start: number, end: number) {
+    if (!end) {
+      return null;
+    }
+    const itemDuration = end - start;
+    return (itemDuration / viewportDuration.value) * containerWidth.value;
   }
-
-  const maxZoom = 1000 * 60;
 
   function scrollHorizontal (delta: number) {
-    const total = viewportEnd.value - viewportStart.value;
-    const deltaMs = (delta / containerWidth.value) * total;
+    const deltaMs = (delta / containerWidth.value) * viewportDuration.value;
     if (delta > 0 && viewportEnd.value === props.viewportMax) {
       return;
     }
@@ -104,23 +111,39 @@
     e.preventDefault();
 
     const mousePosXPercentage = (e.clientX - rootEl.value!.getBoundingClientRect().left) / containerWidth.value;
-
-    // TODO: fix zooming too quickly which causes the start and end to be the same:
-    const total = viewportEnd.value - viewportStart.value;
-    if (Math.abs(total) < maxZoom && e.deltaY < 0) {
-      viewportEnd.value = viewportEnd.value + 1000;
-      return;
-    }
-    const zoomDelta = -total * 0.01 * (e.deltaMode === 1 ? e.deltaY * 10 : e.deltaY);
+    const zoomDelta = Math.round(-viewportDuration.value * 0.01 * (e.deltaMode === 1 ? e.deltaY * 10 : e.deltaY));
     zoom(zoomDelta, mousePosXPercentage);
   }
 
   function zoom (zoomDeltaInMs: number, mousePosXPercentage = .5) {
+    // limit zoomDelta so that it can never zoom with more ms than the viewportDuration:
+    if (zoomDeltaInMs > 0) {
+      // zooming in
+      zoomDeltaInMs = viewportDuration.value - zoomDeltaInMs < props.minViewportDuration
+        ? viewportDuration.value - props.minViewportDuration
+        : zoomDeltaInMs;
+    }
+    else {
+      // zooming out
+      zoomDeltaInMs = viewportDuration.value - zoomDeltaInMs > props.maxViewportDuration
+        ? -(props.maxViewportDuration - viewportDuration.value)
+        : zoomDeltaInMs;
+    }
+
     // mousePosXPercentage of 0.5 means the zoomDeltaInMs is equally distributed between viewportStart and viewportEnd
     const viewportDeltaLeft = zoomDeltaInMs * mousePosXPercentage;
     const viewportDeltaRight = zoomDeltaInMs - viewportDeltaLeft;
-    viewportStart.value = Math.round(props.viewportMin ? Math.max(viewportStart.value + viewportDeltaLeft, props.viewportMin) : viewportStart.value + viewportDeltaLeft);
-    viewportEnd.value = Math.round(props.viewportMax ? Math.min(viewportEnd.value - viewportDeltaRight, props.viewportMax) : viewportEnd.value - viewportDeltaRight);
+
+    const proposedViewportStart = viewportStart.value + viewportDeltaLeft;
+    const proposedViewportEnd = viewportEnd.value - viewportDeltaRight;
+
+    if (proposedViewportStart >= proposedViewportEnd) {
+      console.error('Possible rounding issue occured while zooming.\n\nSetting different values for minViewportDuration and maxViewportDuration might help.');
+      return;
+    }
+
+    viewportStart.value = Math.round(props.viewportMin ? Math.max(proposedViewportStart, props.viewportMin) : proposedViewportStart);
+    viewportEnd.value = Math.round(props.viewportMax ? Math.min(proposedViewportEnd, props.viewportMax) : proposedViewportEnd);
   }
 </script>
 
