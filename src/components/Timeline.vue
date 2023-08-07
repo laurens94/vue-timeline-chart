@@ -4,10 +4,6 @@
     class="timeline-wrapper"
     @wheel="onWheel"
   >
-    {{ viewportStart }}
-    {{ containerWidth }}
-    {{ viewportEnd }}
-
     <!-- <div class="timestamps">
       <div
         v-for="timestamp in visibleTimestamps"
@@ -107,19 +103,24 @@
     }
     e.preventDefault();
 
+    const mousePosXPercentage = (e.clientX - rootEl.value!.getBoundingClientRect().left) / containerWidth.value;
+
     // TODO: fix zooming too quickly which causes the start and end to be the same:
     const total = viewportEnd.value - viewportStart.value;
     if (Math.abs(total) < maxZoom && e.deltaY < 0) {
       viewportEnd.value = viewportEnd.value + 1000;
       return;
     }
-    const zoomDelta = total * 0.01 * (e.deltaMode === 1 ? e.deltaY * 10 : e.deltaY);
-    zoom(zoomDelta);
+    const zoomDelta = -total * 0.01 * (e.deltaMode === 1 ? e.deltaY * 10 : e.deltaY);
+    zoom(zoomDelta, mousePosXPercentage);
   }
 
-  function zoom (zoomDelta: number) {
-    viewportStart.value = Math.round(props.viewportMin ? Math.max(viewportStart.value - zoomDelta, props.viewportMin) : viewportStart.value - zoomDelta);
-    viewportEnd.value = Math.round(props.viewportMax ? Math.min(viewportEnd.value + zoomDelta, props.viewportMax) : viewportEnd.value + zoomDelta);
+  function zoom (zoomDeltaInMs: number, mousePosXPercentage = .5) {
+    // mousePosXPercentage of 0.5 means the zoomDeltaInMs is equally distributed between viewportStart and viewportEnd
+    const viewportDeltaLeft = zoomDeltaInMs * mousePosXPercentage;
+    const viewportDeltaRight = zoomDeltaInMs - viewportDeltaLeft;
+    viewportStart.value = Math.round(props.viewportMin ? Math.max(viewportStart.value + viewportDeltaLeft, props.viewportMin) : viewportStart.value + viewportDeltaLeft);
+    viewportEnd.value = Math.round(props.viewportMax ? Math.min(viewportEnd.value - viewportDeltaRight, props.viewportMax) : viewportEnd.value - viewportDeltaRight);
   }
 </script>
 
