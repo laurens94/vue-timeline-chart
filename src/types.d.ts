@@ -6,6 +6,7 @@ interface TimelineGroup {
 interface TimelineItemBase {
   className?: string;
   start: number;
+  id?: string;
 }
 
 interface TimelineItemRange extends TimelineItemBase {
@@ -26,4 +27,9 @@ interface TimelineItemBackground extends TimelineItemBase {
   group?: TimelineGroup['id'];
 }
 
-type TimelineItem = TimelineItemRange | TimelineItemPoint | TimelineItemBackground;
+interface TimelineMarker extends TimelineItemBase {
+  type: 'marker';
+  group?: TimelineGroup['id'];
+}
+
+type TimelineItem = TimelineItemRange | TimelineItemPoint | TimelineItemBackground | TimelineMarker;
