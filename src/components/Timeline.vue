@@ -43,6 +43,7 @@
               @click.stop="onClick($event, item)"
               @contextmenu.prevent.stop="onContextMenu($event, item)"
             >
+              <slot name="item" :item="item"></slot>
             </div>
           </div>
           <div
