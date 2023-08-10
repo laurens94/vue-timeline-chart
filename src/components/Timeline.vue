@@ -39,7 +39,7 @@
               v-for="(item, index) in visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
               :key="index"
               :style="{ left: `${getLeftPos(item.start)}px`, width: item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null }"
-              :class="['item', item.type, item.className]"
+              :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
               @click.stop="onClick($event, item)"
               @contextmenu.prevent.stop="onContextMenu($event, item)"
             >
@@ -106,6 +106,7 @@
     renderTimestampLabel?: (timestamp: number) => string;
     fixedLabels?: boolean;
     minTimestampWidth?: number;
+    activeItems?: TimelineItem[];
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -124,6 +125,7 @@
     },
     fixedLabels: false,
     minTimestampWidth: 100,
+    activeItems: () => [],
   });
 
   const emit = defineEmits<{
@@ -376,6 +378,12 @@
     bottom: 0;
     height: 100%;
     background: var(--item-background, #007bff);
+    opacity: 0.7;
+
+    &:hover,
+    &.active {
+      opacity: 1;
+    }
 
     &.point {
       --_size: var(--item-point-size, 1rem);
