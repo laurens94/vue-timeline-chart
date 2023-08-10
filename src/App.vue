@@ -15,6 +15,13 @@
       <template #group-label="{ group }">
         {{ group.content }}
       </template>
+
+      <template #item="{item}">
+        <div
+          :title="item.title || null"
+          style="inset: 0; position: absolute;"
+        ></div>
+      </template>
     </Timeline>
   </div>
 </template>
@@ -25,11 +32,57 @@
 
   const groups = computed((): TimelineGroup[] => {
     return [
+      { content: 'Group 1', id: 'group1' },
+      { content: 'Group 2', id: 'group2' },
+      { content: 'Group 3', id: 'group3' },
+      { content: 'bg', id: 'background' },
     ];
   });
 
   const items = computed((): TimelineItem[] => {
     return [
+      { group: 'group1', type: 'point', className: 'gray', start: 1691090880000, title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
+      },
+      { group: 'group3', type: 'point', className: 'teal', start: 1691090970000, title: '21:29:30', id: 'k80208db-54a7-4603-8850-5a6432431dcd',
+      },
+      { group: 'group3', type: 'point', className: 'pink', start: 1691099529000, title: '23:52:09', id: 'k802fabb-5dc7-486a-b205-ab27fdbf35a8',
+      },
+      { type: 'background', start: 1691089380000, end: 1691090280000, id: 'k802c277-de01-4366-8b45-2ff3aa11b75e',
+      },
+      { type: 'background', start: 1691100120000, end: 1691101020000, id: 'k802b917-3b2c-48e9-9e38-ff4df8a26c19',
+      },
+      { type: 'background', group: 'background', start: 1691100120000, end: 1691101020000, id: 'k802b917-3b2c-48e9-9e38-ff4df8a26c19',
+      },
+      { group: 'group2', type: 'range', id: 'k8024086-0c65-417d-9b2a-8e11c7ca710c', className: 'indigo', start: 1691095214000, end: 1691095428000,
+      },
+      { group: 'group2', type: 'range', id: 'k8024340-cf3e-4215-a8af-031399d53d1b', className: 'indigo', start: 1691091546000, end: 1691091615000,
+      },
+      { group: 'group2', type: 'range', id: 'k80222de-5fc4-457f-95a2-e4f878d07511', className: 'indigo', start: 1691097441000, end: 1691097514000,
+      },
+      { group: 'group2', type: 'range', id: 'k802bbed-9794-4e40-868f-ee2f66b0f594', className: 'indigo', start: 1691090985000, end: 1691091085000,
+      },
+      { group: 'group2', type: 'range', id: 'k80285fe-cbfc-4367-9f82-2b0ad6207cdc', className: 'indigo', start: 1691093875000, end: 1691094107000,
+      },
+      { group: 'group2', type: 'range', id: 'k802c2c0-eca6-48ff-bf6c-014802043c64', className: 'indigo', start: 1691091720000, end: 1691091805000,
+      },
+      { group: 'group2', type: 'range', id: 'k8023a89-f649-40c6-a3d2-30e1c1765cea', className: 'indigo', start: 1691094747000, end: 1691094873000,
+      },
+      { group: 'group2', type: 'range', id: 'k802ee12-668e-4265-a017-8a59baa49668', className: 'indigo', start: 1691096492000, end: 1691096604000,
+      },
+      { group: 'group2', type: 'range', id: 'k802c640-5468-4ecb-abef-4ee5168f0f2c', className: 'indigo', start: 1691093445000, end: 1691093515000,
+      },
+      { group: 'group2', type: 'range', id: 'k802c4dd-74d3-41bb-bcbe-2a8ee39036be', className: 'indigo', start: 1691092246000, end: 1691092430000,
+      },
+      { group: 'group2', type: 'range', id: 'k8022be0-7983-49f2-b191-1648e6fcc0e2', className: 'indigo', start: 1691096029000, end: 1691096293000,
+      },
+      { group: 'group2', type: 'range', id: 'k802e426-bceb-4eb3-8a0b-9217ceca0b8e', className: 'indigo', start: 1691097646000, end: 1691097805000,
+      },
+      { group: 'group2', type: 'range', id: 'k8025d11-8553-433c-a89e-45201f602c37', className: 'indigo', start: 1691096693000, end: 1691096779000,
+      },
+      { group: 'group2', type: 'range', id: 'k8023478-e81e-4b62-b31f-0efa1844cbe9', className: 'indigo', start: 1691092544000, end: 1691092671000,
+      },
+      { group: 'group2', type: 'range', id: 'k8026025-679b-4156-8b32-4b04086fc1a7', className: 'purple', start: 1691090867000, end: 1691090970000,
+      },
     ];
   });
 
@@ -63,7 +116,8 @@
 
 <style lang="scss" scoped>
   .timeline {
-    // --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+
     // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
     // --group-border-top: 1px solid rgba(255, 255, 255, 10%);
     --group-height: 1.5em;

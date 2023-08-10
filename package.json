@@ -23,6 +23,9 @@
   "type": "module",
   "main": "./dist/vue-timeline-chart.umd.cjs",
   "module": "./dist/vue-timeline-chart.js",
+  "browser": {
+    "./sfc": "./src/components/Timeline.vue"
+  },
   "files": [
     "dist"
   ],

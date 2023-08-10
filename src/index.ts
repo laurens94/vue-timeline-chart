@@ -1,5 +1,5 @@
 // import type { App, Plugin } from 'vue'
-import Timeline from './components/Timeline.vue'
+import Timeline from './components/Timeline.vue';
 
 // const install = (app: App) => {
 //   app.component('Timeline', Timeline)
@@ -7,5 +7,5 @@ import Timeline from './components/Timeline.vue'
 
 // Timeline.install = install
 
-export { Timeline }
+export { Timeline };
 // export default Timeline as unknown as Plugin
