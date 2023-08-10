@@ -117,7 +117,7 @@
     initialViewportEnd: undefined,
     renderTimestampLabel: (timestamp: number) => {
       const date = new Date(timestamp);
-      return `${leadingZero(date.getHours())}:${leadingZero(date.getMinutes())}:${leadingZero(date.getSeconds())}`;
+      return `${leadingZero(date.getHours())}:${leadingZero(date.getMinutes())}${date.getSeconds() > 0 ? `:${leadingZero(date.getSeconds())}` : ''}`;
     },
     fixedLabels: false,
     minTimestampWidth: 100,
@@ -186,7 +186,7 @@
   });
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
-  const { visibleTimestamps } = useScale(viewportStart, viewportEnd, maxLabelsInView);
+  const { visibleTimestamps } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView);
 
   function timestampClassNames (timestamp: number) {
     return {

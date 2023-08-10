@@ -35,7 +35,7 @@
   },
   "types": "./dist/vue-timeline-chart.ts",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build --watch",
     "start": "vite",
     "build": "vue-tsc --noEmit --skipLibCheck && vite build",
     "preview": "vite preview"
