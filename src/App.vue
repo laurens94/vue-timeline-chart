@@ -53,8 +53,8 @@
   }, 10);
 
   const mouseHoverPosition = ref<number | null>(null);
-  function onMousemoveTimeline ({ position }: { position: number }) {
-    mouseHoverPosition.value = position;
+  function onMousemoveTimeline ({ time }: { time: number }) {
+    mouseHoverPosition.value = time;
   }
   function onMouseleaveTimeline () {
     mouseHoverPosition.value = null;

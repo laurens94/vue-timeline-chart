@@ -4,7 +4,8 @@
       ref="timelineEl"
       class="timeline"
       @wheel="onWheel"
-      @click="onClickTimeline"
+      @click="onClick"
+      @contextmenu.prevent="onContextMenu"
       @mousemove="onMouseMove"
       @mouseleave="onMouseLeave"
     >
@@ -37,9 +38,10 @@
             <div
               v-for="(item, index) in visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
               :key="index"
-              :style="{ left: `${getLeftPos(item.start)}px`, width: `${getItemWidth(item.start, item.end)}px` }"
+              :style="{ left: `${getLeftPos(item.start)}px`, width: item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null }"
               :class="['item', item.type, item.className]"
-              @click="onItemClick(item, $event)"
+              @click.stop="onClick($event, item)"
+              @contextmenu.prevent.stop="onContextMenu($event, item)"
             >
             </div>
           </div>
@@ -48,7 +50,8 @@
             :key="item.id || `${item.start}${item.type}${item.end || ''}`"
             :style="{ left: `${getLeftPos(item.start)}px`, width: `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
-            @click="onItemClick(item, $event)"
+            @click.stop="onClick($event, item)"
+            @contextmenu.prevent.stop="onContextMenu($event, item)"
           >
           </div>
           <div
@@ -85,7 +88,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onMounted, ref, watch } from 'vue';
+  import { computed, ref, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize';
   import { leadingZero } from '../helpers/leadingZero';
   import { useScale } from '../composables/useScale';
@@ -124,9 +127,9 @@
   });
 
   const emit = defineEmits<{
-    (e: 'clickItem', value: { item: TimelineItem; event: MouseEvent }): void;
-    (e: 'clickTimeline', value: { position: number; event: MouseEvent }): void;
-    (e: 'mousemoveTimeline', value: { position: number; event: MouseEvent }): void;
+    (e: 'click', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
+    (e: 'contextmenu', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
+    (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
     (e: 'mouseleaveTimeline', value: { event: MouseEvent }): void;
     (e: 'changeViewport', value: { start: number; end: number }): void;
   }>();
@@ -142,7 +145,7 @@
     emit('changeViewport', { start, end });
   });
 
-  onMounted(() => {
+  watchEffect(() => {
     setViewportValues();
   });
 
@@ -277,20 +280,22 @@
     onMouseMove;
   }
 
-  function onItemClick (item: TimelineItem, event: MouseEvent) {
-    emit('clickItem', { item, event });
-  }
-
-  function onClickTimeline (event: MouseEvent) {
+  function onClick (event: MouseEvent, item: TimelineItem | null = null) {
     const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
     const positionInMs = viewportStart.value + viewportDuration.value * mousePosXPercentage;
-    emit('clickTimeline', { position: positionInMs, event });
+    emit('click', { time: positionInMs, event, item });
+  }
+
+  function onContextMenu (event: MouseEvent, item: TimelineItem | null = null) {
+    const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
+    const positionInMs = viewportStart.value + viewportDuration.value * mousePosXPercentage;
+    emit('contextmenu', { time: positionInMs, event, item });
   }
 
   function onMouseMove (event: MouseEvent) {
     const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
     const positionInMs = viewportStart.value + viewportDuration.value * mousePosXPercentage;
-    emit('mousemoveTimeline', { position: positionInMs, event });
+    emit('mousemoveTimeline', { time: positionInMs, event });
   }
 
   function onMouseLeave (event: MouseEvent) {
@@ -308,7 +313,7 @@
     overflow: hidden;
     position: relative;
     user-select: none;
-    font-family: var(--font-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif);
+    font-family: var(--font-family, inherit);
   }
 
   .timestamps {
