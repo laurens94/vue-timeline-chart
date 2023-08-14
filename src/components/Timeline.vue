@@ -20,6 +20,14 @@
             {{ renderTimestampLabel(timestamp) }}
           </slot>
         </div>
+
+        <div
+          v-for="(item) in visibleMarkers.filter((i) => i.group === '_timestamps').sort((a, b) => a.start - b.start)"
+          :key="item.id || `${item.start}${item.type}`"
+          :style="{ left: `${getLeftPos(item.start)}px` }"
+          :class="[item.type, item.className]"
+        >
+        </div>
       </div>
 
       <div class="groups">
@@ -336,6 +344,10 @@
       border-left: var(--gridline-border-left, 1px dashed rgba(0, 0, 0, 10%));
       z-index: 0;
       font-size: 0.85em;
+    }
+
+    .marker {
+      height: calc(var(--_lineheight) + var(--_padding-block) * 2);
     }
   }
 
