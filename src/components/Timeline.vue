@@ -237,15 +237,21 @@
   }
 
   function onWheel (e: WheelEvent) {
-    if (e.deltaX !== 0) {
-      scrollHorizontal(e.deltaMode === 1 ? e.deltaX * 18 : e.deltaX);
-      return;
-    }
-    if (e.deltaX === 0 && e.shiftKey) {
+    if (e.shiftKey) {
+      e.preventDefault();
       // if there's no native horizontal scroll going on, convert vertical scroll to horizontal:
       scrollHorizontal(
         e.deltaMode === 1 ? e.deltaY * 18 : e.deltaY
       );
+      return;
+    }
+    if (e.deltaX !== 0) {
+      if (Math.abs(e.deltaX) > 1) {
+        // prevent swipe gesture triggered history navigation:
+        e.preventDefault();
+      }
+
+      scrollHorizontal(e.deltaMode === 1 ? e.deltaX * 18 : e.deltaX);
       return;
     }
     if (!(e.metaKey || e.ctrlKey)) {
@@ -322,6 +328,7 @@
 
   .timeline-wrapper {
     overflow: hidden;
+    margin: 100vh 0;
     position: relative;
     user-select: none;
     font-family: var(--font-family, inherit);
