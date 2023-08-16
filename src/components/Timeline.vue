@@ -328,7 +328,6 @@
 
   .timeline-wrapper {
     overflow: hidden;
-    margin: 100vh 0;
     position: relative;
     user-select: none;
     font-family: var(--font-family, inherit);
