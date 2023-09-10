@@ -1,6 +1,6 @@
 interface TimelineGroup {
-  content: string;
   id: string;
+  content: string;
 }
 
 interface TimelineItemBase {

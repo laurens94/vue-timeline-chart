@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 
@@ -9,17 +9,17 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'vue-timeline-chart',
-      fileName: 'vue-timeline-chart'
+      fileName: 'vue-timeline-chart',
     },
     rollupOptions: {
       external: ['vue'],
       output: {
         exports: 'named',
         globals: {
-          vue: 'Vue'
-        }
-      }
-    }
+          vue: 'Vue',
+        },
+      },
+    },
   },
   plugins: [dts({
     copyDtsFiles: true,
@@ -28,7 +28,7 @@ export default defineConfig({
     ],
     staticImport: true,
     compilerOptions: {
-      declarationMap: true
-    }
+      declarationMap: true,
+    },
   }), vue()],
-})
+});
