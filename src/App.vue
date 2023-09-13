@@ -5,10 +5,9 @@
       :groups="groups"
       :items="items"
       :markers="markers"
-      :viewportMin="1691089380000"
-      :viewportMax="1691101020000"
-      :minViewportDuration="1000 * 60"
-      :maxViewportDuration="1000 * 60 * 60 * 24 * 7"
+      :viewportMin="757382400000"
+      :viewportMax="maxDate"
+      :maxViewportDuration="1000 * 60 * 60 * 24 * 365 * 200"
       @mousemoveTimeline="onMousemoveTimeline"
       @mouseleaveTimeline="onMouseleaveTimeline"
     >
@@ -30,12 +29,13 @@
   import { computed, ref } from 'vue';
   import Timeline from './components/Timeline.vue';
 
+  const maxDate = new Date().valueOf() + 1000 * 60 * 60 * 24 * 365 * 10;
+
   const groups = computed((): TimelineGroup[] => {
     return [
-      { content: 'Group 1', id: 'group1' },
-      { content: 'Group 2', id: 'group2' },
-      { content: 'Group 3', id: 'group3' },
-      { content: 'bg', id: 'background' },
+      { content: 'Dots', id: 'group1' },
+      { content: 'Ranges', id: 'group2' },
+      { content: 'Markers', id: 'group3' },
     ];
   });
 
@@ -43,9 +43,9 @@
     return [
       { group: 'group1', type: 'point', className: 'gray', start: 1691090880000, title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
       },
-      { group: 'group3', type: 'point', className: 'teal', start: 1691090970000, title: '21:29:30', id: 'k80208db-54a7-4603-8850-5a6432431dcd',
+      { group: 'group3', type: 'marker', className: 'teal', start: 1691090970000, title: '21:29:30', id: 'k80208db-54a7-4603-8850-5a6432431dcd',
       },
-      { group: 'group3', type: 'point', className: 'pink', start: 1691099529000, title: '23:52:09', id: 'k802fabb-5dc7-486a-b205-ab27fdbf35a8',
+      { group: 'group3', type: 'marker', className: 'pink', start: 1691099529000, title: '23:52:09', id: 'k802fabb-5dc7-486a-b205-ab27fdbf35a8',
       },
       { type: 'background', start: 1691089380000, end: 1691090280000, id: 'k802c277-de01-4366-8b45-2ff3aa11b75e',
       },
@@ -86,13 +86,13 @@
     ];
   });
 
-  const elapsedTime = ref(0);
+  const currentTime = ref(new Date().valueOf());
   const markers = computed((): TimelineMarker[] => {
     return [{
-      start: 1691094533392 + elapsedTime.value,
+      start: currentTime.value,
       type: 'marker',
       id: 'marker-1',
-      className: 'blue',
+      className: 'red',
     }, mouseHoverPosition.value ? {
       start: mouseHoverPosition.value,
       type: 'marker',
@@ -102,8 +102,8 @@
   });
 
   setInterval(() => {
-    elapsedTime.value += 10;
-  }, 10);
+    currentTime.value = new Date().valueOf();
+  }, 40);
 
   const mouseHoverPosition = ref<number | null>(null);
   function onMousemoveTimeline ({ time }: { time: number }) {
@@ -113,6 +113,12 @@
     mouseHoverPosition.value = null;
   }
 </script>
+
+<style>
+  body {
+    background-color: #0090eb;
+  }
+</style>
 
 <style lang="scss" scoped>
   .timeline {
@@ -142,7 +148,6 @@
     // --timestamp-padding-inline: 0.4em;
 
     background-color: rgb(235, 235, 235);
-    border: 1px solid rgb(180, 180, 180);
     border-radius: 0.5em;
 
     :deep(.group-label) {
