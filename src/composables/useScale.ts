@@ -1,6 +1,5 @@
 import {
   eachMonthOfInterval,
-  eachWeekOfInterval,
   eachDayOfInterval,
   eachHourOfInterval,
   eachMinuteOfInterval,
@@ -20,7 +19,6 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     minutes: 1000 * 60,
     hours: 1000 * 60 * 60,
     days: 1000 * 60 * 60 * 24,
-    weeks: 1000 * 60 * 60 * 24 * 7,
     months: 1000 * 60 * 60 * 24 * 7 * 4,
     years: 1000 * 60 * 60 * 24 * 7 * 4 * 12,
   };
@@ -41,20 +39,18 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     },
     {
       unit: 'hours',
-      steps: [.25, .5, 1],
+      steps: [.25, .5, 1, 2],
     },
     {
       unit: 'days',
     },
     {
-      unit: 'weeks',
-      step: 1,
-    },
-    {
       unit: 'months',
+      steps: [.25, 1, 2],
     },
     {
       unit: 'years',
+      steps: [1, 5, 10, 25, 50, 100, 250, 500, 1000],
     },
   ].flatMap((scale) => {
     if (scale.steps) {
@@ -76,15 +72,21 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
 
     for (const [index, entry] of possibleScales.entries()) {
       const quantityWithinRange = _viewportDuration.value / (baseDividers[entry.unit] * (entry.step ?? 1));
+      // console.debug(entry.unit, quantityWithinRange);
       if (quantityWithinRange >= 1 && quantityWithinRange <= _maxLabelsInView.value) {
         scale = entry;
         break;
       }
       if (quantityWithinRange < 1) {
-        scale = possibleScales[index + 1] ?? entry;
+        scale = possibleScales[index - 1] ?? entry;
         break;
       }
+      if (quantityWithinRange >= 1 && index === possibleScales.length - 1) {
+        scale = entry;
+      }
     }
+
+    // console.debug(scale.unit, scale.step);
 
     return {
       unit: scale.unit,
@@ -117,9 +119,6 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       case 'days':
         baseTimestamps = eachDayOfInterval({ start, end });
         break;
-      case 'weeks':
-        baseTimestamps = eachWeekOfInterval({ start, end });
-        break;
       case 'months':
         baseTimestamps = eachMonthOfInterval({ start, end });
         break;
@@ -130,7 +129,13 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
 
     for (const timestamp of baseTimestamps) {
       if (scale.value.step && scale.value.step > 1) {
-        if (timestamp.valueOf() % (scale.value.step * baseDividers[scale.value.unit]) === 0) {
+        if (scale.value.unit === 'years' && timestamp.getFullYear() % scale.value.step === 0) {
+          timestamps.push(timestamp.valueOf());
+        }
+        else if (scale.value.unit === 'months' && timestamp.getMonth() % scale.value.step === 0) {
+          timestamps.push(timestamp.valueOf());
+        }
+        else if (timestamp.valueOf() % (scale.value.step * baseDividers[scale.value.unit]) === 0) {
           timestamps.push(timestamp.valueOf());
         }
       }

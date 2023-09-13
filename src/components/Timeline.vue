@@ -17,7 +17,7 @@
           :style="{ left: `${getLeftPos(timestamp)}px` }"
         >
           <slot name="timestamp" :timestamp="timestamp">
-            {{ renderTimestampLabel(timestamp) }}
+            {{ renderTimestampLabel(timestamp, scale) }}
           </slot>
         </div>
 
@@ -101,6 +101,7 @@
   import { useElementSize } from '../composables/useElementSize';
   import { leadingZero } from '../helpers/leadingZero';
   import { useScale } from '../composables/useScale';
+  import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
 
   export interface Props {
     groups?: TimelineGroup[];
@@ -112,7 +113,7 @@
     maxViewportDuration?: number;
     initialViewportStart?: number;
     initialViewportEnd?: number;
-    renderTimestampLabel?: (timestamp: number) => string;
+    renderTimestampLabel?: (timestamp: number, scale: { unit: string, step: number}) => string;
     fixedLabels?: boolean;
     minTimestampWidth?: number;
     activeItems?: TimelineItem[];
@@ -128,9 +129,24 @@
     maxViewportDuration: 1000 * 60 * 60 * 24 * 7 * 4 * 3,
     initialViewportStart: undefined,
     initialViewportEnd: undefined,
-    renderTimestampLabel: (timestamp: number) => {
+    renderTimestampLabel: (timestamp: number, scale: { unit: string, step: number}) => {
       const date = new Date(timestamp);
-      return `${leadingZero(date.getHours())}:${leadingZero(date.getMinutes())}${date.getSeconds() > 0 ? `:${leadingZero(date.getSeconds())}` : ''}`;
+      let returnValue = '';
+
+      // TODO: rewrite, cure this abomination:
+      if (!['hours', 'minutes', 'seconds', 'ms'].includes(scale.unit) || startOfDay(date).valueOf() === timestamp) {
+        returnValue += `${date.toLocaleString('default', {
+          month: scale.unit !== 'years' && (startOfMonth(date).valueOf() === timestamp || scale.unit === 'days' || (startOfDay(date).valueOf() === timestamp) && !(scale.unit === 'months' && scale.step === 0.25)) ? 'short' : undefined,
+          year: startOfYear(date).valueOf() === timestamp ? 'numeric' : undefined,
+          day: scale.unit !== 'years' && !(scale.unit === 'months' && scale.step >= 1) && startOfDay(date).valueOf() === timestamp ? 'numeric' : undefined,
+        })} `;
+      }
+
+      if (['hours', 'minutes', 'seconds', 'ms'].includes(scale.unit)) {
+        returnValue += `${leadingZero(date.getHours())}:${leadingZero(date.getMinutes())}${date.getSeconds() > 0 ? `:${leadingZero(date.getSeconds())}` : ''}`;
+      }
+
+      return returnValue;
     },
     fixedLabels: false,
     minTimestampWidth: 100,
@@ -200,7 +216,7 @@
   });
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
-  const { visibleTimestamps } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView);
+  const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView);
 
   function timestampClassNames (timestamp: number) {
     return {
@@ -350,6 +366,7 @@
       border-left: var(--gridline-border-left, 1px dashed rgba(0, 0, 0, 10%));
       z-index: 0;
       font-size: 0.85em;
+      white-space: nowrap;
     }
 
     .marker {
