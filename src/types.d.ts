@@ -15,6 +15,7 @@ interface TimelineItemRange extends TimelineItemBase {
   title?: string;
   group: TimelineGroup['id'];
 }
+
 interface TimelineItemPoint extends TimelineItemBase {
   type: 'point';
   title?: string;
