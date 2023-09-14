@@ -116,7 +116,7 @@
     renderTimestampLabel?: (timestamp: number, scale: { unit: string, step: number}) => string;
     fixedLabels?: boolean;
     minTimestampWidth?: number;
-    activeItems?: TimelineItem[];
+    activeItems?: TimelineItem['id'][];
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -231,6 +231,7 @@
     const pos = ts - viewportStart.value;
     return (pos / viewportDuration.value) * containerWidth.value;
   }
+
   function getItemWidth (start: number, end: number) {
     if (!end) {
       return null;
@@ -303,7 +304,7 @@
     const proposedViewportEnd = viewportEnd.value - viewportDeltaRight;
 
     if (proposedViewportStart >= proposedViewportEnd) {
-      console.error('Possible rounding issue occured while zooming.\n\nSetting different values for minViewportDuration and maxViewportDuration might help.');
+      console.error('Rounding issue probably occured while zooming.\n\nSetting different values for minViewportDuration and maxViewportDuration might help.');
       return;
     }
 
