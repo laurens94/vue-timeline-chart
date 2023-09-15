@@ -2,7 +2,7 @@
 
 ![timeline](https://github.com/laurens94/vue-timeline-chart/assets/5780704/fed2191e-ed2b-4196-ae13-e66a56e0dfea)
 
-A simple yet versatile vue3 component that allows you to plot points or ranges on a timeline. You can zoom in/out, horizontally scroll and dynamically update content. 
+A simple yet versatile vue3 component that allows you to plot points or ranges on a timeline. You can zoom in/out, scroll horizontally and update content dynamically. 
 
 Feel free to report [issues](https://github.com/laurens94/vue-timeline-chart/issues/new), make PR's and start [discussions](https://github.com/laurens94/vue-timeline-chart/discussions/new/choose).
 
