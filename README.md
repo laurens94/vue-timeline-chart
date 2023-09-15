@@ -1,5 +1,7 @@
 # Vue 3 Timeline Chart component
 
+![timeline](https://github.com/laurens94/vue-timeline-chart/assets/5780704/afe625aa-afae-4c7a-997d-ba0d0fbdd010)
+
 ## Features
 
 - Zooming
