@@ -1,6 +1,6 @@
 # Vue 3 Timeline Chart component
 
-![timeline](https://github.com/laurens94/vue-timeline-chart/assets/5780704/afe625aa-afae-4c7a-997d-ba0d0fbdd010)
+![timeline](https://github.com/laurens94/vue-timeline-chart/assets/5780704/f14f5bc8-4624-476e-a15e-36f16d749263)
 
 ## Features
 
