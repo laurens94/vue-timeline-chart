@@ -10,8 +10,9 @@ Feel free to report [issues](https://github.com/laurens94/vue-timeline-chart/iss
 
 - Zooming
 - Infinite scrolling
-- Customizable
 - Plotting ranges, points, markers and backgrounds
+- Adjustable timestamp labels per scale
+- Customizable
 
 ## Usage
 
@@ -55,7 +56,7 @@ npm add vue-timeline-chart
 | `viewportMin` | `number` | `undefined` | Minimum timestamp of the viewport (prevents scrolling to before this point) |
 | `viewportMax` | `number` | `undefined` | Maximum timestamp of the viewport (prevents scrolling past this point) |
 | `minViewportDuration` | `number` | `60000` (1 min) | Minimum duration of the viewport in ms (limits zooming in) |
-| `maxViewportDuration` | `number` | `7257600000` (3 months) | Maximum duration of the viewport in ms (limits zooming out) |
+| `maxViewportDuration` | `number` | `undefined` | Maximum duration of the viewport in ms (limits zooming out) |
 | `initialViewportStart` | `number` | `undefined` | Initial start timestamp of the viewport |
 | `initialViewportEnd` | `number` | `undefined` | Initial end timestamp of the viewport |
 | `renderTimestampLabel` | `function(timestamp: number, scale: { unit: string, step: number})` | `undefined` | Custom function to render timestamp labels |

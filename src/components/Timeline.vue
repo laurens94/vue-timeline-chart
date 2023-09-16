@@ -125,8 +125,8 @@
     markers: () => [],
     viewportMin: undefined,
     viewportMax: undefined,
-    minViewportDuration: 1000 * 60,
-    maxViewportDuration: 1000 * 60 * 60 * 24 * 7 * 4 * 3,
+    minViewportDuration: 1000,
+    maxViewportDuration: undefined,
     initialViewportStart: undefined,
     initialViewportEnd: undefined,
     renderTimestampLabel: (timestamp: number, scale: { unit: string, step: number}) => {
@@ -289,7 +289,7 @@
         ? viewportDuration.value - props.minViewportDuration
         : zoomDeltaInMs;
     }
-    else {
+    else if (props.maxViewportDuration) {
       // zooming out
       zoomDeltaInMs = viewportDuration.value - zoomDeltaInMs > props.maxViewportDuration
         ? -(props.maxViewportDuration - viewportDuration.value)

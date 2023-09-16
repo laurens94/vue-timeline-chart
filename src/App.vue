@@ -7,7 +7,6 @@
       :markers="markers"
       :viewportMin="757382400000"
       :viewportMax="maxDate"
-      :maxViewportDuration="1000 * 60 * 60 * 24 * 365 * 200"
       @mousemoveTimeline="onMousemoveTimeline"
       @mouseleaveTimeline="onMouseleaveTimeline"
     >
