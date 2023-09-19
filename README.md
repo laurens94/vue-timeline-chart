@@ -97,6 +97,7 @@ TimelineItems can be points, ranges, backgrounds or markers. They are assigned t
 | `end` | number | *(required for range and background)* | Timestamp, only used for type `range` and `background` |
 | `className` | `string` | `''` | CSS class(es) |
 | `type` | `string` | *(required)* | Type of item, one of: `point`, `range`, `background` or `marker` |
+| `cssVariables` | `Record<string, string>` | `{}` | CSS variables to apply to the item (e.g. `{ '--height': '20%' }`) |
 
 ### TimelineMarker
 

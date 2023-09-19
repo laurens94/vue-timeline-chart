@@ -46,7 +46,7 @@
             <div
               v-for="(item, index) in visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
               :key="index"
-              :style="{ left: `${getLeftPos(item.start)}px`, width: item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null }"
+              :style="{ left: `${getLeftPos(item.start)}px`, width: item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
               :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
               @click.stop="onClick($event, item)"
               @contextmenu.prevent.stop="onContextMenu($event, item)"

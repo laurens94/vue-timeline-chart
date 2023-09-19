@@ -58,7 +58,10 @@
       },
       { group: 'group2', type: 'range', className: 'teal', start: 1691095214000, end: 1691095428000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691091546000, end: 1691091615000,
+      { group: 'group2', type: 'range', className: 'pink', start: 1691091546000, end: 1691091615000,
+        cssVariables: {
+          '--height': '20%',
+        },
       },
       { group: 'group2', type: 'range', className: 'teal', start: 1691097441000, end: 1691097514000,
       },
@@ -178,6 +181,12 @@
         &.#{$color} {
           --item-background: linear-gradient(180deg, #{$color}, color-mix(in hsl, #{$color} 80%, white));
         }
+      }
+
+      &.range {
+        height: var(--height, 100%);
+        bottom: 0;
+        top: auto;
       }
 
       &:hover {

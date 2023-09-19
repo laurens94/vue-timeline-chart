@@ -7,6 +7,7 @@ interface TimelineItemBase {
   className?: string;
   start: number;
   id?: string;
+  cssVariables?: Record<string, string>;
 }
 
 interface TimelineItemRange extends TimelineItemBase {
