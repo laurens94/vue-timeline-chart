@@ -85,6 +85,7 @@ TimelineGroups are the rows in the timeline with items.
 | --- | --- | --- | --- |
 | `id` | `string` | *(required)* | Unique ID, to bind items to |
 | `content` | `string` | *(required)* | Group label |
+| `className` | `string` | `''` | CSS class(es) |
 
 ### TimelineItem
 

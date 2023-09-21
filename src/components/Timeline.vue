@@ -34,7 +34,7 @@
         <div
           v-for="group in groups"
           :key="group.id"
-          class="group"
+          :class="['group', group.className]"
         >
           <div :class="['group-label', { fixed: fixedLabels }]">
             <slot name="group-label" :group="group">
