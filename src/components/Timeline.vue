@@ -14,7 +14,7 @@
           v-for="timestamp in visibleTimestamps"
           :key="timestamp"
           :class="['timestamp', timestampClassNames(timestamp)]"
-          :style="{ left: `${getLeftPos(timestamp)}px` }"
+          :style="{ '--_left': `${getLeftPos(timestamp)}px` }"
         >
           <slot name="timestamp" :timestamp="timestamp">
             {{ renderTimestampLabel(timestamp, scale) }}
@@ -24,7 +24,7 @@
         <div
           v-for="(item) in visibleMarkers.filter((i) => i.group === '_timestamps').sort((a, b) => a.start - b.start)"
           :key="item.id || `${item.start}${item.type}`"
-          :style="{ left: `${getLeftPos(item.start)}px` }"
+          :style="{ '--_left': `${getLeftPos(item.start)}px` }"
           :class="[item.type, item.className]"
         >
         </div>
@@ -46,7 +46,7 @@
             <div
               v-for="(item, index) in visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
               :key="index"
-              :style="{ left: `${getLeftPos(item.start)}px`, width: item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
+              :style="{ '--_left': `${getLeftPos(item.start)}px`, '--_width': item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
               :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
               @click.stop="onClick($event, item)"
               @contextmenu.prevent.stop="onContextMenu($event, item)"
@@ -57,7 +57,7 @@
           <div
             v-for="(item) in visibleItems.filter((i) => i.group === group.id && i.type === 'background').sort((a, b) => a.start - b.start)"
             :key="item.id || `${item.start}${item.type}${item.end || ''}`"
-            :style="{ left: `${getLeftPos(item.start)}px`, width: `${getItemWidth(item.start, item.end)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
             @contextmenu.prevent.stop="onContextMenu($event, item)"
@@ -66,7 +66,7 @@
           <div
             v-for="(item) in visibleMarkers.filter((i) => i.group === group.id).sort((a, b) => a.start - b.start)"
             :key="item.id || `${item.start}${item.type}`"
-            :style="{ left: `${getLeftPos(item.start)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start)}px` }"
             :class="[item.type, item.className]"
           >
           </div>
@@ -76,7 +76,7 @@
           <div
             v-for="(item) in visibleItems.filter((i) => !i.group && i.type == 'background')"
             :key="item.id || `${item.start}${item.type}${item.end || ''}`"
-            :style="{ left: `${getLeftPos(item.start)}px`, width: `${getItemWidth(item.start, item.end)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
           >
           </div>
@@ -86,7 +86,7 @@
           <div
             v-for="(item) in visibleMarkers.filter((i) => !i.group)"
             :key="item.id || `${item.start}${item.type}`"
-            :style="{ left: `${getLeftPos(item.start)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start)}px` }"
             :class="[item.type, item.className]"
           >
           </div>
@@ -350,6 +350,27 @@
     font-family: var(--font-family, inherit);
   }
 
+  .item,
+  .background,
+  .marker {
+    contain: strict;
+  }
+
+  .timestamp {
+    contain: layout paint style;
+  }
+
+  .item,
+  .background,
+  .timestamp,
+  .marker {
+    translate: var(--_left) 0;
+    width: var(--_width);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+
   .timestamps {
     --_padding-block: var(--timestamp-padding-block, 0.2em);
     --_padding-inline: var(--timestamp-padding-inline, 0.4em);
@@ -404,15 +425,12 @@
 
     .group-items {
       position: relative;
-      height: var(--group-height, 2em);
+      height: var(--group-items-height, 2em);
     }
   }
 
   .item {
     cursor: pointer;
-    position: absolute;
-    top: 0;
-    bottom: 0;
     height: 100%;
     background: var(--item-background, #007bff);
     opacity: 0.7;
@@ -439,16 +457,10 @@
 
   .background {
     background: var(--item-background, rgba(0, 0, 0, 10%));
-    position: absolute;
-    top: 0;
-    bottom: 0;
   }
 
   .marker {
     background: var(--item-background, red);
-    position: absolute;
-    top: 0;
-    bottom: 0;
     width: var(--item-marker-width, 1px);
     transform: translateX(-50%);
   }
