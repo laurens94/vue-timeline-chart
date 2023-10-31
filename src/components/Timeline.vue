@@ -101,6 +101,7 @@
   import { useElementSize } from '../composables/useElementSize';
   import { leadingZero } from '../helpers/leadingZero';
   import { useScale } from '../composables/useScale';
+  import type { Scale } from '../composables/useScale';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
 
   export interface Props {
@@ -159,6 +160,7 @@
     (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
     (e: 'mouseleaveTimeline', value: { event: MouseEvent }): void;
     (e: 'changeViewport', value: { start: number; end: number }): void;
+    (e: 'changeScale', value: Scale): void;
   }>();
 
   const timelineEl = ref<HTMLElement | null>(null);
@@ -217,6 +219,13 @@
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
   const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView);
+
+  watch(scale, (newVal, oldVal) => {
+    if (newVal.step === oldVal.step && newVal.unit === oldVal.unit) {
+      return;
+    }
+    emit('changeScale', newVal);
+  });
 
   function timestampClassNames (timestamp: number) {
     return {

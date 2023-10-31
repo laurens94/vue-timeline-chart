@@ -8,25 +8,25 @@ import {
 
 import {  Ref, computed, ref, watch } from 'vue';
 
+const baseDividers = {
+  ms: 1,
+  seconds: 1000,
+  minutes: 1000 * 60,
+  hours: 1000 * 60 * 60,
+  days: 1000 * 60 * 60 * 24,
+  months: 1000 * 60 * 60 * 24 * 7 * 4,
+  years: 1000 * 60 * 60 * 24 * 7 * 4 * 12,
+};
+
+export type Scale = {
+  unit: keyof typeof baseDividers;
+  step: number;
+}
+
 export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, viewportDuration: Ref<number>, maxLabelsInView: Ref<number>) => {
   // cached values:
   const _viewportDuration = ref(viewportDuration.value);
   const _maxLabelsInView = ref(maxLabelsInView.value);
-
-  const baseDividers = {
-    ms: 1,
-    seconds: 1000,
-    minutes: 1000 * 60,
-    hours: 1000 * 60 * 60,
-    days: 1000 * 60 * 60 * 24,
-    months: 1000 * 60 * 60 * 24 * 7 * 4,
-    years: 1000 * 60 * 60 * 24 * 7 * 4 * 12,
-  };
-
-  type scale = {
-    unit: keyof typeof baseDividers;
-    step: number;
-  }
 
   const possibleScales = [
     {
@@ -57,7 +57,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       return scale.steps.map((step) => ({ unit: scale.unit, step: step }));
     }
     return { unit: scale.unit, step: scale.step ?? 1 };
-  }) as scale[];
+  }) as Scale[];
 
   watch (viewportDuration, () => {
     _viewportDuration.value = viewportDuration.value;
