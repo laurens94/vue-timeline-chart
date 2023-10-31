@@ -9,6 +9,10 @@
       :viewportMax="maxDate"
       @mousemoveTimeline="onMousemoveTimeline"
       @mouseleaveTimeline="onMouseleaveTimeline"
+      @changeScale="onChangeScale"
+      @change-viewport="onChangeViewport"
+      @click="debug.firedEvents.push('click')"
+      @contextmenu="debug.firedEvents.push('contextmenu')"
     >
       <template #group-label="{ group }">
         {{ group.content }}
@@ -16,17 +20,57 @@
 
       <template #item="{item}">
         <div
-          :title="item.title || null"
+          :title="'title' in item ? item.title : undefined"
           style="inset: 0; position: absolute;"
         ></div>
       </template>
     </Timeline>
   </div>
+  <details class="debug">
+    <summary>
+      Debug
+    </summary>
+
+    <div
+      v-for="debugItem in Object.keys(debug)"
+      :key="debugItem"
+      class="pair"
+    >
+      <label>{{ debugItem }}</label>
+      <div class="data">
+        <template
+          v-if="debugItem === 'firedEvents'"
+        >
+          <div
+            v-for="(subitem, index) in debug[debugItem].toReversed()"
+            :key="index"
+          >
+            {{ subitem }}
+          </div>
+        </template>
+        <template
+          v-else
+        >
+          {{ debug[debugItem] }}
+        </template>
+      </div>
+    </div>
+  </details>
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
+  import { computed, ref, reactive } from 'vue';
   import Timeline from './components/Timeline.vue';
+  import { Scale } from './composables/useScale';
+
+  const debug = reactive({
+    scale: undefined as Scale | undefined,
+    firedEvents: [] as string[],
+    viewport: {
+      start: 0,
+      end: 0,
+    },
+  });
 
   const maxDate = new Date().valueOf() + 1000 * 60 * 60 * 24 * 365 * 10;
 
@@ -46,7 +90,7 @@
       },
       { group: 'group1', type: 'point', className: 'teal', start: (new Date().valueOf() + 40000200000), title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
       },
-      { group: 'group3', type: 'marker', className: 'teal', start: 1691090970000, title: '21:29:30', id: 'k80208db-54a7-4603-8850-5a6432431dcd',
+      { group: 'group3', type: 'marker', className: 'teal', start: 1691090970000, id: 'k80208db-54a7-4603-8850-5a6432431dcd',
       },
       { group: 'group1', type: 'point', className: 'teal', start: 1691099529000, title: '23:52:09', id: 'k802fabb-5dc7-486a-b205-ab27fdbf35a8',
       },
@@ -114,9 +158,19 @@
   const mouseHoverPosition = ref<number | null>(null);
   function onMousemoveTimeline ({ time }: { time: number }) {
     mouseHoverPosition.value = time;
+    debug.firedEvents.push('mousemoveTimeline');
   }
   function onMouseleaveTimeline () {
     mouseHoverPosition.value = null;
+    debug.firedEvents.push('mouseleaveTimeline');
+  }
+  function onChangeScale (scale: Scale) {
+    debug.scale = scale;
+    debug.firedEvents.push('changeScale');
+  }
+  function onChangeViewport (viewport: {start: number, end: number}) {
+    debug.viewport = viewport;
+    debug.firedEvents.push('onChangeViewport');
   }
 </script>
 
@@ -134,7 +188,7 @@
 
     // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
     // --group-border-top: 1px solid rgba(255, 255, 255, 10%);
-    --group-height: 1.5em;
+    --group-height: 1.5rem;
 
     // --group-padding-top: 0.5em;
     // --group-padding-bottom: 0.5em;
@@ -156,7 +210,7 @@
     // --timestamp-padding-inline: 0.4em;
 
     background-color: rgb(235, 235, 235);
-    border-radius: 0.5em;
+    border-radius: 0.5rem;
 
     :deep(.group-label) {
       opacity: 0.5;
@@ -209,6 +263,33 @@
         --item-background: rgba(150, 150, 150, 20%);
         --item-marker-width: 2px;
       }
+    }
+  }
+
+  .debug {
+    background-color: rgba(0, 0, 0, 50%);
+    color: white;
+    padding: 0.5rem;
+    font-family: monospace;
+    border-radius: 0.5rem;
+    margin-top: 2rem;
+
+    .pair {
+      display: flex;
+      gap: 2rem;
+      margin: 1rem;
+    }
+
+    label {
+      font-weight: bold;
+      flex: 0 0 10rem;
+      text-align: right;
+    }
+
+    .data {
+      max-height: 20rem;
+      overflow: auto;
+      flex: 1;
     }
   }
 </style>
