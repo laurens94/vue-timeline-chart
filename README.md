@@ -66,6 +66,15 @@ npm add vue-timeline-chart
 | `minTimestampWidth` | `number` | `100` | Minimum width a timestamp label should have in px (determines how many timestamps should be displayed) |
 | `activeItems` | `TimelineItem['id'][]` | `[]` | IDs of items that should have an `active` class |
 
+### Slots
+
+| Slot | Props | Description |
+| --- | --- | --- |
+| `timestamp` | `{ timestamp: number, scale: { unit: string, step: number } }` | Timestamp label |
+| `group-label` | `{ group: TimelineGroup }` | Group label |
+| `items-GROUPID` | `{ group: TimelineGroup, itemsInViewport: TimelineItem[], viewportStart: number, viewportEnd: number }` | Slot for all items within a group, useful when rendering the items manually (e.g. when using a chart or canvas) |
+| `item` | `{ item: TimelineItem }` | Item content |
+
 ## Events
 
 

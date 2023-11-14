@@ -16,7 +16,11 @@
           :class="['timestamp', timestampClassNames(timestamp)]"
           :style="{ '--_left': `${getLeftPos(timestamp)}px` }"
         >
-          <slot name="timestamp" :timestamp="timestamp">
+          <slot
+            name="timestamp"
+            :timestamp="timestamp"
+            :scale="scale"
+          >
             {{ renderTimestampLabel(timestamp, scale) }}
           </slot>
         </div>
@@ -43,16 +47,24 @@
           </div>
 
           <div class="group-items">
-            <div
-              v-for="(item, index) in visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
-              :key="index"
-              :style="{ '--_left': `${getLeftPos(item.start)}px`, '--_width': item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
-              :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
-              @click.stop="onClick($event, item)"
-              @contextmenu.prevent.stop="onContextMenu($event, item)"
+            <slot
+              :name="`items-${group.id}`"
+              :group="group"
+              :itemsInViewport="visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
+              :viewportStart="viewportStart"
+              :viewportEnd="viewportEnd"
             >
-              <slot name="item" :item="item"></slot>
-            </div>
+              <div
+                v-for="(item, index) in visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
+                :key="index"
+                :style="{ '--_left': `${getLeftPos(item.start)}px`, '--_width': item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
+                :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
+                @click.stop="onClick($event, item)"
+                @contextmenu.prevent.stop="onContextMenu($event, item)"
+              >
+                <slot name="item" :item="item"></slot>
+              </div>
+            </slot>
           </div>
           <div
             v-for="(item) in visibleItems.filter((i) => i.group === group.id && i.type === 'background').sort((a, b) => a.start - b.start)"

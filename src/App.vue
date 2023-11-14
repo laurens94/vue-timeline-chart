@@ -7,6 +7,8 @@
       :markers="markers"
       :viewportMin="757382400000"
       :viewportMax="maxDate"
+      :initialViewportStart="1691089357146"
+      :initialViewportEnd="1691101020000"
       @mousemoveTimeline="onMousemoveTimeline"
       @mouseleaveTimeline="onMouseleaveTimeline"
       @changeScale="onChangeScale"
@@ -14,6 +16,14 @@
       @click="debug.firedEvents.push('click')"
       @contextmenu="debug.firedEvents.push('contextmenu')"
     >
+      <template #items-linechart="{ viewportStart, viewportEnd, group }">
+        <LineChart
+          :viewportStart="viewportStart"
+          :viewportEnd="viewportEnd"
+          :data="items.filter((item) => item.group === group.id)"
+        />
+      </template>
+
       <template #group-label="{ group }">
         {{ group.content }}
       </template>
@@ -61,6 +71,7 @@
 <script lang="ts" setup>
   import { watch, computed, ref, reactive } from 'vue';
   import Timeline from './components/Timeline.vue';
+  import LineChart from './examples/LineChart.vue';
   import { Scale } from './composables/useScale';
 
   const debug = reactive({
@@ -78,6 +89,7 @@
     return [
       { content: 'Points', id: 'group1' },
       { content: 'Ranges', id: 'group2' },
+      { content: 'Linechart', id: 'linechart' },
       { content: 'Markers', id: 'group3' },
     ];
   });
@@ -133,6 +145,84 @@
       },
       { group: 'group2', type: 'range', className: 'teal', start: 1691090867000, end: 1691090970000,
       },
+      {
+        group: 'linechart',
+        value: 1,
+        type: 'point',
+        start: 1691090867000,
+      },
+      {
+        group: 'linechart',
+        value: 1,
+        type: 'point',
+        start: 1691090985000,
+      },
+      {
+        group: 'linechart',
+        value: 0.7,
+        type: 'point',
+        start: 1691091720000,
+      },
+      {
+        group: 'linechart',
+        value: 0,
+        type: 'point',
+        start: 1691092246000,
+      },
+      {
+        group: 'linechart',
+        value: 1,
+        type: 'point',
+        start: 1691092544000,
+      },
+      {
+        group: 'linechart',
+        value: 0,
+        type: 'point',
+        start: 1691093445000,
+      },
+      {
+        group: 'linechart',
+        value: 0,
+        type: 'point',
+        start: 1691093875000,
+      },
+      {
+        group: 'linechart',
+        value: 0,
+        type: 'point',
+        start: 1691094747000,
+      },
+      {
+        group: 'linechart',
+        value: 1,
+        type: 'point',
+        start: 1691096029000,
+      },
+      {
+        group: 'linechart',
+        value: 0.5,
+        type: 'point',
+        start: 1691096492000,
+      },
+      {
+        group: 'linechart',
+        value: 1,
+        type: 'point',
+        start: 1691096693000,
+      },
+      {
+        group: 'linechart',
+        value: 1,
+        type: 'point',
+        start: 1691097441000,
+      },
+      {
+        group: 'linechart',
+        value: 0.6,
+        type: 'point',
+        start: 1691097646000,
+      },
     ];
   });
 
@@ -170,7 +260,7 @@
   }
   function onChangeViewport (viewport: {start: number, end: number}) {
     debug.viewport = viewport;
-    debug.firedEvents.push('onChangeViewport');
+    debug.firedEvents.push('changeViewport');
   }
 
   watch(() => debug.firedEvents.length, () => {
