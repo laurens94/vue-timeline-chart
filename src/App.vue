@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, reactive } from 'vue';
+  import { watch, computed, ref, reactive } from 'vue';
   import Timeline from './components/Timeline.vue';
   import { Scale } from './composables/useScale';
 
@@ -172,6 +172,12 @@
     debug.viewport = viewport;
     debug.firedEvents.push('onChangeViewport');
   }
+
+  watch(() => debug.firedEvents.length, () => {
+    if (debug.firedEvents.length > 100) {
+      debug.firedEvents = debug.firedEvents.slice(-30);
+    }
+  });
 </script>
 
 <style>
