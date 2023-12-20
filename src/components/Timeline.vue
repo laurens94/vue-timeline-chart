@@ -278,9 +278,8 @@
     if (e.shiftKey) {
       e.preventDefault();
       // if there's no native horizontal scroll going on, convert vertical scroll to horizontal:
-      scrollHorizontal(
-        e.deltaMode === 1 ? e.deltaY * 18 : e.deltaY
-      );
+      const delta = e.deltaY === 0 && e.deltaX !== 0 ? e.deltaX : e.deltaY;
+      scrollHorizontal(delta * (e.deltaMode === 1 ? 18 : 1));
       return;
     }
     if (e.deltaX !== 0) {
@@ -289,7 +288,7 @@
         e.preventDefault();
       }
 
-      scrollHorizontal(e.deltaMode === 1 ? e.deltaX * 18 : e.deltaX);
+      scrollHorizontal(e.deltaX * (e.deltaMode === 1 ? 18 : 1));
       return;
     }
     if (!(e.metaKey || e.ctrlKey)) {
@@ -298,7 +297,7 @@
     e.preventDefault();
 
     const mousePosXPercentage = (e.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
-    const zoomDelta = Math.round(-viewportDuration.value * 0.01 * (e.deltaMode === 1 ? e.deltaY * 10 : e.deltaY));
+    const zoomDelta = Math.round(-viewportDuration.value * 0.01 * (e.deltaY * (e.deltaMode === 1 ? 10 : 1)));
     zoom(zoomDelta, mousePosXPercentage);
   }
 
