@@ -1,15 +1,28 @@
-![GitHub package.json version (branch)](https://img.shields.io/github/package-json/v/laurens94/vue-timeline-chart)
-[![npm](https://img.shields.io/npm/v/vue-timeline-chart)](https://www.npmjs.com/package/vue-timeline-chart)
+<h1 align="center">
+  Vue 3 Timeline Chart component
+</h1>
+<p align="center">
+  <a href="https://github.com/laurens94/vue-timeline-chart" target="_blank">
+    <img src="https://img.shields.io/github/package-json/v/laurens94/vue-timeline-chart">
+  </a>
+  <a href="https://www.npmjs.com/package/vue-timeline-chart">
+    <img src="https://img.shields.io/npm/v/vue-timeline-chart">
+  </a>
+<p>
 
-# Vue 3 Timeline Chart component
+<p align="center">
+  A simple yet versatile vue3 component that allows you to plot points or ranges on a timeline.<br>
+  You can zoom in/out, scroll horizontally and update content dynamically.
+<p>
 
-A simple yet versatile vue3 component that allows you to plot points or ranges on a timeline. You can zoom in/out, scroll horizontally and update content dynamically. 
+<p align="center">
+  Feel free to report <a href="https://github.com/laurens94/vue-timeline-chart/issues/new">issues</a>, make PR's and start <a href="https://github.com/laurens94/vue-timeline-chart/discussions/new/choose">discussions</a>.
+<p>
 
-Feel free to report [issues](https://github.com/laurens94/vue-timeline-chart/issues/new), make PR's and start [discussions](https://github.com/laurens94/vue-timeline-chart/discussions/new/choose).
-
-![timeline](https://github.com/laurens94/vue-timeline-chart/assets/5780704/fed2191e-ed2b-4196-ae13-e66a56e0dfea)
-
-![timeline with customized styling](https://github.com/laurens94/vue-timeline-chart/assets/5780704/5ab32f01-0034-4538-a2f3-15f03956420a)
+<p align="center">
+  <img src="https://github.com/laurens94/vue-timeline-chart/assets/5780704/fed2191e-ed2b-4196-ae13-e66a56e0dfea" alt="timeline">
+  <img src="https://github.com/laurens94/vue-timeline-chart/assets/5780704/5ab32f01-0034-4538-a2f3-15f03956420a" alt="timeline with customized styling">
+</p>
 
 ## Features
 
