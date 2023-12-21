@@ -20,7 +20,6 @@
 <p>
 
 <p align="center">
-  <img src="https://github.com/laurens94/vue-timeline-chart/assets/5780704/fed2191e-ed2b-4196-ae13-e66a56e0dfea" alt="timeline">
   <img src="https://github.com/laurens94/vue-timeline-chart/assets/5780704/5ab32f01-0034-4538-a2f3-15f03956420a" alt="timeline with customized styling">
 </p>
 
