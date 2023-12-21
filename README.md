@@ -1,3 +1,6 @@
+![GitHub package.json version (branch)](https://img.shields.io/github/package-json/v/laurens94/vue-timeline-chart)
+[![npm](https://img.shields.io/npm/v/vue-timeline-chart)](https://www.npmjs.com/package/vue-timeline-chart)
+
 # Vue 3 Timeline Chart component
 
 A simple yet versatile vue3 component that allows you to plot points or ranges on a timeline. You can zoom in/out, scroll horizontally and update content dynamically. 
