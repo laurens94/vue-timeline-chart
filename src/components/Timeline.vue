@@ -110,11 +110,51 @@
 
 <script lang="ts" setup>
   import { computed, ref, watch, watchEffect } from 'vue';
-  import { useElementSize } from '../composables/useElementSize';
-  import { leadingZero } from '../helpers/leadingZero';
-  import { useScale } from '../composables/useScale';
-  import type { Scale } from '../composables/useScale';
+  import { useElementSize } from '../composables/useElementSize.ts';
+  import { leadingZero } from '../helpers/leadingZero.ts';
+  import { useScale } from '../composables/useScale.ts';
+  import type { Scale } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
+
+  export interface TimelineGroup {
+    id: string;
+    content: string;
+    className?: string;
+  }
+
+  export interface TimelineItemBase {
+    className?: string;
+    start: number;
+    end?: number;
+    id?: string;
+    cssVariables?: Record<string, string>;
+  }
+
+  export interface TimelineItemRange extends TimelineItemBase {
+    type: 'range';
+    end: number;
+    title?: string;
+    group: TimelineGroup['id'];
+  }
+
+  export interface TimelineItemPoint extends TimelineItemBase {
+    type: 'point';
+    title?: string;
+    group: TimelineGroup['id'];
+  }
+
+  export interface TimelineItemBackground extends TimelineItemBase {
+    type: 'background';
+    end: number;
+    group?: TimelineGroup['id'];
+  }
+
+  export interface TimelineMarker extends TimelineItemBase {
+    type: 'marker';
+    group?: TimelineGroup['id'];
+  }
+
+  export type TimelineItem = TimelineItemRange | TimelineItemPoint | TimelineItemBackground | TimelineMarker;
 
   export interface Props {
     groups?: TimelineGroup[];

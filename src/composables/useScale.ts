@@ -28,7 +28,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
   const _viewportDuration = ref(viewportDuration.value);
   const _maxLabelsInView = ref(maxLabelsInView.value);
 
-  const possibleScales = [
+  const possibleScales = ([
     {
       unit: 'seconds',
       steps: [1, 10],
@@ -43,6 +43,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     },
     {
       unit: 'days',
+      steps: [1],
     },
     {
       unit: 'months',
@@ -52,11 +53,8 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       unit: 'years',
       steps: [1, 5, 10, 25, 50, 100, 250, 500, 1000],
     },
-  ].flatMap((scale) => {
-    if (scale.steps) {
-      return scale.steps.map((step) => ({ unit: scale.unit, step: step }));
-    }
-    return { unit: scale.unit, step: scale.step ?? 1 };
+  ] as const).flatMap((scale) => {
+    return scale.steps.map((step) => ({ unit: scale.unit, step: step }));
   }) as Scale[];
 
   watch (viewportDuration, () => {

@@ -29,19 +29,26 @@
   "files": [
     "dist"
   ],
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/vue-timeline-chart.js",
-      "require": "./dist/vue-timeline-chart.umd.cjs"
+      "import": {
+        "default": "./dist/vue-timeline-chart.js",
+        "types": "./dist/types/index.d.ts"
+      },
+      "require": {
+        "default": "./dist/vue-timeline-chart.umd.cjs",
+        "types": "./dist/types/index.d.ts"
+      }
     },
-    "./dist/style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css"
   },
-  "types": "./dist/vue-timeline-chart.ts",
   "scripts": {
     "dev": "vite build --watch",
     "prepare": "vite build",
     "start": "vite",
-    "build": "vue-tsc --noEmit --skipLibCheck && vite build",
+    "build": "vite build && pnpm build:types",
+    "build:types": "vue-tsc --project tsconfig.build-types.json --declaration --emitDeclarationOnly --outDir dist/types",
     "preview": "vite preview"
   },
   "engines": {
@@ -72,7 +79,6 @@
     "stylelint-stylistic": "^0.4.5",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",
-    "vite-plugin-dts": "^3.6.4",
     "vue-eslint-parser": "^9.3.2",
     "vue-tsc": "^1.8.25"
   }

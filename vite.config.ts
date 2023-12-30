@@ -1,6 +1,5 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 
 // https://vitejs.dev/guide/build.html#library-mode
@@ -21,14 +20,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [dts({
-    copyDtsFiles: true,
-    outDir: [
-      'dist',
-    ],
-    staticImport: true,
-    compilerOptions: {
-      declarationMap: true,
-    },
-  }), vue()],
+  plugins: [vue()],
 });
