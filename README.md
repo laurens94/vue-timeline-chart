@@ -3,7 +3,7 @@
 </h1>
 <p align="center">
   <a href="https://github.com/laurens94/vue-timeline-chart" target="_blank">
-    <img src="https://img.shields.io/github/package-json/v/laurens94/vue-timeline-chart">
+    <img src="https://img.shields.io/github/v/release/laurens94/vue-timeline-chart">
   </a>
   <a href="https://www.npmjs.com/package/vue-timeline-chart">
     <img src="https://img.shields.io/npm/v/vue-timeline-chart">
