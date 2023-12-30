@@ -70,9 +70,9 @@
 
 <script lang="ts" setup>
   import { watch, computed, ref, reactive } from 'vue';
-  import Timeline from './components/Timeline.vue';
+  import Timeline from '../src/components/Timeline.vue';
   import LineChart from './examples/LineChart.vue';
-  import { Scale } from './composables/useScale';
+  import { Scale } from '../src/composables/useScale';
 
   const debug = reactive({
     scale: undefined as Scale | undefined,
