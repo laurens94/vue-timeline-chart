@@ -37,6 +37,11 @@
 npm add vue-timeline-chart
 ```
 
+```ts
+import { Timeline } from 'vue-timeline-chart'
+import 'vue-timeline-chart/style.css'
+```
+
 ### Example
 ```html
 <Timeline
