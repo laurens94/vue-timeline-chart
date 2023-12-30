@@ -45,7 +45,7 @@
   },
   "scripts": {
     "dev": "vite build --watch",
-    "prepare": "vite build",
+    "prepare": "pnpm build",
     "start": "vite",
     "build": "vite build && pnpm build:types",
     "build:types": "vue-tsc --project tsconfig.build-types.json --declaration --emitDeclarationOnly --outDir dist/types",
