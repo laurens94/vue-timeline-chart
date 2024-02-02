@@ -8,6 +8,9 @@
   <a href="https://www.npmjs.com/package/vue-timeline-chart">
     <img src="https://img.shields.io/npm/v/vue-timeline-chart">
   </a>
+  <a href="https://www.npmjs.com/package/vue-timeline-chart">
+    <img src="https://img.shields.io/bundlephobia/min/vue-timeline-chart">
+  </a>
 <p>
 
 <p align="center">
