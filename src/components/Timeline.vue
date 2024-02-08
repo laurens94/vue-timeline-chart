@@ -431,6 +431,12 @@
     bottom: 0;
   }
 
+  .marker {
+    background: var(--item-background, red);
+    width: var(--item-marker-width, 1px);
+    transform: translateX(-50%);
+  }
+
   .timestamps {
     --_padding-block: var(--timestamp-padding-block, 0.2em);
     --_padding-inline: var(--timestamp-padding-inline, 0.4em);
@@ -517,11 +523,5 @@
 
   .background {
     background: var(--item-background, rgba(0, 0, 0, 10%));
-  }
-
-  .marker {
-    background: var(--item-background, red);
-    width: var(--item-marker-width, 1px);
-    transform: translateX(-50%);
   }
 </style>
