@@ -169,6 +169,7 @@
     renderTimestampLabel?: (timestamp: number, scale: { unit: string, step: number}) => string;
     fixedLabels?: boolean;
     minTimestampWidth?: number;
+    maxZoomSpeed?: number;
     activeItems?: TimelineItem['id'][];
   }
 
@@ -203,6 +204,7 @@
     },
     fixedLabels: false,
     minTimestampWidth: 100,
+    maxZoomSpeed: 60,
     activeItems: () => [],
   });
 
@@ -319,7 +321,7 @@
       e.preventDefault();
       // if there's no native horizontal scroll going on, convert vertical scroll to horizontal:
       const delta = e.deltaY === 0 && e.deltaX !== 0 ? e.deltaX : e.deltaY;
-      scrollHorizontal(delta * (e.deltaMode === 1 ? 18 : 1));
+      scrollHorizontal(delta * (e.deltaMode === 0 ? 1 : 18));
       return;
     }
     if (e.deltaX !== 0) {
@@ -328,7 +330,7 @@
         e.preventDefault();
       }
 
-      scrollHorizontal(e.deltaX * (e.deltaMode === 1 ? 18 : 1));
+      scrollHorizontal(e.deltaX * (e.deltaMode === 0 ? 1 : 18));
       return;
     }
     if (!(e.metaKey || e.ctrlKey)) {
@@ -337,7 +339,9 @@
     e.preventDefault();
 
     const mousePosXPercentage = (e.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
-    const zoomDelta = Math.round(-viewportDuration.value * 0.01 * (e.deltaY * (e.deltaMode === 1 ? 10 : 1)));
+    // Clamp deltaY so that the mouse scrollspeed does not affect the zoom speed too much, also take deltaMode into account:
+    const clampedDeltaY = props.maxZoomSpeed ? Math.max(-props.maxZoomSpeed, Math.min(props.maxZoomSpeed, e.deltaY * (e.deltaMode === 0 ? 1 : 10))) : e.deltaY * (e.deltaMode === 0 ? 1 : 10);
+    const zoomDelta = Math.round(-viewportDuration.value * 0.01 * clampedDeltaY);
     zoom(zoomDelta, mousePosXPercentage);
   }
 

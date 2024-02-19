@@ -87,6 +87,7 @@ import 'vue-timeline-chart/style.css'
 | `renderTimestampLabel` | `function(timestamp: number, scale: { unit: string, step: number})` | `undefined` | Custom function to render timestamp labels |
 | `fixedLabels` | `boolean` | `false` | Whether to display group labels on top of the timeline |
 | `minTimestampWidth` | `number` | `100` | Minimum width a timestamp label should have in px (determines how many timestamps should be displayed) |
+| `maxZoomSpeed` | `number` | `60` | Limits the wheel event's deltaY value to prevent zooming too fast |
 | `activeItems` | `TimelineItem['id'][]` | `[]` | IDs of items that should have an `active` class |
 
 ### Slots
