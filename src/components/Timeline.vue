@@ -448,14 +448,14 @@
 
     height: calc(var(--_padding-block) * 2 + var(--_lineheight));
     line-height: var(--_lineheight);
-    background: var(--timestamps-background, #fff);
-    color: var(--timestamps-color, black);
+    background: var(--timestamps-background, color-mix(in srgb, currentColor 5%, transparent));
+    color: var(--timestamps-color, inherit);
 
     .timestamp {
       padding: var(--_padding-block) var(--_padding-inline);
       position: absolute;
       height: 100%;
-      border-left: var(--gridline-border-left, 1px dashed rgba(0, 0, 0, 10%));
+      border-left: var(--gridline-border-left, 1px dashed color-mix(in srgb, currentColor 15%, transparent));
       z-index: 0;
       font-size: 0.85em;
       white-space: nowrap;
@@ -471,7 +471,7 @@
   }
 
   .group {
-    border-top: var(--group-border-top, 1px solid rgba(0, 0, 0, 10%));
+    border-top: var(--group-border-top, 1px solid color-mix(in srgb, currentColor 15%, transparent));
     padding-top: var(--group-padding-top, 0);
     padding-bottom: var(--group-padding-bottom, 0.4em);
     z-index: 1;
