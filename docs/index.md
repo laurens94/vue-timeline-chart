@@ -13,9 +13,6 @@ hero:
     - theme: alt
       text: View on GitHub
       link: https://github.com/laurens94/vue-timeline-chart
-  image:
-    src: https://github.com/laurens94/vue-timeline-chart/assets/5780704/5ab32f01-0034-4538-a2f3-15f03956420a
-    alt: timeline with customized styling
 
 features:
   - title: Zooming
@@ -37,7 +34,7 @@ features:
 ---
 
 
-<style>
+<!-- <style>
 :root {
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #bd34fe 30%, #41d1ff);
@@ -45,4 +42,4 @@ features:
   --vp-home-hero-image-background-image: linear-gradient(-45deg, #bd34fe 50%, #47caff 50%);
   --vp-home-hero-image-filter: blur(4rem);
 }
-</style>
+</style> -->
