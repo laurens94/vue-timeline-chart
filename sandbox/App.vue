@@ -29,10 +29,7 @@
       </template>
 
       <template #item="{item}">
-        <div
-          :title="'title' in item ? item.title : undefined"
-          style="inset: 0; position: absolute;"
-        ></div>
+        <div :title="'title' in item ? item.title : undefined" style="inset: 0; position: absolute;"></div>
       </template>
     </Timeline>
   </div>
@@ -48,19 +45,12 @@
     >
       <label>{{ debugItem }}</label>
       <div class="data">
-        <template
-          v-if="debugItem === 'firedEvents'"
-        >
-          <div
-            v-for="(subitem, index) in debug[debugItem].toReversed()"
-            :key="index"
-          >
+        <template v-if="debugItem === 'firedEvents'">
+          <div v-for="(subitem, index) in debug[debugItem].toReversed()" :key="index">
             {{ subitem }}
           </div>
         </template>
-        <template
-          v-else
-        >
+        <template v-else>
           {{ debug[debugItem] }}
         </template>
       </div>
@@ -270,15 +260,9 @@
   });
 </script>
 
-<style>
-  body {
-    background-color: #fff;
-  }
-</style>
-
 <style lang="scss" scoped>
   .timeline {
-    border: 1px solid gray;
+    border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
 
     --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
@@ -299,13 +283,14 @@
 
     // --label-padding: 0.2em 0.5em;
     // --label-line-height: 1em;
-    // --timestamps-background: rgba(0, 0, 0, 50%);
+    --timestamps-background:  color-mix(in srgb, white 50%, transparent);
+
     // --timestamps-color: rgb(255, 112, 255);
     // --timestamp-line-height: 1.5em;
     // --timestamp-padding-block: 0.2em;
     // --timestamp-padding-inline: 0.4em;
 
-    background-color: rgb(235, 235, 235);
+    background-color: color-mix(in srgb, currentcolor 10%, transparent);
     border-radius: 0.5rem;
 
     :deep(.group-label) {
@@ -314,7 +299,7 @@
 
     :deep(.group) {
       &:hover {
-        background-color: rgba(255, 255, 255, 10%);
+        background-color:  color-mix(in srgb, white 15%, transparent);
 
         .group-label {
           opacity: 1;
@@ -345,7 +330,7 @@
     }
 
     :deep(.background) {
-      --item-background: rgba(0, 0, 0, 5%);
+      --item-background: color-mix(in srgb, black 10%, transparent);
     }
 
     :deep(.marker) {

@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-  import 'https://cdn.jsdelivr.net/npm/d3@7';
+  import './d3.js';
 
   import { onMounted, watch } from 'vue';
 
