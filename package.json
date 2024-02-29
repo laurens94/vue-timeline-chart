@@ -4,6 +4,7 @@
   "description": "Vue3 Timeline Chart component",
   "author": "Laurens Bruijn",
   "license": "MIT",
+  "homepage": "https://laurens94.github.io/vue-timeline-chart/",
   "repository": {
     "type": "git",
     "url": "https://github.com/laurens94/vue-timeline-chart.git"
