@@ -62,7 +62,7 @@
   import { watch, computed, ref, reactive } from 'vue';
   import Timeline, { TimelineGroup, TimelineItem, TimelineMarker } from '../src/components/Timeline.vue';
   import LineChart from './examples/LineChart.vue';
-  import { Scale } from '../src/composables/useScale.ts';
+  import { type Scale } from '../src/composables/useScale.ts';
 
   const debug = reactive({
     scale: undefined as Scale | undefined,

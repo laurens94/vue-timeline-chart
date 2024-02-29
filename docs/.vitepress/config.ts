@@ -39,7 +39,6 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Basic example', link: '/examples/basic-example' },
-          { text: 'More examples', link: '/examples/more-examples' },
         ]
       }
     ],
