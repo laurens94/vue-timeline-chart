@@ -29,7 +29,7 @@
 ## Features
 
 - Zooming
-- Infinite scrolling
+- Infinite scrolling (using native horizontal scroll events, use shift+scroll to convert vertical to horizontal mouse scrolling)
 - Plotting ranges, points, markers and backgrounds
 - Adjustable timestamp labels per scale
 - Customizable
