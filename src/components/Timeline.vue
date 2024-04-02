@@ -317,6 +317,11 @@
   }
 
   function onWheel (e: WheelEvent) {
+    if (e.deltaY === 0) {
+      // prevent swipe gesture triggered history navigation:
+      e.preventDefault();
+    }
+
     if (e.shiftKey) {
       e.preventDefault();
       // if there's no native horizontal scroll going on, convert vertical scroll to horizontal:
@@ -325,11 +330,6 @@
       return;
     }
     if (e.deltaX !== 0) {
-      if (Math.abs(e.deltaX) > 1) {
-        // prevent swipe gesture triggered history navigation:
-        e.preventDefault();
-      }
-
       scrollHorizontal(e.deltaX * (e.deltaMode === 0 ? 1 : 18));
       return;
     }
