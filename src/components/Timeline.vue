@@ -233,7 +233,7 @@
   });
 
   function setViewportValues () {
-    if (!props.initialViewportStart && !props.viewportMin) {
+    if (props.initialViewportStart === undefined && props.viewportMin === undefined) {
       const firstStartOccurence = props.items?.reduce((min, item) => {
         if (item.start < min) {
           return item.start;
@@ -312,8 +312,8 @@
       return;
     }
 
-    viewportStart.value = Math.round(props.viewportMin ? Math.max(viewportStart.value + deltaMs, props.viewportMin) : viewportStart.value + deltaMs);
-    viewportEnd.value = Math.round(props.viewportMax ? Math.min(viewportEnd.value + deltaMs, props.viewportMax) : viewportEnd.value + deltaMs);
+    viewportStart.value = Math.round(props.viewportMin !== undefined ? Math.max(viewportStart.value + deltaMs, props.viewportMin) : viewportStart.value + deltaMs);
+    viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(viewportEnd.value + deltaMs, props.viewportMax) : viewportEnd.value + deltaMs);
   }
 
   function onWheel (e: WheelEvent) {
@@ -372,8 +372,8 @@
       return;
     }
 
-    viewportStart.value = Math.round(props.viewportMin ? Math.max(proposedViewportStart, props.viewportMin) : proposedViewportStart);
-    viewportEnd.value = Math.round(props.viewportMax ? Math.min(proposedViewportEnd, props.viewportMax) : proposedViewportEnd);
+    viewportStart.value = Math.round(props.viewportMin !== undefined ? Math.max(proposedViewportStart, props.viewportMin) : proposedViewportStart);
+    viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(proposedViewportEnd, props.viewportMax) : proposedViewportEnd);
 
     onMouseMove;
   }
