@@ -39,6 +39,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Basic example', link: '/examples/basic-example' },
+          { text: 'Custom timestamp labels', link: '/examples/custom-timestamp-labels' },
         ]
       }
     ],
