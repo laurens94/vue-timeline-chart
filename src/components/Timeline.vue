@@ -245,7 +245,7 @@
     else {
       viewportStart.value = props.initialViewportStart ?? props.viewportMin ?? 0;
     }
-    if (!props.initialViewportEnd && !props.viewportMax) {
+    if (props.initialViewportEnd === undefined && props.viewportMax === undefined) {
       const lastEndOccurence = props.items?.reduce((max, item) => {
         if (item.end > max || item.start > max) {
           return item.end ?? item.start;
