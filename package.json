@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/laurens94/vue-timeline-chart/issues"
   },
-  "packageManager": "pnpm@8.15.3",
+  "packageManager": "pnpm@9.0.6",
   "keywords": [
     "vue",
     "vue3",
