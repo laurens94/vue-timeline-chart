@@ -6,9 +6,10 @@ TimelineGroups are the rows in the timeline with items.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | *(required)* | Unique ID, to bind items to |
-| `content` | `string` | *(required)* | Group label |
+| `id` | `string` | <Badge type="info" text="required" /> | Unique ID, to bind items to |
+| `label` | `string` | `undefined` | Group label |
 | `className` | `string` | `''` | CSS class(es) |
+| `content` | `string` | `undefined` | Group label <Badge type="danger" text="deprecated" /> |
 
 ## TimelineItem
 
@@ -17,10 +18,10 @@ TimelineItems can be points, ranges, backgrounds or markers. They are assigned t
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | `undefined` | Unique ID, to match with `activeItems` prop |
-| `start` | number | *(required)* | Timestamp |
-| `end` | number | *(required for range and background)* | Timestamp, only used for type `range` and `background` |
+| `start` | number | <Badge type="info" text="required" /> | Timestamp |
+| `end` | number | <Badge type="info" text="required for range and background" /> | Timestamp, only used for type `range` and `background` |
 | `className` | `string` | `''` | CSS class(es) |
-| `type` | `string` | *(required)* | Type of item, one of: `point`, `range`, `background` or `marker` |
+| `type` | `string` | <Badge type="info" text="required" /> | Type of item, one of: `point`, `range`, `background` or `marker` |
 | `cssVariables` | `Record<string, string>` | `{}` | CSS variables to apply to the item (e.g. `{ '--height': '20%' }`) |
 
 ## TimelineMarker
@@ -30,6 +31,6 @@ To improve performance, you can add markers as an individual prop, instead of to
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | `undefined` | Unique ID, to match with `activeItems` prop |
-| `start` | number | *(required)* | Timestamp |
+| `start` | number | <Badge type="info" text="required" /> | Timestamp |
 | `className` | `string` | `''` | CSS class(es) |
-| `type` | `string` | *(required)* | `marker` |
+| `type` | `string` | <Badge type="info" text="required" /> | `marker` |

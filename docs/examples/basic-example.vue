@@ -6,8 +6,8 @@
     { group: 'group2', type: 'range', start: 1706790600000, end: 1706877000000 },
   ];
   const groups = [
-    { id: 'group1', content: 'Group 1' },
-    { id: 'group2', content: 'Group 2' },
+    { id: 'group1', label: 'Group 1' },
+    { id: 'group2', label: 'Group 2' },
   ];
 </script>
 

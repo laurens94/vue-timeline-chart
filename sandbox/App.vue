@@ -24,10 +24,6 @@
         />
       </template>
 
-      <template #group-label="{ group }">
-        {{ group.content }}
-      </template>
-
       <template #item="{item}">
         <div :title="'title' in item ? item.title : undefined" style="inset: 0; position: absolute;"></div>
       </template>

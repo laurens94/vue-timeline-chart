@@ -3,8 +3,8 @@
   import 'vue-timeline-chart/style.css';
 
   const groups = [
-    { id: 'group1', content: 'Group 1' },
-    { id: 'group2', content: 'Group 2' },
+    { id: 'group1', label: 'Group 1' },
+    { id: 'group2', label: 'Group 2' },
   ];
 
   const items = [
