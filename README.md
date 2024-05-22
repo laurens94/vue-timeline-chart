@@ -34,7 +34,7 @@
 - Adjustable timestamp labels per scale
 - Customizable
 
-## [Live demo](http://localhost:5173/vue-timeline-chart/examples/basic-example.html)
+## [Live demo](https://laurens94.github.io/vue-timeline-chart/examples/basic-example.html)
 
 ## [API documentation and examples](https://laurens94.github.io/vue-timeline-chart/reference/props.html)
 
