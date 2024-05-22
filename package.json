@@ -34,12 +34,12 @@
   "exports": {
     ".": {
       "import": {
-        "default": "./dist/vue-timeline-chart.js",
-        "types": "./dist/types/index.d.ts"
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/vue-timeline-chart.js"
       },
       "require": {
-        "default": "./dist/vue-timeline-chart.umd.cjs",
-        "types": "./dist/types/index.d.ts"
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/vue-timeline-chart.umd.cjs"
       }
     },
     "./style.css": "./dist/style.css"
