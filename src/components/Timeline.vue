@@ -57,7 +57,7 @@
               <div
                 v-for="(item, index) in visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
                 :key="index"
-                :style="{ '--_left': `${getLeftPos(item.start)}px`, '--_width': item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
+                :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
                 :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
                 @click.stop="onClick($event, item)"
                 @contextmenu.prevent.stop="onContextMenu($event, item)"
@@ -69,7 +69,7 @@
           <div
             v-for="(item) in visibleItems.filter((i) => i.group === group.id && i.type === 'background').sort((a, b) => a.start - b.start)"
             :key="item.id || `${item.start}${item.type}${item.end || ''}`"
-            :style="{ '--_left': `${getLeftPos(item.start)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
             @contextmenu.prevent.stop="onContextMenu($event, item)"
@@ -88,7 +88,7 @@
           <div
             v-for="(item) in visibleItems.filter((i) => !i.group && i.type == 'background')"
             :key="item.id || `${item.start}${item.type}${item.end || ''}`"
-            :style="{ '--_left': `${getLeftPos(item.start)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
           >
           </div>
@@ -172,6 +172,7 @@
     minTimestampWidth?: number;
     maxZoomSpeed?: number;
     activeItems?: TimelineItem['id'][];
+    maxOffsetOutsideViewport?: number;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -188,7 +189,6 @@
       const date = new Date(timestamp);
       let returnValue = '';
 
-      // TODO: rewrite, cure this abomination:
       if (!['hours', 'minutes', 'seconds', 'ms'].includes(scale.unit) || startOfDay(date).valueOf() === timestamp) {
         returnValue += `${date.toLocaleString('default', {
           month: scale.unit !== 'years' && (startOfMonth(date).valueOf() === timestamp || scale.unit === 'days' || (startOfDay(date).valueOf() === timestamp) && !(scale.unit === 'months' && scale.step === 0.25)) ? 'short' : undefined,
@@ -207,6 +207,7 @@
     minTimestampWidth: 100,
     maxZoomSpeed: 60,
     activeItems: () => [],
+    maxOffsetOutsideViewport: 50,
   });
 
   const emit = defineEmits<{
@@ -260,17 +261,8 @@
     }
   }
 
-  const visibleItems = computed(() => {
-    return props.items?.filter((item) => {
-      return item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value;
-    }) || [];
-  });
-
-  const visibleMarkers = computed(() => {
-    return props.markers?.filter((item) => {
-      return item.start < viewportEnd.value && item.start > viewportStart.value;
-    }) || [];
-  });
+  const visibleItems = computed(() => props.items?.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value) || []);
+  const visibleMarkers = computed(() => props.markers?.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value) || []);
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
   const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView);
@@ -291,17 +283,39 @@
     };
   }
 
-  function getLeftPos (ts: number) {
-    const pos = ts - viewportStart.value;
+  const clampOffsetForPerformanceInMs = computed(() => (props.maxOffsetOutsideViewport / containerWidth.value) * viewportDuration.value);
+  const maxItemWidth = computed(() => containerWidth.value + 2 * (clampOffsetForPerformanceInMs.value / viewportDuration.value) * containerWidth.value);
+
+  function getLeftPos (startTs: number, endTs?: number) {
+    if (endTs !== undefined && startTs < viewportStart.value - clampOffsetForPerformanceInMs.value) {
+      // makes sure item does not exceed viewport boundaries too much (too large items won't be rendered by the browser)
+      const itemDuration = endTs - startTs;
+      const actualItemWidth = (itemDuration / viewportDuration.value) * containerWidth.value;
+      if (actualItemWidth > maxItemWidth.value) {
+        const clampedLeftPosInPx = (-clampOffsetForPerformanceInMs.value / viewportDuration.value) * containerWidth.value;
+        const clampedRightPosInMs = viewportEnd.value + clampOffsetForPerformanceInMs.value;
+
+        if (endTs > clampedRightPosInMs) {
+          return clampedLeftPosInPx;
+        }
+        const offsetInMs = clampedRightPosInMs - endTs;
+        const offsetInPx = (offsetInMs / viewportDuration.value) * containerWidth.value;
+        return (clampedLeftPosInPx) - offsetInPx;
+      }
+    }
+
+    const pos = startTs - viewportStart.value;
     return (pos / viewportDuration.value) * containerWidth.value;
   }
 
   function getItemWidth (start: number, end: number) {
-    if (!end) {
+    if (isNaN(end)) {
       return null;
     }
+
     const itemDuration = end - start;
-    return (itemDuration / viewportDuration.value) * containerWidth.value;
+    const actualItemWidth = (itemDuration / viewportDuration.value) * containerWidth.value;
+    return Math.min(actualItemWidth, maxItemWidth.value);
   }
 
   function scrollHorizontal (delta: number) {

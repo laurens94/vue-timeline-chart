@@ -20,3 +20,4 @@ outline: deep
 | `minTimestampWidth` | `number` | `100` | Minimum width a timestamp label should have in px (determines how many timestamps should be displayed) |
 | `maxZoomSpeed` | `number` | `60` | Limits the wheel event's deltaY value to prevent zooming too fast |
 | `activeItems` | `TimelineItem['id'][]` | `[]` | IDs of items that should have an `active` class |
+| `maxOffsetOutsideViewport` | `number` | `50` (px) | Items are clamped 50px outside the viewport, [so that they cannot become too large](https://github.com/laurens94/vue-timeline-chart/issues/8) |
