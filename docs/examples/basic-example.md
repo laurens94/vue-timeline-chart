@@ -1,10 +1,10 @@
 <script setup>
-import BasicExample from './basic-example.vue'
+import Example from './basic-example.vue'
 </script>
 
 # Basic example
 
-<BasicExample/>
+<Example/>
 
 ## Code
 

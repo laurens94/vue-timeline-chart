@@ -1,10 +1,10 @@
 <script setup>
-import Timestamps from './custom-timestamp-labels.vue'
+import Example from './custom-timestamp-labels.vue'
 </script>
 
 # Custom timestamp labels
 
-<Timestamps/>
+<Example/>
 
 ## Code
 

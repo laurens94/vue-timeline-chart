@@ -40,6 +40,7 @@ export default defineConfig({
         items: [
           { text: 'Basic example', link: '/examples/basic-example' },
           { text: 'Custom timestamp labels', link: '/examples/custom-timestamp-labels' },
+          { text: 'Synced timelines', link: '/examples/synced-timelines' },
         ]
       }
     ],
