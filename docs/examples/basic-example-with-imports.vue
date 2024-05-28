@@ -8,8 +8,8 @@
   ];
 
   const items = [
-    { group: 'group1', type: 'point', start: 1705878000000 },
-    { group: 'group1', type: 'range', start: 1707135072000, end: 1708431072000 },
+    { group: 'group1', type: 'point', start: 1705878000000, cssVariables: { '--item-background': 'var(--color-2)' } },
+    { group: 'group1', type: 'range', start: 1707135072000, end: 1708431072000, cssVariables: { '--item-background': 'var(--color-4)' } },
     { group: 'group2', type: 'range', start: 1706790600000, end: 1706877000000 },
   ];
 </script>

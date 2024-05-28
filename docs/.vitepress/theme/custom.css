@@ -1,3 +1,11 @@
 .timeline-wrapper {
   margin: 1rem 0;
 }
+
+:root {
+  --color-1: #8338ec;
+  --color-2: #ffbe0b;
+  --color-3: #3a86ff;
+  --color-4: #ff006e;
+  --item-background: var(--color-3);
+}

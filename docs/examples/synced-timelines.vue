@@ -1,8 +1,8 @@
 <script setup>
   import { ref } from 'vue';
   const items = [
-    { group: '1', type: 'range', cssVariables: { '--item-background': 'teal' }, start: 1000, end: 4500 },
-    { group: '2', type: 'range', cssVariables: { '--item-background': 'hotpink' }, start: 4500, end: 6000 },
+    { group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000, end: 4500 },
+    { group: '2', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 4500, end: 6000 },
     { group: '3', type: 'range', start: 6000, end: 8000 },
   ];
 

@@ -7,6 +7,8 @@ export default defineConfig({
   base: '/vue-timeline-chart/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    logo: '/favicon.svg',
+
     nav: [
       { text: 'Guide', link: '/guide/getting-started', activeMatch: '/guide/' },
       { text: 'API', link: '/reference/props', activeMatch: '/reference/' },

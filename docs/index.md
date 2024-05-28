@@ -1,11 +1,15 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
+head: [['link', { rel: 'icon', href: '/vue-timeline-chart/favicon.svg' }]]
 
 hero:
   name: "vue-timeline-chart"
   text: "Vue 3 component"
   tagline: A simple yet versatile component that lets you plot points and ranges on a timeline.
+  image:
+    src: /logo.svg
+    alt: Vue Timeline Chart
   actions:
     - theme: brand
       text: Get Started
@@ -34,12 +38,21 @@ features:
 ---
 
 
-<!-- <style>
+<style>
 :root {
+  --color-1: #8338ec;
+  --color-2: #ffbe0b;
+  --color-3: #3a86ff;
+  --color-4: #ff006e;
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #bd34fe 30%, #41d1ff);
-
-  --vp-home-hero-image-background-image: linear-gradient(-45deg, #bd34fe 50%, #47caff 50%);
+  --vp-home-hero-name-background: linear-gradient(120deg,  var(--color-1), var(--color-2), var(--color-3), var(--color-4));
+  --vp-home-hero-image-background-image: linear-gradient(120deg,  var(--color-1), var(--color-2), var(--color-3), var(--color-4));
   --vp-home-hero-image-filter: blur(4rem);
 }
-</style> -->
+
+.clip::selection {
+  color: var(--color-3);
+  background-clip: none;
+  background-color: color-mix(in srgb, currentColor, transparent 70%);
+}
+</style>
