@@ -73,10 +73,10 @@
 
   const groups = computed((): TimelineGroup[] => {
     return [
-      { content: 'Points', id: 'group1' },
-      { content: 'Ranges', id: 'group2' },
-      { content: 'Linechart', id: 'linechart' },
-      { content: 'Markers', id: 'group3' },
+      { label: 'Points', id: 'group1' },
+      { label: 'Ranges', id: 'group2' },
+      { label: 'Linechart', id: 'linechart' },
+      { label: 'Markers', id: 'group3' },
     ];
   });
 

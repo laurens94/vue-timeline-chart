@@ -42,7 +42,7 @@
         >
           <div :class="['group-label', { fixed: fixedLabels }]">
             <slot name="group-label" :group="group">
-              {{ group.label || group.content }}
+              {{ group.label }}
             </slot>
           </div>
 
@@ -119,7 +119,6 @@
   export interface TimelineGroup {
     id: string;
     label?: string;
-    content?: string; // deprecated
     className?: string;
   }
 
