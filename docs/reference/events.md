@@ -6,6 +6,8 @@ outline: deep
 
 | Event | Arguments | Description |
 | --- | --- | --- |
+| `pointerdown` | `{time: number, event: MouseEvent, item: TimelineItem \| null}` | Pointerdown event on the timeline |
+| `pointerup` | `{time: number, event: MouseEvent, item: TimelineItem \| null}` | Pointerup event on the timeline |
 | `click` | `{time: number, event: MouseEvent, item: TimelineItem \| null}` | Click event on the timeline |
 | `contextmenu` | `{time: number, event: MouseEvent, item: TimelineItem \| null}` | Right-click event on the timeline |
 | `mousemoveTimeline` | `{time: number, event: MouseEvent}` | Mousemove event on the timeline |

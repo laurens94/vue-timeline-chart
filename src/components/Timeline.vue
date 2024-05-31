@@ -5,6 +5,8 @@
       class="timeline"
       @wheel="onWheel"
       @click="onClick"
+      @pointerdown="onPointerDown"
+      @pointerup="onPointerUp"
       @contextmenu.prevent="onContextMenu"
       @mousemove="onMouseMove"
       @mouseleave="onMouseLeave"
@@ -60,6 +62,8 @@
                 :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
                 :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
                 @click.stop="onClick($event, item)"
+                @pointerdown.stop="onPointerDown($event, item)"
+                @pointerup.stop="onPointerUp($event, item)"
                 @contextmenu.prevent.stop="onContextMenu($event, item)"
               >
                 <slot name="item" :item="item"></slot>
@@ -72,6 +76,8 @@
             :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
+            @pointerdown.stop="onPointerDown($event, item)"
+            @pointerup.stop="onPointerUp($event, item)"
             @contextmenu.prevent.stop="onContextMenu($event, item)"
           >
           </div>
@@ -210,6 +216,8 @@
   });
 
   const emit = defineEmits<{
+    (e: 'pointerdown', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
+    (e: 'pointerup', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
     (e: 'click', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
     (e: 'contextmenu', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
     (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
@@ -392,22 +400,29 @@
     onMouseMove;
   }
 
-  function onClick (event: MouseEvent, item: TimelineItem | null = null) {
+  function getPositionInMsOfMouseEvent (event: MouseEvent) {
     const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
-    const positionInMs = viewportStart.value + viewportDuration.value * mousePosXPercentage;
-    emit('click', { time: positionInMs, event, item });
+    return viewportStart.value + viewportDuration.value * mousePosXPercentage;
+  }
+
+  function onPointerDown (event: MouseEvent, item: TimelineItem | null = null) {
+    emit('pointerdown', { time: getPositionInMsOfMouseEvent(event), event, item });
+  }
+
+  function onPointerUp (event: MouseEvent, item: TimelineItem | null = null) {
+    emit('pointerup', { time: getPositionInMsOfMouseEvent(event), event, item });
+  }
+
+  function onClick (event: MouseEvent, item: TimelineItem | null = null) {
+    emit('click', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
   function onContextMenu (event: MouseEvent, item: TimelineItem | null = null) {
-    const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
-    const positionInMs = viewportStart.value + viewportDuration.value * mousePosXPercentage;
-    emit('contextmenu', { time: positionInMs, event, item });
+    emit('contextmenu', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
   function onMouseMove (event: MouseEvent) {
-    const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
-    const positionInMs = viewportStart.value + viewportDuration.value * mousePosXPercentage;
-    emit('mousemoveTimeline', { time: positionInMs, event });
+    emit('mousemoveTimeline', { time: getPositionInMsOfMouseEvent(event), event });
   }
 
   function onMouseLeave (event: MouseEvent) {

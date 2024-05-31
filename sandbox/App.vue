@@ -13,8 +13,10 @@
       @mouseleaveTimeline="onMouseleaveTimeline"
       @changeScale="onChangeScale"
       @change-viewport="onChangeViewport"
-      @click="debug.firedEvents.push('click')"
-      @contextmenu="debug.firedEvents.push('contextmenu')"
+      @pointerdown="debugEvent"
+      @pointerup="debugEvent"
+      @click="debugEvent"
+      @contextmenu="debugEvent"
     >
       <template #items-linechart="{ viewportStart, viewportEnd, group }">
         <LineChart
@@ -231,14 +233,18 @@
     currentTime.value = new Date().valueOf();
   }, 40);
 
+  function debugEvent ({ time, event, item } : {time: number, event: MouseEvent, item: TimelineItem | null}) {
+    debug.firedEvents.push(`${event.type} (${time}) ${item || ''}`);
+  }
+
   const mouseHoverPosition = ref<number | null>(null);
   function onMousemoveTimeline ({ time }: { time: number }) {
     mouseHoverPosition.value = time;
-    debug.firedEvents.push('mousemoveTimeline');
+    debug.firedEvents.push(`mousemoveTimeline (${time})`);
   }
   function onMouseleaveTimeline () {
     mouseHoverPosition.value = null;
-    debug.firedEvents.push('mouseleaveTimeline');
+    debug.firedEvents.push(`mouseleaveTimeline`);
   }
   function onChangeScale (scale: Scale) {
     debug.scale = scale;
