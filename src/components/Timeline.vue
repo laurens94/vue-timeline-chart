@@ -405,11 +405,11 @@
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
-  function onPointerDown (event: MouseEvent, item: TimelineItem | null = null) {
+  function onPointerDown (event: PointerEvent, item: TimelineItem | null = null) {
     emit('pointerdown', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
-  function onPointerUp (event: MouseEvent, item: TimelineItem | null = null) {
+  function onPointerUp (event: PointerEvent, item: TimelineItem | null = null) {
     emit('pointerup', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
