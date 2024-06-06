@@ -216,8 +216,8 @@
   });
 
   const emit = defineEmits<{
-    (e: 'pointerdown', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
-    (e: 'pointerup', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
+    (e: 'pointerdown', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
+    (e: 'pointerup', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
     (e: 'click', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
     (e: 'contextmenu', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
     (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
@@ -400,7 +400,7 @@
     onMouseMove;
   }
 
-  function getPositionInMsOfMouseEvent (event: MouseEvent) {
+  function getPositionInMsOfMouseEvent (event: MouseEvent | PointerEvent) {
     const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
