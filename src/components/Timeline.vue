@@ -227,6 +227,7 @@
     (e: 'pointermove', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
     (e: 'pointerdown', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
     (e: 'pointerup', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
+    (e: 'wheel', value: WheelEvent): void;
     (e: 'click', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
     (e: 'contextmenu', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
     (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
@@ -234,6 +235,10 @@
     (e: 'changeViewport', value: { start: number; end: number }): void;
     (e: 'changeScale', value: Scale): void;
   }>();
+
+  defineExpose({
+    onWheel,
+  });
 
   const timelineEl = ref<HTMLElement | null>(null);
   const { width: containerWidth } = useElementSize(timelineEl);
@@ -348,6 +353,8 @@
   }
 
   function onWheel (e: WheelEvent) {
+    emit('wheel', e);
+
     if (e.deltaY === 0) {
       // prevent swipe gesture triggered history navigation:
       e.preventDefault();

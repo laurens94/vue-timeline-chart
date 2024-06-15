@@ -1,5 +1,8 @@
 <script setup lang="ts">
   import { ref } from 'vue';
+
+  const timeline = ref(null);
+
   const items = [
     { group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000, end: 4500 },
     { group: '2', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 4500, end: 6000 },
@@ -48,11 +51,15 @@
   window.addEventListener('pointerup', () => {
     isDraggingMapViewport = false;
   }, { capture: true });
+
+  function onMapWheel (event: WheelEvent) {
+    timeline.value?.onWheel(event);
+  }
 </script>
 
 <template>
   <Timeline
-    :items="[...items, { id: 'selection', type: 'background', start: viewport.start, end: viewport.end, className: 'selection' }]"
+    :items="[...items, { id: 'selection', type: 'background', start: viewport.start, end: viewport.end }]"
     :groups="[{id: '1'}, {id: '2'}, {id: '3'}]"
     :viewportMin="totalRange.start"
     :viewportMax="totalRange.end"
@@ -60,9 +67,11 @@
     class="map"
     @pointermove="handleViewportDrag"
     @pointerdown="handleViewportDrag"
+    @wheel="onMapWheel"
   />
 
   <Timeline
+    ref="timeline"
     :items="items"
     :groups="[{id: '1'}, {id: '2'}, {id: '3'}]"
     :viewportMin="totalRange.start"
@@ -91,15 +100,13 @@
 
     :deep(.background)  {
       --item-background: color-mix(in srgb, currentcolor, transparent 90%);
+
+      cursor: pointer;
+      z-index: 1;
     }
 
     :deep(.item)  {
       pointer-events: none;
-    }
-
-    :deep(.selection) {
-      cursor: pointer;
-      z-index: 1;
     }
   }
 </style>
