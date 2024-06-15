@@ -5,6 +5,7 @@
       class="timeline"
       @wheel="onWheel"
       @click="onClick"
+      @pointermove="onPointerMove"
       @pointerdown="onPointerDown"
       @pointerup="onPointerUp"
       @contextmenu.prevent="onContextMenu"
@@ -62,6 +63,7 @@
                 :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
                 :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
                 @click.stop="onClick($event, item)"
+                @pointermove.stop="onPointerMove($event, item)"
                 @pointerdown.stop="onPointerDown($event, item)"
                 @pointerup.stop="onPointerUp($event, item)"
                 @contextmenu.prevent.stop="onContextMenu($event, item)"
@@ -76,6 +78,7 @@
             :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
+            @pointermove.stop="onPointerMove($event, item)"
             @pointerdown.stop="onPointerDown($event, item)"
             @pointerup.stop="onPointerUp($event, item)"
             @contextmenu.prevent.stop="onContextMenu($event, item)"
@@ -96,6 +99,11 @@
             :key="item.id || `${item.start}${item.type}${item.end || ''}`"
             :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
+            @click.stop="onClick($event, item)"
+            @pointermove.stop="onPointerMove($event, item)"
+            @pointerdown.stop="onPointerDown($event, item)"
+            @pointerup.stop="onPointerUp($event, item)"
+            @contextmenu.prevent.stop="onContextMenu($event, item)"
           >
           </div>
         </div>
@@ -216,6 +224,7 @@
   });
 
   const emit = defineEmits<{
+    (e: 'pointermove', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
     (e: 'pointerdown', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
     (e: 'pointerup', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
     (e: 'click', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
@@ -403,6 +412,10 @@
   function getPositionInMsOfMouseEvent (event: MouseEvent | PointerEvent) {
     const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
+  }
+
+  function onPointerMove (event: PointerEvent, item: TimelineItem | null = null) {
+    emit('pointermove', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
   function onPointerDown (event: PointerEvent, item: TimelineItem | null = null) {

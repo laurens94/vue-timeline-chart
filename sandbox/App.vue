@@ -13,6 +13,7 @@
       @mouseleaveTimeline="onMouseleaveTimeline"
       @changeScale="onChangeScale"
       @change-viewport="onChangeViewport"
+      @pointermove="debugEvent"
       @pointerdown="debugEvent"
       @pointerup="debugEvent"
       @click="debugEvent"

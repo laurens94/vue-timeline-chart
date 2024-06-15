@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
   import { ref } from 'vue';
   const items = [
     { group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000, end: 4500 },
@@ -8,17 +8,58 @@
 
   const viewport = ref({ start: 4000, end: 7000 });
   const totalRange = ref({ start: 0, end: 8000 });
+
+  let isDraggingMapViewport = false;
+  let previousDragTimePos = 0;
+
+  function handleViewportDrag ({ time, event, item }) {
+    switch (event.type) {
+      case 'pointerdown':
+
+        if (item?.id !== 'selection') {
+          return;
+        }
+
+        isDraggingMapViewport = true;
+        previousDragTimePos = time;
+        break;
+      case 'pointermove': {
+        if (!isDraggingMapViewport) {
+          return;
+        }
+
+        const delta = time - previousDragTimePos;
+        const length = viewport.value.end - viewport.value.start;
+        if (delta < 0) {
+          viewport.value.start = Math.max(viewport.value.start + delta, totalRange.value.start);
+          viewport.value.end = viewport.value.start + length;
+        }
+        else {
+          viewport.value.end = Math.min(viewport.value.end + delta, totalRange.value.end);
+          viewport.value.start = viewport.value.end - length;
+        }
+        previousDragTimePos = time;
+
+        break;
+      }
+    }
+  }
+
+  window.addEventListener('pointerup', () => {
+    isDraggingMapViewport = false;
+  }, { capture: true });
 </script>
 
 <template>
   <Timeline
-    :items="[...items, { type: 'background', start: viewport.start, end: viewport.end }]"
+    :items="[...items, { id: 'selection', type: 'background', start: viewport.start, end: viewport.end, className: 'selection' }]"
     :groups="[{id: '1'}, {id: '2'}, {id: '3'}]"
     :viewportMin="totalRange.start"
     :viewportMax="totalRange.end"
     :minViewportDuration="totalRange.end"
-    inert
     class="map"
+    @pointermove="handleViewportDrag"
+    @pointerdown="handleViewportDrag"
   />
 
   <Timeline
@@ -50,6 +91,15 @@
 
     :deep(.background)  {
       --item-background: color-mix(in srgb, currentcolor, transparent 90%);
+    }
+
+    :deep(.item)  {
+      pointer-events: none;
+    }
+
+    :deep(.selection) {
+      cursor: pointer;
+      z-index: 1;
     }
   }
 </style>
