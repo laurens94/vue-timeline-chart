@@ -122,7 +122,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="GTimelineItem extends TimelineItem, GTimelineGroup extends TimelineGroup, GTimelineMarker extends TimelineMarker">
   import { computed, ref, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
@@ -170,10 +170,10 @@
 
   export type TimelineItem = TimelineItemRange | TimelineItemPoint | TimelineItemBackground | TimelineMarker;
 
-  export interface Props {
-    groups?: TimelineGroup[];
-    items?: TimelineItem[];
-    markers?: TimelineMarker[];
+  interface Props {
+    groups?: GTimelineGroup[];
+    items?: GTimelineItem[];
+    markers?: GTimelineMarker[];
     viewportMin?: number;
     viewportMax?: number;
     minViewportDuration?: number;
@@ -224,12 +224,12 @@
   });
 
   const emit = defineEmits<{
-    (e: 'pointermove', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
-    (e: 'pointerdown', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
-    (e: 'pointerup', value: { time: number; event: PointerEvent, item: TimelineItem | null }): void;
+    (e: 'pointermove', value: { time: number; event: PointerEvent, item: GTimelineItem | null }): void;
+    (e: 'pointerdown', value: { time: number; event: PointerEvent, item: GTimelineItem | null }): void;
+    (e: 'pointerup', value: { time: number; event: PointerEvent, item: GTimelineItem | null }): void;
     (e: 'wheel', value: WheelEvent): void;
-    (e: 'click', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
-    (e: 'contextmenu', value: { time: number; event: MouseEvent, item: TimelineItem | null }): void;
+    (e: 'click', value: { time: number; event: MouseEvent, item: GTimelineItem | null }): void;
+    (e: 'contextmenu', value: { time: number; event: MouseEvent, item: GTimelineItem | null }): void;
     (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
     (e: 'mouseleaveTimeline', value: { event: MouseEvent }): void;
     (e: 'changeViewport', value: { start: number; end: number }): void;
@@ -270,7 +270,7 @@
     }
     if (props.initialViewportEnd === undefined && props.viewportMax === undefined) {
       const lastEndOccurence = props.items?.reduce((max, item) => {
-        if (item.end > max || item.start > max) {
+        if ((item.end !== undefined && item.end > max) || item.start > max) {
           return item.end ?? item.start;
         }
         return max;
@@ -421,23 +421,23 @@
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
-  function onPointerMove (event: PointerEvent, item: TimelineItem | null = null) {
+  function onPointerMove (event: PointerEvent, item: GTimelineItem | null = null) {
     emit('pointermove', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
-  function onPointerDown (event: PointerEvent, item: TimelineItem | null = null) {
+  function onPointerDown (event: PointerEvent, item: GTimelineItem | null = null) {
     emit('pointerdown', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
-  function onPointerUp (event: PointerEvent, item: TimelineItem | null = null) {
+  function onPointerUp (event: PointerEvent, item: GTimelineItem | null = null) {
     emit('pointerup', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
-  function onClick (event: MouseEvent, item: TimelineItem | null = null) {
+  function onClick (event: MouseEvent, item: GTimelineItem | null = null) {
     emit('click', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 
-  function onContextMenu (event: MouseEvent, item: TimelineItem | null = null) {
+  function onContextMenu (event: MouseEvent, item: GTimelineItem | null = null) {
     emit('contextmenu', { time: getPositionInMsOfMouseEvent(event), event, item });
   }
 

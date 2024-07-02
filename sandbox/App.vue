@@ -83,7 +83,9 @@
     ];
   });
 
-  const items = computed((): TimelineItem[] => {
+  type customTimelineItem = TimelineItem & { value?: number };
+
+  const items = computed((): customTimelineItem[] => {
     return [
       { group: 'group1', type: 'point', className: 'teal', start: 1691090880000, title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
       },
