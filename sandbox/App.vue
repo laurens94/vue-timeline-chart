@@ -32,7 +32,7 @@
       </template>
     </Timeline>
   </div>
-  <details class="debug">
+  <details class="debug" open>
     <summary>
       Debug
     </summary>
@@ -87,15 +87,15 @@
 
   const items = computed((): customTimelineItem[] => {
     return [
-      { group: 'group1', type: 'point', className: 'teal', start: 1691090880000, title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
+      { group: 'group1', type: 'point', start: 1691090880000, title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
       },
-      { group: 'group1', type: 'point', className: 'teal', start: (new Date().valueOf() - 200000), title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
+      { group: 'group1', type: 'point', start: (new Date().valueOf() - 200000), title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
       },
-      { group: 'group1', type: 'point', className: 'teal', start: (new Date().valueOf() + 40000200000), title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
+      { group: 'group1', type: 'point', start: (new Date().valueOf() + 40000200000), title: '21:28:00', id: 'k802b26e-c037-4c94-b70a-187479ad90d9',
       },
-      { group: 'group3', type: 'marker', className: 'teal', start: 1691090970000, id: 'k80208db-54a7-4603-8850-5a6432431dcd',
+      { group: 'group3', type: 'marker', start: 1691090970000, id: 'k80208db-54a7-4603-8850-5a6432431dcd',
       },
-      { group: 'group1', type: 'point', className: 'teal', start: 1691099529000, title: '23:52:09', id: 'k802fabb-5dc7-486a-b205-ab27fdbf35a8',
+      { group: 'group1', type: 'point', start: 1691099529000, title: '23:52:09', id: 'k802fabb-5dc7-486a-b205-ab27fdbf35a8',
       },
       { type: 'background', start: 1691089380000, end: 1691090280000, id: 'k802c277-de01-4366-8b45-2ff3aa11b75e',
       },
@@ -103,38 +103,39 @@
       },
       { type: 'background', group: 'background', start: 1691100120000, end: 1691101020000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691095214000, end: 1691095428000,
+      { group: 'group2', type: 'range', start: 1691095214000, end: 1691095428000,
       },
-      { group: 'group2', type: 'range', className: 'pink', start: 1691091546000, end: 1691091615000,
+      { group: 'group2', type: 'range', start: 1691091546000, end: 1691091615000,
         cssVariables: {
-          '--height': '20%',
+          '--height': '50%',
+          '--item-background': 'var(--color-2)',
         },
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691097441000, end: 1691097514000,
+      { group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691090985000, end: 1691091085000,
+      { group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691093875000, end: 1691094107000,
+      { group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691091720000, end: 1691091805000,
+      { group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691094747000, end: 1691094873000,
+      { group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691096492000, end: 1691096604000,
+      { group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691093445000, end: 1691093515000,
+      { group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691092246000, end: 1691092430000,
+      { group: 'group2', type: 'range', start: 1691092246000, end: 1691092430000,
       },
-      { group: 'group2', type: 'range', className: 'blue', start: 1691096029000, end: 1691096293000,
+      { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096029000, end: 1691096293000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691097646000, end: 1691097805000,
+      { group: 'group2', type: 'range', start: 1691097646000, end: 1691097805000,
       },
-      { group: 'group2', type: 'range', className: 'blue', start: 1691096693000, end: 1691096779000,
+      { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096693000, end: 1691096779000,
       },
-      { group: 'group2', type: 'range', className: 'blue', start: 1691092544000, end: 1691092671000,
+      { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691092544000, end: 1691092671000,
       },
-      { group: 'group2', type: 'range', className: 'teal', start: 1691090867000, end: 1691090970000,
+      { group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000,
       },
       {
         group: 'linechart',
@@ -265,6 +266,16 @@
   });
 </script>
 
+<style>
+  :root {
+    --color-1: #8338ec;
+    --color-2: #ffbe0b;
+    --color-3: #3a86ff;
+    --color-4: #ff006e;
+    --item-background: var(--color-3);
+  }
+</style>
+
 <style lang="scss" scoped>
   .timeline {
     border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
@@ -273,8 +284,6 @@
 
     // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
     // --group-border-top: 1px solid rgba(255, 255, 255, 10%);
-    --group-height: 1.5rem;
-
     // --group-padding-top: 0.5em;
     // --group-padding-bottom: 0.5em;
 
@@ -288,14 +297,13 @@
 
     // --label-padding: 0.2em 0.5em;
     // --label-line-height: 1em;
-    --timestamps-background:  color-mix(in srgb, white 50%, transparent);
+    // --timestamps-background:  color-mix(in srgb, white 50%, transparent);
 
     // --timestamps-color: rgb(255, 112, 255);
     // --timestamp-line-height: 1.5em;
     // --timestamp-padding-block: 0.2em;
     // --timestamp-padding-inline: 0.4em;
 
-    background-color: color-mix(in srgb, currentcolor 10%, transparent);
     border-radius: 0.5rem;
 
     :deep(.group-label) {
@@ -313,15 +321,7 @@
     }
 
     :deep(.item) {
-      $colors: "blue", "red", "green", "indigo", "yellow", "orange", "teal", "purple", "pink", "gray";
-
       opacity: 0.7;
-
-      @each $color in $colors {
-        &.#{$color} {
-          --item-background: linear-gradient(180deg, #{$color}, color-mix(in hsl, #{$color} 80%, white));
-        }
-      }
 
       &.range {
         height: var(--height, 100%);
@@ -343,6 +343,7 @@
 
       &.red {
         --item-marker-width: 1px;
+        --item-background: var(--color-4);
       }
 
       &.gray {

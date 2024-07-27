@@ -4,47 +4,42 @@
   const timeline = ref(null);
 
   const items = [
-    { group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000, end: 4500 },
-    { group: '2', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 4500, end: 6000 },
-    { group: '3', type: 'range', start: 6000, end: 8000 },
+    { group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 100000, end: 450000 },
+    { group: '2', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 450000, end: 600000 },
+    { group: '3', type: 'range', start: 600000, end: 800000 },
   ];
 
-  const viewport = ref({ start: 4000, end: 7000 });
-  const totalRange = ref({ start: 0, end: 8000 });
+  const viewport = ref({ start: 400000, end: 700000 });
+  const totalRange = ref({ start: 0, end: 800000 });
 
   let isDraggingMapViewport = false;
   let previousDragTimePos = 0;
 
   function handleViewportDrag ({ time, event, item }) {
-    switch (event.type) {
-      case 'pointerdown':
-
-        if (item?.id !== 'selection') {
-          return;
-        }
-
-        isDraggingMapViewport = true;
-        previousDragTimePos = time;
-        break;
-      case 'pointermove': {
-        if (!isDraggingMapViewport) {
-          return;
-        }
-
-        const delta = time - previousDragTimePos;
-        const length = viewport.value.end - viewport.value.start;
-        if (delta < 0) {
-          viewport.value.start = Math.max(viewport.value.start + delta, totalRange.value.start);
-          viewport.value.end = viewport.value.start + length;
-        }
-        else {
-          viewport.value.end = Math.min(viewport.value.end + delta, totalRange.value.end);
-          viewport.value.start = viewport.value.end - length;
-        }
-        previousDragTimePos = time;
-
-        break;
+    if (event.type === 'pointerdown') {
+      if (item?.id !== 'selection') {
+        return;
       }
+
+      isDraggingMapViewport = true;
+      previousDragTimePos = time;
+    }
+    else if (event.type === 'pointermove') {
+      if (!isDraggingMapViewport) {
+        return;
+      }
+
+      const delta = time - previousDragTimePos;
+      const length = viewport.value.end - viewport.value.start;
+      if (delta < 0) {
+        viewport.value.start = Math.max(viewport.value.start + delta, totalRange.value.start);
+        viewport.value.end = viewport.value.start + length;
+      }
+      else {
+        viewport.value.start = viewport.value.end - length;
+        viewport.value.end = Math.min(viewport.value.end + delta, totalRange.value.end);
+      }
+      previousDragTimePos = time;
     }
   }
 
