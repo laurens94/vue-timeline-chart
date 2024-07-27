@@ -252,7 +252,13 @@
   });
 
   watchEffect(() => {
-    setViewportValues();
+    try {
+      checkValidityOfProps();
+      setViewportValues();
+    }
+    catch (e) {
+      console.error(e);
+    }
   });
 
   function setViewportValues () {
@@ -352,7 +358,27 @@
     viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(viewportEnd.value + deltaMs, props.viewportMax) : viewportEnd.value + deltaMs);
   }
 
+  function checkValidityOfProps () {
+    const hasInvalidInitialViewport = props.initialViewportStart !== undefined && props.initialViewportEnd !== undefined && props.initialViewportStart >= props.initialViewportEnd;
+    if (hasInvalidInitialViewport) {
+      throw new Error('[vue-timeline-chart] Invalid props: initialViewportStart must be smaller than initialViewportEnd');
+    }
+    const hasInvalidViewportMinMax = props.viewportMin !== undefined && props.viewportMax !== undefined && props.viewportMin >= props.viewportMax;
+    if (hasInvalidViewportMinMax) {
+      throw new Error('[vue-timeline-chart] Invalid props: viewportMin must be smaller than viewportMax');
+    }
+    const initialViewportStartIsBeforeViewportMin = props.initialViewportStart !== undefined && props.viewportMin !== undefined && props.initialViewportStart < props.viewportMin;
+    if (initialViewportStartIsBeforeViewportMin) {
+      throw new Error('[vue-timeline-chart] Invalid props: initialViewportStart must be greater than or equal to viewportMin');
+    }
+    const initialViewportEndIsAfterViewportMax = props.initialViewportEnd !== undefined && props.viewportMax !== undefined && props.initialViewportEnd > props.viewportMax;
+    if (initialViewportEndIsAfterViewportMax) {
+      throw new Error('[vue-timeline-chart] Invalid props: initialViewportEnd must be smaller than or equal to viewportMax');
+    }
+  }
+
   function onWheel (e: WheelEvent) {
+    checkValidityOfProps();
     emit('wheel', e);
 
     if (e.deltaY === 0) {
