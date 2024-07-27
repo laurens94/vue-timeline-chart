@@ -36,8 +36,8 @@
         viewport.value.end = viewport.value.start + length;
       }
       else {
-        viewport.value.start = viewport.value.end - length;
         viewport.value.end = Math.min(viewport.value.end + delta, totalRange.value.end);
+        viewport.value.start = viewport.value.end - length;
       }
       previousDragTimePos = time;
     }
