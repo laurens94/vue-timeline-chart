@@ -52,9 +52,6 @@
     :groups="[{id: 1}, {id: 2}, {id: 3}]"
     :viewportMin="0"
     :viewportMax="8000000"
-    :initialViewportStart="0"
-    :initialViewportEnd="8000000"
-    @changeViewport="viewport = $event"
     @pointermove="handleItemDrag"
     @pointerdown="handleItemDrag"
   >
