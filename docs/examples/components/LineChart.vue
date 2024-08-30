@@ -4,6 +4,7 @@
 
 <script lang="ts" setup>
 import { onMounted, watch } from 'vue';
+// import * as d3 from 'd3'; (disabled due to vitepress)
 
 const props = defineProps<{
   viewportStart: number;

@@ -13,6 +13,8 @@ Some measures are implemented to improve performance:
 
 - Items fully outside the viewport are not rendered.
 
+- Items have the `contain: strict` CSS declaration set.
+
 ::: tip
 When dealing with a large number of items, consider rendering them using a canvas-based rendering approach. See the [Custom Charts or Canvas Rendering example](/examples/custom-charts-or-canvas-rendering) for inspiration how to implement such a component.
 :::
