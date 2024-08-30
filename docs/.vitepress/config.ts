@@ -41,6 +41,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Basic example', link: '/examples/basic-example' },
+          { text: 'Tooltips', link: '/examples/tooltips' },
           { text: 'Custom timestamp labels', link: '/examples/custom-timestamp-labels' },
           { text: 'Synced timelines', link: '/examples/synced-timelines' },
           { text: 'Draggable Items', link: '/examples/draggable-items' },
