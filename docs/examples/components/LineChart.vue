@@ -42,6 +42,7 @@ function initChart(start: number, end: number, data: typeof props.data) {
     .attr('d', line);
 }
 
+// Re-render chart when viewport changes:
 watch(() => [props.viewportStart, props.viewportEnd],
   () => initChart(props.viewportStart, props.viewportEnd, props.data)
 );
