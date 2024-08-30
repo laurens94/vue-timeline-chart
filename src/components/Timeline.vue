@@ -30,7 +30,7 @@
 
         <div
           v-for="(item) in visibleMarkers.filter((i) => i.group === '_timestamps').sort((a, b) => a.start - b.start)"
-          :key="item.id || `${item.start}${item.type}`"
+          :key="item.id ?? `${item.start}${item.type}`"
           :style="{ '--_left': `${getLeftPos(item.start)}px` }"
           :class="[item.type, item.className]"
         >
@@ -59,7 +59,7 @@
             >
               <div
                 v-for="(item, index) in visibleItems.filter((i) => i.group === group.id && i.type != 'background').sort((a, b) => a.start - b.start)"
-                :key="index"
+                :key="item.id ?? index"
                 :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': item.type !== 'point' ? `${getItemWidth(item.start, item.end)}px` : null, ...item.cssVariables }"
                 :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
                 @click.stop="onClick($event, item)"
@@ -74,7 +74,7 @@
           </div>
           <div
             v-for="(item) in visibleItems.filter((i) => i.group === group.id && i.type === 'background').sort((a, b) => a.start - b.start)"
-            :key="item.id || `${item.start}${item.type}${item.end || ''}`"
+            :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
             :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -86,7 +86,7 @@
           </div>
           <div
             v-for="(item) in visibleMarkers.filter((i) => i.group === group.id).sort((a, b) => a.start - b.start)"
-            :key="item.id || `${item.start}${item.type}`"
+            :key="item.id ?? `${item.start}${item.type}`"
             :style="{ '--_left': `${getLeftPos(item.start)}px` }"
             :class="[item.type, item.className]"
           >
@@ -96,7 +96,7 @@
         <div v-if="visibleItems.some((i) => !i.group && i.type == 'background')" class="backgrounds">
           <div
             v-for="(item) in visibleItems.filter((i) => !i.group && i.type == 'background')"
-            :key="item.id || `${item.start}${item.type}${item.end || ''}`"
+            :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
             :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -111,7 +111,7 @@
         <div v-if="visibleMarkers.length > 0" class="markers">
           <div
             v-for="(item) in visibleMarkers.filter((i) => !i.group)"
-            :key="item.id || `${item.start}${item.type}`"
+            :key="item.id ?? `${item.start}${item.type}`"
             :style="{ '--_left': `${getLeftPos(item.start)}px` }"
             :class="[item.type, item.className]"
           >
