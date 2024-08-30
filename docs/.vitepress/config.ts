@@ -20,6 +20,7 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
+          { text: 'Performance', link: '/guide/performance' },
         ]
       },
       {
@@ -41,10 +42,11 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Basic example', link: '/examples/basic-example' },
-          { text: 'Tooltips', link: '/examples/tooltips' },
           { text: 'Custom timestamp labels', link: '/examples/custom-timestamp-labels' },
-          { text: 'Synced timelines', link: '/examples/synced-timelines' },
           { text: 'Draggable Items', link: '/examples/draggable-items' },
+          { text: 'Custom Charts or Canvas Rendering', link: '/examples/custom-charts-or-canvas-rendering' },
+          { text: 'Synced timelines', link: '/examples/synced-timelines' },
+          { text: 'Tooltips', link: '/examples/tooltips' },
         ]
       }
     ],

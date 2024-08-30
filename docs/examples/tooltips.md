@@ -1,10 +1,10 @@
 <script setup>
-import Tooltips from './tooltips.vue'
+import Example from './tooltips.vue'
 </script>
 
 # Tooltips
 
-<Tooltips/>
+<Example/>
 
 ## Code
 

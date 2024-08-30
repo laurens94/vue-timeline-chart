@@ -19,14 +19,6 @@
       @click="debugEvent"
       @contextmenu="debugEvent"
     >
-      <template #items-linechart="{ viewportStart, viewportEnd, group }">
-        <LineChart
-          :viewportStart="viewportStart"
-          :viewportEnd="viewportEnd"
-          :data="items.filter((item) => item.group === group.id)"
-        />
-      </template>
-
       <template #item="{item}">
         <div :title="'title' in item ? item.title : undefined" style="inset: 0; position: absolute;"></div>
       </template>
@@ -60,7 +52,6 @@
 <script lang="ts" setup>
   import { watch, computed, ref, reactive } from 'vue';
   import Timeline, { TimelineGroup, TimelineItem, TimelineMarker } from '../src/components/Timeline.vue';
-  import LineChart from './examples/LineChart.vue';
   import { type Scale } from '../src/composables/useScale.ts';
 
   const debug = reactive({
@@ -78,7 +69,6 @@
     return [
       { label: 'Points', id: 'group1' },
       { label: 'Ranges', id: 'group2' },
-      { label: 'Linechart', id: 'linechart' },
       { label: 'Markers', id: 'group3' },
     ];
   });
@@ -108,19 +98,6 @@
     { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096693000, end: 1691096779000 },
     { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691092544000, end: 1691092671000 },
     { group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
-    { group: 'linechart', value: 1, type: 'point', start: 1691090867000 },
-    { group: 'linechart', value: 1, type: 'point', start: 1691090985000 },
-    { group: 'linechart', value: 0.7, type: 'point', start: 1691091720000 },
-    { group: 'linechart', value: 0, type: 'point', start: 1691092246000 },
-    { group: 'linechart', value: 1, type: 'point', start: 1691092544000 },
-    { group: 'linechart', value: 0, type: 'point', start: 1691093445000 },
-    { group: 'linechart', value: 0, type: 'point', start: 1691093875000 },
-    { group: 'linechart', value: 0, type: 'point', start: 1691094747000 },
-    { group: 'linechart', value: 1, type: 'point', start: 1691096029000 },
-    { group: 'linechart', value: 0.5, type: 'point', start: 1691096492000 },
-    { group: 'linechart', value: 1, type: 'point', start: 1691096693000 },
-    { group: 'linechart', value: 1, type: 'point', start: 1691097441000 },
-    { group: 'linechart', value: 0.6, type: 'point', start: 1691097646000 },
   ]));
 
   const currentTime = ref(new Date().valueOf());
