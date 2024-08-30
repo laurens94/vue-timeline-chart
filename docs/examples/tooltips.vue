@@ -1,11 +1,15 @@
 <script setup>
-  import 'https://unpkg.com/@popperjs/core@2.11.8/dist/umd/popper.min.js';
-  import 'https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js';
   import { onMounted } from 'vue';
 
   let tippyInstances = [];
 
   function resetTooltips () {
+    if (!window.tippy) {
+      // ensure tippy is loaded (due to import within vitepress)
+      setTimeout(() => resetTooltips(), 100);
+      return;
+    };
+
     tippyInstances.forEach((instance) => instance.destroy());
     tippyInstances = [];
     tippy('[data-tippy-content]', {

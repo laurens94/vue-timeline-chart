@@ -3,7 +3,6 @@
 </template>
 
 <script lang="ts" setup>
-import 'https://unpkg.com/d3@7.9.0/dist/d3.min.js';
 import { onMounted, watch } from 'vue';
 
 const props = defineProps<{
@@ -13,6 +12,12 @@ const props = defineProps<{
 }>();
 
 function initChart(start: number, end: number, data: typeof props.data) {
+  if (!window.d3) {
+      // ensure d3 is loaded (due to import within vitepress)
+      setTimeout(() => initChart(start, end, data), 100);
+      return;
+    };
+
   const chart = document.getElementById('chart');
   if (!chart) return;
 
@@ -47,7 +52,9 @@ watch(() => [props.viewportStart, props.viewportEnd],
   () => initChart(props.viewportStart, props.viewportEnd, props.data)
 );
 
-onMounted(() => initChart(props.viewportStart, props.viewportEnd, props.data));
+onMounted(() => {
+  initChart(props.viewportStart, props.viewportEnd, props.data);
+});
 </script>
 
 <style lang="scss" scoped>
