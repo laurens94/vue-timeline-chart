@@ -31,7 +31,7 @@
         <div
           v-for="(item) in visibleMarkers.filter((i) => i.group === '_timestamps').sort((a, b) => a.start - b.start)"
           :key="item.id ?? `${item.start}${item.type}`"
-          :style="{ '--_left': `${getLeftPos(item.start)}px` }"
+          :style="{ '--_left': `${getLeftPos(item.start)}px`, ...item.cssVariables }"
           :class="[item.type, item.className]"
         >
         </div>
@@ -75,7 +75,7 @@
           <div
             v-for="(item) in visibleItems.filter((i) => i.group === group.id && i.type === 'background').sort((a, b) => a.start - b.start)"
             :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
-            :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px`, ...item.cssVariables }"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
             @pointermove.stop="onPointerMove($event, item)"
@@ -87,7 +87,7 @@
           <div
             v-for="(item) in visibleMarkers.filter((i) => i.group === group.id).sort((a, b) => a.start - b.start)"
             :key="item.id ?? `${item.start}${item.type}`"
-            :style="{ '--_left': `${getLeftPos(item.start)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start)}px`, ...item.cssVariables }"
             :class="[item.type, item.className]"
           >
           </div>
@@ -97,7 +97,7 @@
           <div
             v-for="(item) in visibleItems.filter((i) => !i.group && i.type == 'background')"
             :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
-            :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start, item.end)}px`, '--_width': `${getItemWidth(item.start, item.end)}px`, ...item.cssVariables }"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
             @pointermove.stop="onPointerMove($event, item)"
@@ -112,7 +112,7 @@
           <div
             v-for="(item) in visibleMarkers.filter((i) => !i.group)"
             :key="item.id ?? `${item.start}${item.type}`"
-            :style="{ '--_left': `${getLeftPos(item.start)}px` }"
+            :style="{ '--_left': `${getLeftPos(item.start)}px`, ...item.cssVariables }"
             :class="[item.type, item.className]"
           >
           </div>
