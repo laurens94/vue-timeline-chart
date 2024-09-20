@@ -19,6 +19,7 @@ TimelineItems can be points, ranges, backgrounds or markers. They are assigned t
 | --- | --- | --- | --- |
 | `id` | `string` | `undefined` | Unique ID, to match with `activeItems` prop |
 | `start` | `number` | <Badge type="info" text="required" /> | Timestamp |
+| `group` | `string` | `undefined` | `id` of the [TimelineGroup](#timelinegroup) to assign the item to |
 | `end` | `number` | <Badge type="info" text="required for range and background" /> | Timestamp, only used for type `range` and `background` |
 | `className` | `string` | `''` | CSS class(es) |
 | `type` | `string` | <Badge type="info" text="required" /> | Type of item, one of: `point`, `range`, `background` or `marker` |
