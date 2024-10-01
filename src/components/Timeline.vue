@@ -13,6 +13,8 @@
       @mouseleave="onMouseLeave"
     >
       <div class="timestamps">
+        <slot name="timestamps-before" :scale="scale"></slot>
+
         <div
           v-for="timestamp in visibleTimestamps"
           :key="timestamp"
@@ -27,6 +29,7 @@
             {{ renderTimestampLabel(timestamp, scale) }}
           </slot>
         </div>
+        <slot name="timestamps-after" :scale="scale"></slot>
 
         <div
           v-for="(item) in visibleMarkers.filter((i) => i.group === '_timestamps').sort((a, b) => a.start - b.start)"
@@ -42,6 +45,7 @@
           v-for="group in groups"
           :key="group.id"
           :class="['group', group.className]"
+          :style="group.cssVariables"
         >
           <div :class="['group-label', { fixed: fixedLabels }]">
             <slot name="group-label" :group="group">
@@ -134,6 +138,7 @@
     id: string;
     label?: string;
     className?: string;
+    cssVariables?: Record<string, string>;
   }
 
   export interface TimelineItemBase {

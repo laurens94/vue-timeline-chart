@@ -68,7 +68,7 @@
   const groups = computed((): TimelineGroup[] => {
     return [
       { label: 'Points', id: 'group1' },
-      { label: 'Ranges', id: 'group2' },
+      { label: 'Ranges', id: 'group2', cssVariables: { '--height': '50%' } },
       { label: 'Markers', id: 'group3' },
     ];
   });
