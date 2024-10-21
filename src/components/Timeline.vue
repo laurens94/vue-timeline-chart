@@ -133,6 +133,7 @@
   import { useScale } from '../composables/useScale.ts';
   import type { Scale } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
+  import { useElementBounding } from '@vueuse/core';
 
   export interface TimelineGroup {
     id: string;
@@ -265,6 +266,8 @@
       console.error(e);
     }
   });
+
+  const { left: containerLeft } = useElementBounding(timelineEl);
 
   function setViewportValues () {
     if (props.initialViewportStart === undefined && props.viewportMin === undefined) {
@@ -407,7 +410,7 @@
     }
     e.preventDefault();
 
-    const mousePosXPercentage = (e.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
+    const mousePosXPercentage = (e.clientX - containerLeft.value) / containerWidth.value;
     // Clamp deltaY so that the mouse scrollspeed does not affect the zoom speed too much, also take deltaMode into account:
     const clampedDeltaY = props.maxZoomSpeed ? Math.max(-props.maxZoomSpeed, Math.min(props.maxZoomSpeed, e.deltaY * (e.deltaMode === 0 ? 1 : 10))) : e.deltaY * (e.deltaMode === 0 ? 1 : 10);
     const zoomDelta = Math.round(-viewportDuration.value * 0.01 * clampedDeltaY);
@@ -448,7 +451,7 @@
   }
 
   function getPositionInMsOfMouseEvent (event: MouseEvent | PointerEvent) {
-    const mousePosXPercentage = (event.clientX - timelineEl.value!.getBoundingClientRect().left) / containerWidth.value;
+    const mousePosXPercentage = (event.clientX - containerLeft.value) / containerWidth.value;
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
