@@ -75,6 +75,19 @@
 
   type customTimelineItem = TimelineItem & { value?: number };
 
+  // TEST PERFORMANCE:
+  // const items = computed((): customTimelineItem[] => {
+  //   const items = [];
+  //   for (let i = 0; i < 4000; i++) {
+  //     items.push({
+  //       group: 'group1',
+  //       type: 'point',
+  //       start: 1691089357146 + Math.floor(Math.random() * (1691101020000 - 1691089357146)),
+  //     });
+  //   }
+  //   return items;
+  // });
+
   const items = computed((): customTimelineItem[] => ([
     { group: 'group1', type: 'point', start: 1691090880000, title: '21:28:00' },
     { group: 'group1', type: 'point', start: (new Date().valueOf() - 200000), title: '21:28:00' },
