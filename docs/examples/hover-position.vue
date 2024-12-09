@@ -16,11 +16,9 @@
   const mouseHoverPosition = ref(null);
   function onMousemoveTimeline ({ time }) {
     mouseHoverPosition.value = time;
-    debug.firedEvents.push(`mousemoveTimeline (${time})`);
   }
   function onMouseleaveTimeline () {
     mouseHoverPosition.value = null;
-    debug.firedEvents.push(`mouseleaveTimeline`);
   }
 </script>
 
