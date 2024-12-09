@@ -32,9 +32,17 @@
         <slot name="timestamps-after" :scale="scale"></slot>
 
         <div
-          v-for="(item) in visibleMarkersPerGroup.groups._timestamps"
+          v-for="(item) in visibleMarkers.filter((item) => item.group === '_timestamps')"
           :key="item.id ?? `${item.start}${item.type}`"
-          :style="item._styleObject"
+          :style="getStyle(item)"
+          :class="[item.type, item.className]"
+        >
+        </div>
+
+        <div
+          v-for="(item) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
+          :key="item.id ?? `${item.start}${item.type}`"
+          :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
         </div>
@@ -57,66 +65,66 @@
             <slot
               :name="`items-${group.id}`"
               :group="group"
-              :itemsInViewport="visibleItemsPerGroup.items[group.id] ?? []"
+              :itemsInViewport="visibleItems.filter((item) => item.group === group.id)"
               :viewportStart="viewportStart"
               :viewportEnd="viewportEnd"
             >
               <div
-                v-for="(item, index) in visibleItemsPerGroup.items[group.id] ?? []"
+                v-for="(item, index) in visibleItems.filter((item) => item.group === group.id && item.type !== 'background')"
                 :key="item.id ?? index"
-                :style="item._styleObject"
+                :style="getStyle(item)"
                 :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
-                @click.stop="onClick($event, item._originalItem)"
-                @pointermove.stop="onPointerMove($event, item._originalItem)"
-                @pointerdown.stop="onPointerDown($event, item._originalItem)"
-                @pointerup.stop="onPointerUp($event, item._originalItem)"
-                @contextmenu.prevent.stop="onContextMenu($event, item._originalItem)"
+                @click.stop="onClick($event, item)"
+                @pointermove.stop="onPointerMove($event, item)"
+                @pointerdown.stop="onPointerDown($event, item)"
+                @pointerup.stop="onPointerUp($event, item)"
+                @contextmenu.prevent.stop="onContextMenu($event, item)"
               >
                 <slot name="item" :item="item"></slot>
               </div>
             </slot>
           </div>
           <div
-            v-for="(item) in visibleItemsPerGroup.backgrounds[group.id]"
+            v-for="(item) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
             :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
-            :style="item._styleObject"
+            :style="getStyle(item)"
             :class="[item.type, item.className]"
-            @click.stop="onClick($event, item._originalItem)"
-            @pointermove.stop="onPointerMove($event, item._originalItem)"
-            @pointerdown.stop="onPointerDown($event, item._originalItem)"
-            @pointerup.stop="onPointerUp($event, item._originalItem)"
-            @contextmenu.prevent.stop="onContextMenu($event, item._originalItem)"
+            @click.stop="onClick($event, item)"
+            @pointermove.stop="onPointerMove($event, item)"
+            @pointerdown.stop="onPointerDown($event, item)"
+            @pointerup.stop="onPointerUp($event, item)"
+            @contextmenu.prevent.stop="onContextMenu($event, item)"
           >
           </div>
           <div
-            v-for="(item) in visibleMarkersPerGroup.groups[group.id]"
+            v-for="(item) in visibleMarkers.filter((item) => item.group === group.id)"
             :key="item.id ?? `${item.start}${item.type}`"
-            :style="item._styleObject"
+            :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
           </div>
         </div>
 
-        <div v-if="visibleItemsPerGroup.noGroup.backgrounds.length > 0" class="backgrounds">
+        <div v-if="visibleBackgroundsWithoutGroup.length > 0" class="backgrounds">
           <div
-            v-for="(item) in visibleItemsPerGroup.noGroup.backgrounds"
+            v-for="(item) in visibleBackgroundsWithoutGroup"
             :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
-            :style="item._styleObject"
+            :style="getStyle(item)"
             :class="[item.type, item.className]"
-            @click.stop="onClick($event, item._originalItem)"
-            @pointermove.stop="onPointerMove($event, item._originalItem)"
-            @pointerdown.stop="onPointerDown($event, item._originalItem)"
-            @pointerup.stop="onPointerUp($event, item._originalItem)"
-            @contextmenu.prevent.stop="onContextMenu($event, item._originalItem)"
+            @click.stop="onClick($event, item)"
+            @pointermove.stop="onPointerMove($event, item)"
+            @pointerdown.stop="onPointerDown($event, item)"
+            @pointerup.stop="onPointerUp($event, item)"
+            @contextmenu.prevent.stop="onContextMenu($event, item)"
           >
           </div>
         </div>
 
-        <div v-if="visibleMarkersPerGroup.noGroup.length > 0" class="markers">
+        <div v-if="visibleMarkersWithoutGroup.length > 0" class="markers">
           <div
-            v-for="(item) in visibleMarkersPerGroup.noGroup"
+            v-for="(item) in visibleMarkersWithoutGroup"
             :key="item.id ?? `${item.start}${item.type}`"
-            :style="item._styleObject"
+            :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
           </div>
@@ -127,23 +135,14 @@
 </template>
 
 <script lang="ts" setup generic="GTimelineItem extends TimelineItem, GTimelineGroup extends TimelineGroup, GTimelineMarker extends TimelineMarker">
-  import { computed, ref, watch, watchEffect } from 'vue';
+  import { computed, CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
   import { useScale } from '../composables/useScale.ts';
   import type { Scale } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
-  import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineItemRange, TimelineItemPoint, TimelineItemBackground } from '../types/timeline.ts';
-
-  interface TimelineItemInternals {
-    _styleObject: Record<string, string>;
-    _originalItem: GTimelineItem | GTimelineMarker;
-  }
-  type InternalTimelineItemRange = TimelineItemRange & TimelineItemInternals;
-  type InternalTimelineItemPoint = TimelineItemPoint & TimelineItemInternals;
-  type InternalTimelineItemBackground = TimelineItemBackground & TimelineItemInternals;
-  type InternalTimelineMarker = TimelineMarker & TimelineItemInternals;
+  import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
 
   type Props = {
     groups?: GTimelineGroup[];
@@ -266,72 +265,51 @@
   }
 
   const visibleItems = computed(() => props.items.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start) || []);
-  const visibleItemsPerGroup = computed(() => visibleItems.value.reduce((acc, item) => {
-    const styleObject = {
-      '--_left': `${getLeftPos(item.start, item.end)}px`,
-      '--_width': item.type === 'range' || item.type === 'background' ? `${getItemWidth(item.start, item.end)}px` : null,
-      ...item.cssVariables,
-    };
-    const _item = Object.assign({}, item, { _styleObject: styleObject, _originalItem: item });
-    if (item.type === 'background') {
-      acc.all.backgrounds.push(_item as InternalTimelineItemBackground);
-
-      if (item.group) {
-        acc.backgrounds[item.group] = [...acc.backgrounds[item.group] ?? [], _item as InternalTimelineItemBackground];
-      }
-      else {
-        acc.noGroup.backgrounds.push(_item as InternalTimelineItemBackground);
-      }
-    }
-    else {
-      acc.all.items.push(_item as InternalTimelineItemRange | InternalTimelineItemPoint | InternalTimelineMarker);
-
-      if (item.group) {
-        acc.items[item.group] = [...acc.items[item.group] ?? [], _item as InternalTimelineItemRange | InternalTimelineItemPoint | InternalTimelineMarker];
-      }
-      else {
-        acc.noGroup.items.push(_item as InternalTimelineItemRange | InternalTimelineItemPoint | InternalTimelineMarker);
-      }
-    }
-
-    return acc;
-  }, {
-    backgrounds: {},
-    items: {},
-    noGroup: { backgrounds: [], items: [] },
-    all: { backgrounds: [], items: [] },
-  } as {
-    backgrounds: Record<string, InternalTimelineItemBackground[]>;
-    items: Record<string, (InternalTimelineItemRange | InternalTimelineItemPoint | InternalTimelineMarker)[]>;
-    noGroup: { backgrounds: InternalTimelineItemBackground[]; items: (InternalTimelineItemRange | InternalTimelineItemPoint | InternalTimelineMarker)[] };
-    all: { backgrounds: InternalTimelineItemBackground[]; items: (InternalTimelineItemRange | InternalTimelineItemPoint | InternalTimelineMarker)[] };
-  }));
   const visibleMarkers = computed(() => props.markers.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
-  const visibleMarkersPerGroup = computed(() => visibleMarkers.value.reduce((acc, item) => {
-    const styleObject = {
+  const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter((item) => !item.group));
+  const visibleBackgroundsWithoutGroup = computed(() => visibleItems.value.filter((item) => item.type === 'background' && !item.group));
+
+
+  const styleCache = new Map();
+  const styleCacheMarkers = new Map();
+  watch([viewportStart, viewportEnd, containerWidth], () => {
+    styleCache.clear();
+    styleCacheMarkers.clear();
+  });
+
+  watch(visibleItems, () => {
+    styleCache.clear();
+  });
+
+  watch(visibleMarkers, () => {
+    styleCacheMarkers.clear();
+  });
+
+  onMounted(() => {
+    nextTick(() => {
+      styleCache.clear();
+      styleCacheMarkers.clear();
+    });
+  });
+
+  function styleObject (item: TimelineItem) {
+    return {
       '--_left': `${getLeftPos(item.start, item.end)}px`,
+      '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : null,
       ...item.cssVariables,
-    };
-    const _item = Object.assign({}, item, { _styleObject: styleObject, _originalItem: item });
-    acc.all.push(_item as InternalTimelineMarker);
+    } as CSSProperties;
+  }
 
-    if (item.group) {
-      acc.groups[item.group] = [...acc.groups[item.group] ?? [], _item as InternalTimelineMarker];
+  function getStyle (item: TimelineItem | TimelineMarker, markers = false) {
+    const cache = markers ? styleCacheMarkers : styleCache;
+    const cachedValue = cache.get(item.id ?? `${item.start}${item.type}${item.end || ''}`);
+    if (cachedValue) {
+      return cachedValue;
     }
-    else {
-      acc.noGroup.push(_item as InternalTimelineMarker);
-    }
-
-    return acc;
-  }, {
-    groups: {},
-    noGroup: [],
-    all: [],
-  } as {
-    groups: Record<string, InternalTimelineMarker[]>;
-    noGroup: InternalTimelineMarker[];
-    all: InternalTimelineMarker[];
-  }));
+    const value = styleObject(item);
+    cache.set(item.id ?? `${item.start}${item.type}${item.end || ''}`, value);
+    return value;
+  }
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
   const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView);
