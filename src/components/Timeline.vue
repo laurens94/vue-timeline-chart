@@ -384,7 +384,7 @@
     return Math.min(actualItemWidth, maxItemWidth.value);
   }
 
-  function scrollHorizontal (delta: number) {
+  function scrollHorizontal (delta: number, event: WheelEvent) {
     const deltaMs = (delta / containerWidth.value) * viewportDuration.value;
     if (delta > 0 && viewportEnd.value === props.viewportMax) {
       return;
@@ -395,6 +395,8 @@
 
     viewportStart.value = Math.round(props.viewportMin !== undefined ? Math.max(viewportStart.value + deltaMs, props.viewportMin) : viewportStart.value + deltaMs);
     viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(viewportEnd.value + deltaMs, props.viewportMax) : viewportEnd.value + deltaMs);
+
+    onMouseMove(event);
   }
 
   function checkValidityOfProps () {
@@ -429,11 +431,11 @@
       e.preventDefault();
       // if there's no native horizontal scroll going on, convert vertical scroll to horizontal:
       const delta = e.deltaY === 0 && e.deltaX !== 0 ? e.deltaX : e.deltaY;
-      scrollHorizontal(delta * (e.deltaMode === 0 ? 1 : 18));
+      scrollHorizontal(delta * (e.deltaMode === 0 ? 1 : 18), e);
       return;
     }
     if (e.deltaX !== 0) {
-      scrollHorizontal(e.deltaX * (e.deltaMode === 0 ? 1 : 18));
+      scrollHorizontal(e.deltaX * (e.deltaMode === 0 ? 1 : 18), e);
       return;
     }
     if (!(e.metaKey || e.ctrlKey)) {
@@ -445,10 +447,10 @@
     // Clamp deltaY so that the mouse scrollspeed does not affect the zoom speed too much, also take deltaMode into account:
     const clampedDeltaY = props.maxZoomSpeed ? Math.max(-props.maxZoomSpeed, Math.min(props.maxZoomSpeed, e.deltaY * (e.deltaMode === 0 ? 1 : 10))) : e.deltaY * (e.deltaMode === 0 ? 1 : 10);
     const zoomDelta = Math.round(-viewportDuration.value * 0.01 * clampedDeltaY);
-    zoom(zoomDelta, mousePosXPercentage);
+    zoom(zoomDelta, mousePosXPercentage, e);
   }
 
-  function zoom (zoomDeltaInMs: number, mousePosXPercentage = .5) {
+  function zoom (zoomDeltaInMs: number, mousePosXPercentage = .5, event: WheelEvent) {
     // limit zoomDelta so that it can never zoom with more ms than the viewportDuration:
     if (zoomDeltaInMs > 0) {
       // zooming in
@@ -478,7 +480,7 @@
     viewportStart.value = Math.round(props.viewportMin !== undefined ? Math.max(proposedViewportStart, props.viewportMin) : proposedViewportStart);
     viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(proposedViewportEnd, props.viewportMax) : proposedViewportEnd);
 
-    onMouseMove;
+    onMouseMove(event);
   }
 
   function getPositionInMsOfMouseEvent (event: MouseEvent | PointerEvent) {
@@ -513,7 +515,6 @@
   function onMouseLeave (event: MouseEvent) {
     emit('mouseleaveTimeline', { event });
   }
-
 </script>
 
 <style lang="scss" scoped>
