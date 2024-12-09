@@ -47,6 +47,7 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Basic example', link: '/examples/basic-example' },
+          { text: 'Hover position', link: '/examples/hover-position' },
           { text: 'Custom timestamp labels', link: '/examples/custom-timestamp-labels' },
           { text: 'Draggable Items', link: '/examples/draggable-items' },
           { text: 'Custom Charts or Canvas Rendering', link: '/examples/custom-charts-or-canvas-rendering' },
