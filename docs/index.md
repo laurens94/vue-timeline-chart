@@ -39,23 +39,3 @@ features:
     details: Fully customizable and extendable
 
 ---
-
-
-<style>
-:root {
-  --color-1: #8338ec;
-  --color-2: #ffbe0b;
-  --color-3: #3a86ff;
-  --color-4: #ff006e;
-  --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(120deg,  var(--color-1), var(--color-2), var(--color-3), var(--color-4));
-  --vp-home-hero-image-background-image: linear-gradient(120deg,  var(--color-1), var(--color-2), var(--color-3), var(--color-4));
-  --vp-home-hero-image-filter: blur(4rem);
-}
-
-.clip::selection {
-  color: var(--color-3);
-  background-clip: none;
-  background-color: color-mix(in srgb, currentColor, transparent 70%);
-}
-</style>
