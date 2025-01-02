@@ -139,7 +139,7 @@
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
   import { useScale } from '../composables/useScale.ts';
-  import type { Scale } from '../composables/useScale.ts';
+  import type { Scale, Scales } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
   import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
@@ -160,12 +160,14 @@
     maxZoomSpeed?: number;
     activeItems?: TimelineItem['id'][];
     maxOffsetOutsideViewport?: number;
+    scales?: Scales[];
   }
 
   const props = withDefaults(defineProps<Props>(), {
     groups: () => [],
     items: () => [],
     markers: () => [],
+    scales: () => [],
     viewportMin: undefined,
     viewportMax: undefined,
     minViewportDuration: 1000,
@@ -312,7 +314,7 @@
   }
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
-  const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView);
+  const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView, computed(() => props.scales));
   const timestampLeftPositions = computed(() => visibleTimestamps.value.map((timestamp) => getLeftPos(timestamp)));
 
   watch(scale, (newVal, oldVal) => {

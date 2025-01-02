@@ -6,8 +6,9 @@ import {
   eachYearOfInterval,
 } from 'date-fns';
 
-import {  Ref, computed, ref, watch } from 'vue';
+import {  ComputedRef, Ref, computed, ref, watch } from 'vue';
 
+// Order of units is important for sorting:
 const baseDividers = {
   ms: 1,
   seconds: 1000,
@@ -23,39 +24,56 @@ export type Scale = {
   step: number;
 }
 
-export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, viewportDuration: Ref<number>, maxLabelsInView: Ref<number>) => {
+export type Scales = {
+  unit: keyof typeof baseDividers;
+  steps: number[];
+}
+
+const getUnitIndex = (unit: keyof typeof baseDividers): number => {
+  return Object.keys(baseDividers).indexOf(unit);
+};
+
+export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, viewportDuration: Ref<number>, maxLabelsInView: Ref<number>, scales: ComputedRef<Scales[]>) => {
   // cached values:
   const _viewportDuration = ref(viewportDuration.value);
   const _maxLabelsInView = ref(maxLabelsInView.value);
 
-  const possibleScales = ([
+  const possibleScales = computed(() => (scales.value?.length ? scales.value : [
+    // #region default-scales
     {
+      // every 1 second or 10 seconds
       unit: 'seconds',
       steps: [1, 10],
     },
     {
+      // every 15 seconds, 30 seconds, 1 minute, 5 minutes, etc.
       unit: 'minutes',
       steps: [.25, .5, 1, 5, 10],
     },
     {
+      // every 15 minutes, 30 minutes, 1 hour, 2 hours
       unit: 'hours',
       steps: [.25, .5, 1, 2],
     },
     {
+      // every day
       unit: 'days',
       steps: [1],
     },
     {
+      // every 7 days, every month, every other month
       unit: 'months',
       steps: [.25, 1, 2],
     },
     {
+      // every year, 5 years, 10 years, etc.
       unit: 'years',
       steps: [1, 5, 10, 25, 50, 100, 250, 500, 1000],
     },
-  ] as const).flatMap((scale) => {
-    return scale.steps.map((step) => ({ unit: scale.unit, step: step }));
-  }) as Scale[];
+    // #endregion default-scales
+  ] as const).toSorted((a, b) => getUnitIndex(a.unit) - getUnitIndex(b.unit)).flatMap((scale) => {
+    return scale.steps.toSorted((a, b) => a - b).map((step) => ({ unit: scale.unit, step: step }));
+  }) as Scale[]);
 
   watch (viewportDuration, () => {
     _viewportDuration.value = viewportDuration.value;
@@ -66,9 +84,9 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
   });
 
   const scale = computed(() => {
-    let [scale] = possibleScales;
+    let [scale] = possibleScales.value;
 
-    for (const [index, entry] of possibleScales.entries()) {
+    for (const [index, entry] of possibleScales.value.entries()) {
       const quantityWithinRange = _viewportDuration.value / (baseDividers[entry.unit] * (entry.step ?? 1));
       // console.debug(entry.unit, quantityWithinRange);
       if (quantityWithinRange >= 1 && quantityWithinRange <= _maxLabelsInView.value) {
@@ -76,10 +94,10 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
         break;
       }
       if (quantityWithinRange < 1) {
-        scale = possibleScales[index - 1] ?? entry;
+        scale = possibleScales.value[index - 1] ?? entry;
         break;
       }
-      if (quantityWithinRange >= 1 && index === possibleScales.length - 1) {
+      if (quantityWithinRange >= 1 && index === possibleScales.value.length - 1) {
         scale = entry;
       }
     }
@@ -131,6 +149,9 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
           timestamps.push(timestamp.valueOf());
         }
         else if (scale.value.unit === 'months' && timestamp.getMonth() % scale.value.step === 0) {
+          timestamps.push(timestamp.valueOf());
+        }
+        else if (scale.value.unit === 'days' && timestamp.getDate() % scale.value.step === 0) {
           timestamps.push(timestamp.valueOf());
         }
         else if (timestamp.valueOf() % (scale.value.step * baseDividers[scale.value.unit]) === 0) {
