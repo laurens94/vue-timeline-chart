@@ -21,3 +21,4 @@ outline: deep
 | `maxZoomSpeed` | `number` | `60` | Limits the wheel event's deltaY value to prevent zooming too fast |
 | `activeItems` | `TimelineItem['id'][]` | `[]` | IDs of items that should have an `active` class |
 | `maxOffsetOutsideViewport` | `number` | `50` (px) | Items are clamped 50px outside the viewport, [so that they cannot become too large](https://github.com/laurens94/vue-timeline-chart/issues/8) |
+| `scales` | `Scale[]` | `[]` | Overwrite the default time unit snapping options (see [Timestamps and scale](/guide/timestamps-and-scale)) |

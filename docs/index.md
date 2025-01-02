@@ -21,16 +21,19 @@ hero:
 features:
   - title: Zooming
     icon: ↔
-    details: Zoom in and out of the timeline chart to see more or less detail.
+    details: Near-infinite zooming in and out of the timeline chart.
   - title: Infinite scrolling
     icon: ⇄
-    details: Scroll through the timeline chart to see more data.
+    details: Scroll seamlessly without being limited to a single day/month/year.
   - title: Plot anything
     icon: ␣
-    details: Use ranges, points, markers, backgrounds or even line charts
+    details: Use ranges, points, markers, backgrounds or even line charts.
   - title: Adjustable timestamp labels
     icon: 💬
     details: Adjust the timestamp labels per scale on the timeline chart.
+  - title: Automatic timestamp snapping 
+    icon: 📆
+    details: Snap timestamps to different units of time based on the zoom-level
   - title: Customizable
     icon: ⚙️
     details: Fully customizable and extendable

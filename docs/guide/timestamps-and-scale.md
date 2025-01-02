@@ -33,14 +33,17 @@ Which timestamps are displayed is determined by:
 
 ## Scales
 
-The interval between the timestamps and which unit of time is being used, is internally called a `scale`.
+The interval between the timestamps and which unit of time is being used, is internally called a _scale_.
 
-By default, the timestamps will snap to the following scales:
+By default, the timestamps will snap to the scales below.
+
+The `scales` prop allows you to overwrite them.
 
 <<< ../../src/composables/useScale.ts#default-scales
 
+
 ::: warning IMPORTANT
-The calculation for steps is done by taking the timestamp and doing a modulo operation with the unit.
+The calculation for steps is done by taking the timestamp and doing a modulo operation with the unit in milliseconds.
 
 The time values (`ms`, `seconds`, `minutes`, `hours`, `years`) are evenly distributed and easy to do calculations with, so here the steps property is intuitive.
 
