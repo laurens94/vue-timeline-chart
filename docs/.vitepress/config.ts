@@ -26,6 +26,7 @@ export default defineConfig({
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Performance', link: '/guide/performance' },
+          { text: 'Timestamps and Scale', link: '/guide/timestamps-and-scale' },
         ]
       },
       {
@@ -49,6 +50,7 @@ export default defineConfig({
           { text: 'Basic example', link: '/examples/basic-example' },
           { text: 'Hover position', link: '/examples/hover-position' },
           { text: 'Custom timestamp labels', link: '/examples/custom-timestamp-labels' },
+          { text: 'Custom timestamp intervals', link: '/examples/custom-timestamp-intervals' },
           { text: 'Draggable Items', link: '/examples/draggable-items' },
           { text: 'Custom Charts or Canvas Rendering', link: '/examples/custom-charts-or-canvas-rendering' },
           { text: 'Synced timelines', link: '/examples/synced-timelines' },

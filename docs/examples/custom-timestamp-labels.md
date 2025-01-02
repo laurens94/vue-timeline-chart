@@ -4,8 +4,12 @@ import Example from './custom-timestamp-labels.vue'
 
 # Custom timestamp labels
 
+::: tip
+If you want to modify how many timestamps are displayed, see: [Custom timestamp intervals](./custom-timestamp-intervals)
+:::
+
 <Example/>
 
 ## Code
 
-<<< ./custom-timestamp-labels.vue{vue}
+<<< ./custom-timestamp-labels.vue{6}

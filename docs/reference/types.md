@@ -9,7 +9,6 @@ TimelineGroups are the rows in the timeline with items.
 | `id` | `string` | <Badge type="info" text="required" /> | Unique ID, to bind items to |
 | `label` | `string` | `undefined` | Group label |
 | `className` | `string` | `''` | CSS class(es) |
-| `content` | `string` | `undefined` | Group label <Badge type="danger" text="removed in v2.0.0" /> |
 | `cssVariables` | `Record<string, string>` | `{}` | CSS variables to apply to the group (e.g. `{ '--height': '20%' }`) |
 
 ## TimelineItem
