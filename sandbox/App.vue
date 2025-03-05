@@ -5,6 +5,7 @@
       :groups="groups"
       :items="items"
       :markers="markers"
+      :viewportMin="minDate"
       :viewportMax="maxDate"
       :initialViewportStart="1691089357146"
       :initialViewportEnd="1691101020000"
@@ -62,7 +63,8 @@
     },
   });
 
-  const maxDate = new Date().valueOf() + 1000 * 60 * 60 * 24 * 365 * 10;
+  const minDate = -500000000000000;
+  const maxDate = 100000000000000;
 
   const groups = computed((): TimelineGroup[] => {
     return [
