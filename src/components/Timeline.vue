@@ -182,6 +182,7 @@
         returnValue += `${date.toLocaleString('default', {
           month: scale.unit !== 'years' && (startOfMonth(date).valueOf() === timestamp || scale.unit === 'days' || (startOfDay(date).valueOf() === timestamp) && !(scale.unit === 'months' && scale.step === 0.25)) ? 'short' : undefined,
           year: startOfYear(date).valueOf() === timestamp ? 'numeric' : undefined,
+          era: startOfYear(date).valueOf() === timestamp && startOfYear(date).getFullYear() <= 0 ? 'short' : undefined,
           day: scale.unit !== 'years' && !(scale.unit === 'months' && scale.step >= 1) && startOfDay(date).valueOf() === timestamp ? 'numeric' : undefined,
         })} `;
       }

@@ -5,7 +5,6 @@
       :groups="groups"
       :items="items"
       :markers="markers"
-      :viewportMin="757382400000"
       :viewportMax="maxDate"
       :initialViewportStart="1691089357146"
       :initialViewportEnd="1691101020000"
