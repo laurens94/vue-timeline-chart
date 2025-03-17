@@ -22,6 +22,11 @@
       <template #item="{item}">
         <div :title="'title' in item ? item.title : undefined" style="inset: 0; position: absolute;"></div>
       </template>
+      <template #marker="{item}">
+        <div class="marker-content">
+          {{ item }}
+        </div>
+      </template>
     </Timeline>
   </div>
   <details class="debug" open>

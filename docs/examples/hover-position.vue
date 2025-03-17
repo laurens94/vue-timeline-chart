@@ -22,9 +22,9 @@
   }
 </script>
 
-
 <template>
   <Timeline
+    class="timeline"
     :items="items"
     :groups="groups"
     :viewportMin="1703112200000"
@@ -32,7 +32,28 @@
     :markers="markers"
     @mousemoveTimeline="onMousemoveTimeline"
     @mouseleaveTimeline="onMouseleaveTimeline"
-  />
+  >
+    <template #marker="{item}">
+      <div class="marker-content">
+        {{ new Date(item.start).toLocaleString() }}
+      </div>
+    </template>
+  </Timeline>
 
   {{ mouseHoverPosition ? new Date(mouseHoverPosition).toLocaleString() : 'Hover over the timeline to see the hover time' }}
 </template>
+
+<style scoped>
+  :deep(.marker) {
+    contain: unset;
+    display: flex;
+  }
+
+  .marker-content {
+    font-size: small;
+    align-self: end;
+    text-wrap: nowrap;
+    padding: 0 4px;
+    opacity: 0.5;
+  }
+</style>

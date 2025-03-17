@@ -37,6 +37,7 @@
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
+          <slot name="marker" :item="item"></slot>
         </div>
 
         <div
@@ -45,6 +46,7 @@
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
+          <slot name="marker" :item="item"></slot>
         </div>
       </div>
 
@@ -102,6 +104,7 @@
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
+            <slot name="marker" :item="item"></slot>
           </div>
         </div>
 
@@ -127,6 +130,7 @@
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
+            <slot name="marker" :item="item"></slot>
           </div>
         </div>
       </div>
