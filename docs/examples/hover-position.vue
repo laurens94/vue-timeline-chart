@@ -44,7 +44,7 @@
 </template>
 
 <style scoped>
-  :deep(.marker) {
+  .timeline:deep(.marker) {
     contain: unset;
     display: flex;
   }
