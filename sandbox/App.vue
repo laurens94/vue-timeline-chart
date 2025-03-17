@@ -42,7 +42,7 @@
           </div>
         </template>
         <template v-else>
-          {{ debug[debugItem] }}
+          {{ debug[debugItem as keyof typeof debug] }}
         </template>
       </div>
     </div>
@@ -51,8 +51,9 @@
 
 <script lang="ts" setup>
   import { watch, computed, ref, reactive } from 'vue';
-  import Timeline, { TimelineGroup, TimelineItem, TimelineMarker } from '../src/components/Timeline.vue';
-  import { type Scale } from '../src/composables/useScale.ts';
+  import Timeline from '../src/components/Timeline.vue';
+  import type { TimelineGroup, TimelineItem, TimelineMarker } from '../src/types/timeline';
+  import { type Scale } from '../src/composables/useScale';
 
   const debug = reactive({
     scale: undefined as Scale | undefined,
