@@ -24,11 +24,13 @@ const baseDividers = {
 export type Scale = {
   unit: keyof typeof baseDividers;
   step: number;
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 export type Scales = {
   unit: keyof typeof baseDividers;
   steps: number[];
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 const getUnitIndex = (unit: keyof typeof baseDividers): number => {
@@ -46,40 +48,47 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       // every 1 second or 10 seconds
       unit: 'seconds',
       steps: [1, 10],
+      weekStartsOn: 0,
     },
     {
       // every 15 seconds, 30 seconds, 1 minute, 5 minutes, etc.
       unit: 'minutes',
       steps: [.25, .5, 1, 5, 10],
+      weekStartsOn: 0,
     },
     {
       // every 15 minutes, 30 minutes, 1 hour, 2 hours
       unit: 'hours',
       steps: [.25, .5, 1, 2],
+      weekStartsOn: 0,
     },
     {
       // every day
       unit: 'days',
       steps: [1],
+      weekStartsOn: 0,
     },
     {
       // every week
       unit: 'weeks',
       steps: [1],
+      weekStartsOn: 0, // 0=sunday, 1=monday
     },
     {
       // every 7 days, every month, every other month
       unit: 'months',
       steps: [1, 2],
+      weekStartsOn: 0,
     },
     {
       // every year, 5 years, 10 years, etc.
       unit: 'years',
       steps: [1, 5, 10, 25, 50, 100, 250, 500, 1000],
+      weekStartsOn: 0,
     },
     // #endregion default-scales
   ] as const).toSorted((a, b) => getUnitIndex(a.unit) - getUnitIndex(b.unit)).flatMap((scale) => {
-    return scale.steps.toSorted((a, b) => a - b).map((step) => ({ unit: scale.unit, step: step }));
+    return scale.steps.toSorted((a, b) => a - b).map((step) => ({ unit: scale.unit, step: step, weekStartsOn: scale.weekStartsOn ?? 0 }));
   }) as Scale[]);
 
   watch (viewportDuration, () => {
@@ -114,6 +123,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     return {
       unit: scale.unit,
       step: scale.step ?? 1,
+      weekStartsOn: scale.weekStartsOn ?? 0,
     };
   });
 
@@ -143,7 +153,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
         baseTimestamps = eachDayOfInterval({ start, end });
         break;
       case 'weeks':
-        baseTimestamps = eachWeekOfInterval({ start, end });
+        baseTimestamps = eachWeekOfInterval({ start, end }, { weekStartsOn: scale.value.weekStartsOn });
         break;
       case 'months':
         baseTimestamps = eachMonthOfInterval({ start, end });
