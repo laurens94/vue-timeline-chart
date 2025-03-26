@@ -1,5 +1,6 @@
 import {
   eachMonthOfInterval,
+  eachWeekOfInterval,
   eachDayOfInterval,
   eachHourOfInterval,
   eachMinuteOfInterval,
@@ -15,6 +16,7 @@ const baseDividers = {
   minutes: 1000 * 60,
   hours: 1000 * 60 * 60,
   days: 1000 * 60 * 60 * 24,
+  weeks: 1000 * 60 * 60 * 24 * 7,
   months: 1000 * 60 * 60 * 24 * 7 * 4,
   years: 1000 * 60 * 60 * 24 * 7 * 4 * 12,
 };
@@ -61,9 +63,14 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       steps: [1],
     },
     {
+      // every week
+      unit: 'weeks',
+      steps: [1],
+    },
+    {
       // every 7 days, every month, every other month
       unit: 'months',
-      steps: [.25, 1, 2],
+      steps: [1, 2],
     },
     {
       // every year, 5 years, 10 years, etc.
@@ -134,6 +141,9 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
         break;
       case 'days':
         baseTimestamps = eachDayOfInterval({ start, end });
+        break;
+      case 'weeks':
+        baseTimestamps = eachWeekOfInterval({ start, end });
         break;
       case 'months':
         baseTimestamps = eachMonthOfInterval({ start, end });
