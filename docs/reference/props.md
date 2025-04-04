@@ -22,3 +22,4 @@ outline: deep
 | `activeItems` | `TimelineItem['id'][]` | `[]` | IDs of items that should have an `active` class |
 | `maxOffsetOutsideViewport` | `number` | `50` (px) | Items are clamped 50px outside the viewport, [so that they cannot become too large](https://github.com/laurens94/vue-timeline-chart/issues/8) |
 | `scales` | `Scale[]` | `[]` | Overwrite the default time unit snapping options (see [Timestamps and scale](/guide/timestamps-and-scale)) |
+| `weekStartsOn` | `0 \| 1 \| 2 \| 3 \| 4 \| 5 \| 6` | `0` | The day of the week to start the week on (0 = Sunday, 1 = Monday, etc.) |

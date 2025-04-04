@@ -24,18 +24,18 @@ features:
     details: Near-infinite zooming in and out of the timeline chart.
   - title: Infinite scrolling
     icon: ⇄
-    details: Scroll seamlessly without being limited to a single day/month/year.
+    details: Scroll seamlessly without being limited to a single day/week/month/year.
   - title: Plot anything
     icon: ␣
     details: Use ranges, points, markers, backgrounds or even line charts.
-  - title: Adjustable timestamp labels
+  - title: Adjustable temporal labels
     icon: 💬
-    details: Adjust the timestamp labels per scale on the timeline chart.
-  - title: Automatic timestamp snapping 
-    icon: 📆
-    details: Snap timestamps to different units of time based on the zoom-level
+    details: Set different time labels per zoom-level.
+  - title: Minimal default styling
+    icon: 🎨
+    details: Just the bare minimum to make it look good, easy to override.
   - title: Customizable
     icon: ⚙️
-    details: Fully customizable and extendable
+    details: Fully customizable and extendable.
 
 ---
