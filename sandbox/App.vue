@@ -9,6 +9,7 @@
       :viewportMax="maxDate"
       :initialViewportStart="1691089357146"
       :initialViewportEnd="1691101020000"
+      :weekStartsOn="0"
       @mousemoveTimeline="onMousemoveTimeline"
       @mouseleaveTimeline="onMouseleaveTimeline"
       @changeScale="onChangeScale"
