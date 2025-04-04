@@ -165,6 +165,7 @@
     activeItems?: TimelineItem['id'][];
     maxOffsetOutsideViewport?: number;
     scales?: Scales[];
+    weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -202,6 +203,7 @@
     maxZoomSpeed: 60,
     activeItems: () => [],
     maxOffsetOutsideViewport: 50,
+    weekStartsOn: 0,
   });
 
   const emit = defineEmits<{
@@ -319,7 +321,7 @@
   }
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
-  const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView, computed(() => props.scales));
+  const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView, computed(() => props.scales), computed(() => props.weekStartsOn));
   const timestampLeftPositions = computed(() => visibleTimestamps.value.map((timestamp) => getLeftPos(timestamp)));
 
   watch(scale, (newVal, oldVal) => {

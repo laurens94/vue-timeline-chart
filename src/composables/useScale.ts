@@ -5,6 +5,7 @@ import {
   eachHourOfInterval,
   eachMinuteOfInterval,
   eachYearOfInterval,
+  getWeek,
 } from 'date-fns';
 
 import {  ComputedRef, Ref, computed, ref, watch } from 'vue';
@@ -24,20 +25,21 @@ const baseDividers = {
 export type Scale = {
   unit: keyof typeof baseDividers;
   step: number;
-  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 export type Scales = {
   unit: keyof typeof baseDividers;
   steps: number[];
-  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 const getUnitIndex = (unit: keyof typeof baseDividers): number => {
   return Object.keys(baseDividers).indexOf(unit);
 };
 
-export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, viewportDuration: Ref<number>, maxLabelsInView: Ref<number>, scales: ComputedRef<Scales[]>) => {
+/**
+ * The scales define the temporal units and their regularity.
+ */
+export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, viewportDuration: Ref<number>, maxLabelsInView: Ref<number>, scales: ComputedRef<Scales[]>, weekStartsOn: ComputedRef<0 | 1 | 2 | 3 | 4 | 5 | 6>) => {
   // cached values:
   const _viewportDuration = ref(viewportDuration.value);
   const _maxLabelsInView = ref(maxLabelsInView.value);
@@ -48,47 +50,40 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       // every 1 second or 10 seconds
       unit: 'seconds',
       steps: [1, 10],
-      weekStartsOn: 0,
     },
     {
       // every 15 seconds, 30 seconds, 1 minute, 5 minutes, etc.
       unit: 'minutes',
       steps: [.25, .5, 1, 5, 10],
-      weekStartsOn: 0,
     },
     {
       // every 15 minutes, 30 minutes, 1 hour, 2 hours
       unit: 'hours',
       steps: [.25, .5, 1, 2],
-      weekStartsOn: 0,
     },
     {
       // every day
       unit: 'days',
       steps: [1],
-      weekStartsOn: 0,
     },
     {
       // every week
       unit: 'weeks',
       steps: [1],
-      weekStartsOn: 0, // 0=sunday, 1=monday
     },
     {
-      // every 7 days, every month, every other month
+      // every month, every other month
       unit: 'months',
       steps: [1, 2],
-      weekStartsOn: 0,
     },
     {
       // every year, 5 years, 10 years, etc.
       unit: 'years',
       steps: [1, 5, 10, 25, 50, 100, 250, 500, 1000],
-      weekStartsOn: 0,
     },
     // #endregion default-scales
   ] as const).toSorted((a, b) => getUnitIndex(a.unit) - getUnitIndex(b.unit)).flatMap((scale) => {
-    return scale.steps.toSorted((a, b) => a - b).map((step) => ({ unit: scale.unit, step: step, weekStartsOn: scale.weekStartsOn ?? 0 }));
+    return scale.steps.toSorted((a, b) => a - b).map((step) => ({ unit: scale.unit, step: step }));
   }) as Scale[]);
 
   watch (viewportDuration, () => {
@@ -123,9 +118,23 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     return {
       unit: scale.unit,
       step: scale.step ?? 1,
-      weekStartsOn: scale.weekStartsOn ?? 0,
     };
   });
+
+  /**
+   * Checks if a specific moment falls on a step interval of the current scale.
+   * @param instant - The Date instance to check.
+   * @returns `true` if the instant falls on a step interval, `false` otherwise.
+   */
+  function alignsWithGridlines (instant: Date): boolean {
+    switch (scale.value.unit) {
+      case 'years': return instant.getFullYear() % scale.value.step === 0;
+      case 'months': return instant.getMonth() % scale.value.step === 0;
+      case 'weeks': return getWeek(instant, { weekStartsOn: weekStartsOn.value }) % scale.value.step === 0;
+      case 'days': return instant.getDate() % scale.value.step === 0;
+      default: return instant.valueOf() % (scale.value.step * baseDividers[scale.value.unit]) === 0;
+    }
+  }
 
   const visibleTimestamps = computed(() => {
     const timestamps: number[] = [];
@@ -153,7 +162,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
         baseTimestamps = eachDayOfInterval({ start, end });
         break;
       case 'weeks':
-        baseTimestamps = eachWeekOfInterval({ start, end }, { weekStartsOn: scale.value.weekStartsOn });
+        baseTimestamps = eachWeekOfInterval({ start, end }, { weekStartsOn: weekStartsOn.value });
         break;
       case 'months':
         baseTimestamps = eachMonthOfInterval({ start, end });
@@ -164,25 +173,14 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     }
 
     for (const timestamp of baseTimestamps) {
-      if (scale.value.step && scale.value.step > 1) {
-        if (scale.value.unit === 'years' && timestamp.getFullYear() % scale.value.step === 0) {
-          timestamps.push(timestamp.valueOf());
-        }
-        else if (scale.value.unit === 'months' && timestamp.getMonth() % scale.value.step === 0) {
-          timestamps.push(timestamp.valueOf());
-        }
-        else if (scale.value.unit === 'days' && timestamp.getDate() % scale.value.step === 0) {
-          timestamps.push(timestamp.valueOf());
-        }
-        else if (timestamp.valueOf() % (scale.value.step * baseDividers[scale.value.unit]) === 0) {
-          timestamps.push(timestamp.valueOf());
-        }
-      }
-      else {
-        timestamps.push(timestamp.valueOf());
+      if (scale.value.step > 1 && !alignsWithGridlines(timestamp)) {
+        continue;
       }
 
-      if (scale.value.step && scale.value.step < 1) {
+      timestamps.push(timestamp.valueOf());
+
+      if (scale.value.step < 1) {
+        // Also add the fractions within this unit:
         for (let i = 1; i < 1 / scale.value.step; i++) {
           timestamps.push(timestamp.valueOf() + i * scale.value.step * baseDividers[scale.value.unit]);
         }
