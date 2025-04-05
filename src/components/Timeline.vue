@@ -325,11 +325,11 @@
   const timestampLeftPositions = computed(() => visibleTimestamps.value.map((timestamp) => getLeftPos(timestamp)));
 
   watch(scale, (newVal, oldVal) => {
-    if (newVal.step === oldVal.step && newVal.unit === oldVal.unit) {
+    if (newVal.step === oldVal?.step && newVal.unit === oldVal?.unit) {
       return;
     }
     emit('changeScale', newVal);
-  });
+  }, { immediate: true });
 
   function timestampClassNames (timestamp: number) {
     return {
