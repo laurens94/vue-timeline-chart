@@ -124,7 +124,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
   /**
    * Checks if a specific moment falls on a step interval of the current scale.
    * @param instant - The Date instance to check.
-   * @returns `true` if the instant falls on a step interval, `false` otherwise.
+   * @returns `true` if the instant falls on a step interval.
    */
   function alignsWithGridlines (instant: Date): boolean {
     switch (scale.value.unit) {
@@ -132,7 +132,10 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       case 'months': return instant.getMonth() % scale.value.step === 0;
       case 'weeks': return getWeek(instant, { weekStartsOn: weekStartsOn.value }) % scale.value.step === 0;
       case 'days': return instant.getDate() % scale.value.step === 0;
-      default: return instant.valueOf() % (scale.value.step * baseDividers[scale.value.unit]) === 0;
+      case 'hours': return instant.getHours() % scale.value.step === 0;
+      case 'minutes': return instant.getMinutes() % scale.value.step === 0;
+      case 'seconds': return instant.getSeconds() % scale.value.step === 0;
+      case 'ms': return instant.getMilliseconds() % scale.value.step === 0;
     }
   }
 
