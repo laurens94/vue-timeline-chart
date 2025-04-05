@@ -48,6 +48,8 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     // #region default-scales
     {
       // every 100ms, 1 second or 10 seconds
+      // NOTE: .1 seconds is used here instead of 100ms, so the first ms that would align with the gridline
+      // (that provides the label) is shown when only the next occuring ms are within the viewport
       unit: 'seconds',
       steps: [.1, 1, 10],
     },
