@@ -193,7 +193,7 @@
       }
 
       if (['hours', 'minutes', 'seconds', 'ms'].includes(scale.unit)) {
-        returnValue += `${leadingZero(date.getHours())}:${leadingZero(date.getMinutes())}${date.getSeconds() > 0 ? `:${leadingZero(date.getSeconds())}` : ''}`;
+        returnValue += `${leadingZero(date.getHours())}:${leadingZero(date.getMinutes())}${date.getSeconds() > 0 ? `:${leadingZero(date.getSeconds())}` : ''}${date.getMilliseconds() > 0 ? `.${leadingZero(date.getMilliseconds())}` : ''}`;
       }
 
       return returnValue;

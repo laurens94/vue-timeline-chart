@@ -47,9 +47,9 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
   const possibleScales = computed(() => (scales.value?.length ? scales.value : [
     // #region default-scales
     {
-      // every 1 second or 10 seconds
+      // every 100ms, 1 second or 10 seconds
       unit: 'seconds',
-      steps: [1, 10],
+      steps: [.1, 1, 10],
     },
     {
       // every 15 seconds, 30 seconds, 1 minute, 5 minutes, etc.
@@ -146,6 +146,9 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
 
     let baseTimestamps = [] as Date[];
     switch (scale.value.unit) {
+      case 'ms':
+        baseTimestamps = Array.from({ length: end - start }, (_, i) => new Date(start + i));
+        break;
       case 'seconds':
         baseTimestamps = eachMinuteOfInterval({ start, end }).flatMap((minute) => {
           const secondsInMinute = [] as Date[];
