@@ -23,7 +23,7 @@
 <p>
 
 <p align="center">
-  <img src="https://github.com/laurens94/vue-timeline-chart/assets/5780704/5ab32f01-0034-4538-a2f3-15f03956420a" alt="timeline with customized styling">
+  <img src="https://github.com/user-attachments/assets/0164911c-2178-4f92-acca-a92df1371448" alt="timeline with customized styling">
 </p>
 
 ## Features
