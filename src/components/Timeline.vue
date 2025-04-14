@@ -220,6 +220,7 @@
   }>();
 
   defineExpose({
+    setViewport,
     onWheel,
   });
 
@@ -237,7 +238,7 @@
   watchEffect(() => {
     try {
       checkValidityOfProps();
-      setViewportValues();
+      setInitialViewportValues();
     }
     catch (e) {
       console.error(e);
@@ -246,7 +247,7 @@
 
   const { left: containerLeft } = useElementBounding(timelineEl);
 
-  function setViewportValues () {
+  function setInitialViewportValues () {
     if (props.initialViewportStart === undefined && props.viewportMin === undefined) {
       const firstStartOccurence = props.items?.reduce((min, item) => {
         if (item.start < min) {
@@ -254,10 +255,10 @@
         }
         return min;
       }, Infinity);
-      viewportStart.value = firstStartOccurence ?? 0;
+      setViewport(firstStartOccurence ?? 0, undefined);
     }
     else {
-      viewportStart.value = props.initialViewportStart ?? props.viewportMin ?? 0;
+      setViewport(props.initialViewportStart ?? props.viewportMin ?? 0, undefined);
     }
     if (props.initialViewportEnd === undefined && props.viewportMax === undefined) {
       const lastEndOccurence = props.items?.reduce((max, item) => {
@@ -266,10 +267,10 @@
         }
         return max;
       }, -Infinity);
-      viewportEnd.value = lastEndOccurence ?? 10000;
+      setViewport(undefined, lastEndOccurence ?? 10000);
     }
     else {
-      viewportEnd.value = props.initialViewportEnd ?? props.viewportMax ?? 10000;
+      setViewport(undefined, props.initialViewportEnd ?? props.viewportMax ?? 10000);
     }
   }
 
@@ -277,7 +278,6 @@
   const visibleMarkers = computed(() => props.markers.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
   const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter((item) => !item.group));
   const visibleBackgroundsWithoutGroup = computed(() => visibleItems.value.filter((item) => item.type === 'background' && !item.group));
-
 
   const styleCache = new Map();
   const styleCacheMarkers = new Map();
@@ -380,9 +380,7 @@
       return;
     }
 
-    viewportStart.value = Math.round(props.viewportMin !== undefined ? Math.max(viewportStart.value + deltaMs, props.viewportMin) : viewportStart.value + deltaMs);
-    viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(viewportEnd.value + deltaMs, props.viewportMax) : viewportEnd.value + deltaMs);
-
+    setViewport(viewportStart.value + deltaMs, viewportEnd.value + deltaMs);
     onMouseMove(event);
   }
 
@@ -402,6 +400,23 @@
     const initialViewportEndIsAfterViewportMax = props.initialViewportEnd !== undefined && props.viewportMax !== undefined && props.initialViewportEnd > props.viewportMax;
     if (initialViewportEndIsAfterViewportMax) {
       throw new Error('[vue-timeline-chart] Invalid props: initialViewportEnd must be smaller than or equal to viewportMax');
+    }
+  }
+
+  /**
+   * Set the viewport to the given start and end.
+   *
+   * If only one of the two is provided, the other value will stay unchanged.
+   * Values are rounded to whole numbers and clamped to the viewportMin and viewportMax props if those are provided.
+   * @param start - The start of the viewport in ms
+   * @param end - The end of the viewport in ms
+   */
+  function setViewport (start?: number, end?: number) {
+    if (start !== undefined) {
+      viewportStart.value = Math.round(props.viewportMin !== undefined ? Math.max(start, props.viewportMin) : start);
+    }
+    if (end !== undefined) {
+      viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(end, props.viewportMax) : end);
     }
   }
 
@@ -464,8 +479,7 @@
       return;
     }
 
-    viewportStart.value = Math.round(props.viewportMin !== undefined ? Math.max(proposedViewportStart, props.viewportMin) : proposedViewportStart);
-    viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(proposedViewportEnd, props.viewportMax) : proposedViewportEnd);
+    setViewport(proposedViewportStart, proposedViewportEnd);
 
     onMouseMove(event);
   }

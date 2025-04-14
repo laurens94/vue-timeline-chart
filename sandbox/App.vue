@@ -1,14 +1,15 @@
 <template>
   <div>
     <Timeline
+      ref="timeline"
       class="timeline"
       :groups="groups"
       :items="items"
       :markers="markers"
-      :viewportMin="minDate"
-      :viewportMax="maxDate"
-      :initialViewportStart="1691089357146"
-      :initialViewportEnd="1691101020000"
+      :viewportMin="maxRange[0]"
+      :viewportMax="maxRange[1]"
+      :initialViewportStart="initialViewportRange[0]"
+      :initialViewportEnd="initialViewportRange[1]"
       :weekStartsOn="0"
       @mousemoveTimeline="onMousemoveTimeline"
       @mouseleaveTimeline="onMouseleaveTimeline"
@@ -23,14 +24,34 @@
       <template #item="{item}">
         <div :title="'title' in item ? item.title : undefined" style="inset: 0; position: absolute;"></div>
       </template>
-      <template #marker="{item}">
-        <div class="marker-content">
-          {{ item }}
-        </div>
-      </template>
     </Timeline>
   </div>
-  <details class="debug" open>
+  <details open>
+    <summary>
+      Controls
+    </summary>
+    <div class="flex">
+      <button @click="timeline.setViewport(debug.viewport.start - viewportSize * 0.2, debug.viewport.end - viewportSize * 0.2)">
+        Move left
+      </button>
+      <button @click="timeline.setViewport(debug.viewport.start + viewportSize * 0.2, debug.viewport.end + viewportSize * 0.2)">
+        Move right
+      </button>
+      <button @click="timeline.setViewport(debug.viewport.start - viewportSize * 0.2, debug.viewport.end + viewportSize * 0.2)">
+        Zoom out
+      </button>
+      <button @click="timeline.setViewport(debug.viewport.start + viewportSize * 0.2, debug.viewport.end - viewportSize * 0.2)">
+        Zoom in
+      </button>
+      <button @click="timeline.setViewport(initialViewportRange[0], initialViewportRange[1])">
+        Reset viewport
+      </button>
+      <button @click="timeline.setViewport(maxRange[0], maxRange[1])">
+        Set viewport to max range
+      </button>
+    </div>
+  </details>
+  <details open>
     <summary>
       Debug
     </summary>
@@ -38,7 +59,7 @@
     <div
       v-for="debugItem in Object.keys(debug)"
       :key="debugItem"
-      class="pair"
+      class="flex"
     >
       <label>{{ debugItem }}</label>
       <div class="data">
@@ -70,8 +91,12 @@
     },
   });
 
-  const minDate = -500000000000000;
-  const maxDate = 100000000000000;
+  const viewportSize = computed(() => debug.viewport.end - debug.viewport.start);
+
+  const timeline = ref();
+
+  const maxRange = [-500000000000000, 100000000000000];
+  const initialViewportRange = [1691089357146, 1691101020000];
 
   const groups = computed((): TimelineGroup[] => {
     return [
@@ -256,7 +281,7 @@
     }
   }
 
-  .debug {
+  details {
     background-color: rgba(0, 0, 0, 50%);
     color: white;
     padding: 0.5rem;
@@ -264,7 +289,7 @@
     border-radius: 0.5rem;
     margin-top: 2rem;
 
-    .pair {
+    .flex {
       display: flex;
       gap: 2rem;
       margin: 1rem;
