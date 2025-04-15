@@ -9,7 +9,7 @@
       // ensure tippy is loaded (due to import within vitepress)
       setTimeout(() => resetTooltips(), 100);
       return;
-    };
+    }
 
     tippyInstances.forEach((instance) => instance.destroy());
     tippyInstances = [];

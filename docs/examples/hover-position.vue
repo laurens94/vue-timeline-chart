@@ -25,7 +25,6 @@
 <template>
   <Timeline
     class="timeline"
-    :items="items"
     :groups="groups"
     :viewportMin="1703112200000"
     :viewportMax="1714566600000"
