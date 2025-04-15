@@ -10,6 +10,8 @@
       :viewportMax="maxRange[1]"
       :initialViewportStart="initialViewportRange[0]"
       :initialViewportEnd="initialViewportRange[1]"
+      :minViewportDuration="minViewportDuration"
+      :maxViewportDuration="maxViewportDuration"
       :weekStartsOn="0"
       @mousemoveTimeline="onMousemoveTimeline"
       @mouseleaveTimeline="onMouseleaveTimeline"
@@ -51,6 +53,36 @@
       </button>
     </div>
   </details>
+
+  <details open>
+    <summary>
+      Props
+    </summary>
+    <div class="flex">
+      <label>initialViewportStart</label>
+      <input v-model="initialViewportRange[0]" type="number"/>
+    </div>
+    <div class="flex">
+      <label>initialViewportEnd</label>
+      <input v-model="initialViewportRange[1]" type="number"/>
+    </div>
+    <div class="flex">
+      <label>viewportMin</label>
+      <input v-model="maxRange[0]" type="number"/>
+    </div>
+    <div class="flex">
+      <label>viewportMax</label>
+      <input v-model="maxRange[1]" type="number"/>
+    </div>
+    <div class="flex">
+      <label>minViewportDuration</label>
+      <input v-model="minViewportDuration" type="number"/>
+    </div>
+    <div class="flex">
+      <label>maxViewportDuration</label>
+      <input v-model="maxViewportDuration" type="number"/>
+    </div>
+  </details>
   <details open>
     <summary>
       Debug
@@ -84,19 +116,21 @@
 
   const debug = reactive({
     scale: undefined as Scale | undefined,
-    firedEvents: [] as string[],
     viewport: {
       start: 0,
       end: 0,
     },
+    firedEvents: [] as string[],
   });
 
   const viewportSize = computed(() => debug.viewport.end - debug.viewport.start);
 
   const timeline = ref();
 
-  const maxRange = [-500000000000000, 100000000000000];
-  const initialViewportRange = [1691089357146, 1691101020000];
+  const maxRange = ref([-500000000000000, 100000000000000]);
+  const initialViewportRange = ref([1691089357146, 1691101020000]);
+  const minViewportDuration = ref(10000);
+  const maxViewportDuration = ref(10000000000000);
 
   const groups = computed((): TimelineGroup[] => {
     return [

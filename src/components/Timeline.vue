@@ -238,7 +238,6 @@
   watchEffect(() => {
     try {
       checkValidityOfProps();
-      setInitialViewportValues();
     }
     catch (e) {
       console.error(e);
@@ -247,32 +246,34 @@
 
   const { left: containerLeft } = useElementBounding(timelineEl);
 
-  function setInitialViewportValues () {
-    if (props.initialViewportStart === undefined && props.viewportMin === undefined) {
-      const firstStartOccurence = props.items?.reduce((min, item) => {
-        if (item.start < min) {
-          return item.start;
-        }
-        return min;
-      }, Infinity);
-      setViewport(firstStartOccurence ?? 0, undefined);
-    }
-    else {
-      setViewport(props.initialViewportStart ?? props.viewportMin ?? 0, undefined);
-    }
-    if (props.initialViewportEnd === undefined && props.viewportMax === undefined) {
-      const lastEndOccurence = props.items?.reduce((max, item) => {
-        if ((item.end !== undefined && item.end > max) || item.start > max) {
-          return item.end ?? item.start;
-        }
-        return max;
-      }, -Infinity);
-      setViewport(undefined, lastEndOccurence ?? 10000);
-    }
-    else {
-      setViewport(undefined, props.initialViewportEnd ?? props.viewportMax ?? 10000);
-    }
+  function getFirstItemOccurence () {
+    return props.items?.reduce((min, item) => {
+      if (item.start < min) {
+        return item.start;
+      }
+      return min;
+    }, Infinity);
   }
+
+  function getLastItemOccurence () {
+    return props.items?.reduce((max, item) => {
+      if ((item.end !== undefined && item.end > max) || item.start > max) {
+        return item.end ?? item.start;
+      }
+      return max;
+    }, -Infinity);
+  }
+
+  function setInitialViewportValues () {
+    setViewport(
+      props.initialViewportStart ?? props.viewportMin ?? getFirstItemOccurence() ?? 0,
+      props.initialViewportEnd ?? props.viewportMax ?? getLastItemOccurence() ?? 10000
+    );
+  }
+
+  watch([() => props.viewportMin, () => props.viewportMax], () => {
+    setViewport(viewportStart.value, viewportEnd.value);
+  });
 
   const visibleItems = computed(() => props.items.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start) || []);
   const visibleMarkers = computed(() => props.markers.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
@@ -295,6 +296,8 @@
   });
 
   onMounted(() => {
+    setInitialViewportValues();
+
     nextTick(() => {
       styleCache.clear();
       styleCacheMarkers.clear();
@@ -393,31 +396,37 @@
     if (hasInvalidViewportMinMax) {
       throw new Error('[vue-timeline-chart] Invalid props: viewportMin must be smaller than viewportMax');
     }
-    const initialViewportStartIsBeforeViewportMin = props.initialViewportStart !== undefined && props.viewportMin !== undefined && props.initialViewportStart < props.viewportMin;
-    if (initialViewportStartIsBeforeViewportMin) {
-      throw new Error('[vue-timeline-chart] Invalid props: initialViewportStart must be greater than or equal to viewportMin');
-    }
-    const initialViewportEndIsAfterViewportMax = props.initialViewportEnd !== undefined && props.viewportMax !== undefined && props.initialViewportEnd > props.viewportMax;
-    if (initialViewportEndIsAfterViewportMax) {
-      throw new Error('[vue-timeline-chart] Invalid props: initialViewportEnd must be smaller than or equal to viewportMax');
-    }
   }
 
   /**
    * Set the viewport to the given start and end.
    *
    * If only one of the two is provided, the other value will stay unchanged.
-   * Values are rounded to whole numbers and clamped to the viewportMin and viewportMax props if those are provided.
+   * Values are rounded to whole numbers and clamped to the viewportMin and viewportMax props.
+   * The proposed duration is clamped to the minViewportDuration and maxViewportDuration props.
    * @param start - The start of the viewport in ms
    * @param end - The end of the viewport in ms
    */
   function setViewport (start?: number, end?: number) {
-    if (start !== undefined) {
-      viewportStart.value = Math.round(props.viewportMin !== undefined ? Math.max(start, props.viewportMin) : start);
+    if (start === undefined && end === undefined) {
+      console.warn('[vue-timeline-chart] setViewport: both start and end are undefined. No viewport will be set.');
+      return;
     }
-    if (end !== undefined) {
-      viewportEnd.value = Math.round(props.viewportMax !== undefined ? Math.min(end, props.viewportMax) : end);
+    let proposedStart = start === undefined ? viewportStart.value : (props.viewportMin !== undefined ? Math.max(start, props.viewportMin) : start);
+    let proposedEnd = end === undefined ? viewportEnd.value : (props.viewportMax !== undefined ? Math.min(end, props.viewportMax) : end);
+    const proposedDuration = proposedEnd - proposedStart;
+    if (props.minViewportDuration !== undefined && proposedDuration < props.minViewportDuration) {
+      const viewportDelta = props.minViewportDuration - proposedDuration;
+      proposedStart -= viewportDelta * 0.5;
+      proposedEnd += viewportDelta * 0.5;
     }
+    else if (props.maxViewportDuration !== undefined && proposedDuration > props.maxViewportDuration) {
+      const viewportDelta = props.maxViewportDuration - proposedDuration;
+      proposedStart -= viewportDelta * 0.5;
+      proposedEnd += viewportDelta * 0.5;
+    }
+    viewportStart.value = Math.round(proposedStart);
+    viewportEnd.value = Math.round(proposedEnd);
   }
 
   function onWheel (e: WheelEvent) {
