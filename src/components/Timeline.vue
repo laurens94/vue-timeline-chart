@@ -275,6 +275,10 @@
     setViewport(viewportStart.value, viewportEnd.value);
   });
 
+  watch([() => props.initialViewportStart, () => props.initialViewportEnd], () => {
+    setViewport(props.initialViewportStart, props.initialViewportEnd);
+  });
+
   const visibleItems = computed(() => props.items.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start) || []);
   const visibleMarkers = computed(() => props.markers.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
   const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter((item) => !item.group));
