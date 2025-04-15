@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
 
   const timeline = ref(null);
 
@@ -42,6 +42,10 @@
       previousDragTimePos = time;
     }
   }
+
+  watch(viewport, (val) => {
+    timeline.value?.setViewport(val.start, val.end);
+  }, { deep: true });
 
   window.addEventListener('pointerup', () => {
     isDraggingMapViewport = false;
