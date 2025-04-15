@@ -43,10 +43,6 @@
     }
   }
 
-  watch(viewport, (val) => {
-    timeline.value?.setViewport(val.start, val.end);
-  }, { deep: true });
-
   window.addEventListener('pointerup', () => {
     isDraggingMapViewport = false;
   }, { capture: true });
