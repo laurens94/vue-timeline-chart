@@ -36,6 +36,7 @@ export default defineConfig({
         items: [
           { text: 'Props', link: '/reference/props' },
           { text: 'Events', link: '/reference/events' },
+          { text: 'Methods', link: '/reference/methods' },
           { text: 'Slots', link: '/reference/slots' },
           { text: 'Types', link: '/reference/types', items: [
             { text: 'TimelineGroup', link: '/reference/types#timelinegroup' },
@@ -56,6 +57,7 @@ export default defineConfig({
           { text: 'Custom Charts or Canvas Rendering', link: '/examples/custom-charts-or-canvas-rendering' },
           { text: 'Synced timelines', link: '/examples/synced-timelines' },
           { text: 'Tooltips', link: '/examples/tooltips' },
+          { text: 'Set viewport', link: '/examples/set-viewport' },
         ]
       }
     ],
