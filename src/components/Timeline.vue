@@ -541,6 +541,11 @@
     position: relative;
     user-select: none;
     font-family: var(--font-family, inherit);
+
+    @media print {
+      color: black;
+      print-color-adjust: exact;
+    }
   }
 
   .item,
