@@ -13,14 +13,15 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/favicon.svg',
-
+    search: {
+      provider: 'local'
+    },
     nav: [
       { text: 'Guide', link: '/guide/getting-started', activeMatch: '/guide/' },
       { text: 'API', link: '/reference/props', activeMatch: '/reference/' },
       { text: 'Examples', link: '/examples/basic-example', activeMatch: '/examples/' },
       { text: 'Changelog', link: 'https://github.com/laurens94/vue-timeline-chart/releases' },
     ],
-
     sidebar: [
       {
         text: 'Introduction',
