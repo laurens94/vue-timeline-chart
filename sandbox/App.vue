@@ -241,7 +241,7 @@
 <style lang="scss" scoped>
   .timeline {
     border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
-
+    touch-action: none;
     --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
     // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
