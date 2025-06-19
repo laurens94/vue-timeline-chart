@@ -553,7 +553,7 @@
   const pxPerMs = computed(() => containerWidth.value / viewportDuration.value);
 
   function onTouchMove (event: TouchEvent) {
-    if (event.touches.length === 2 && initialPinchDistance !== null) {
+    if (event.touches.length === 2 && initialPinchDistance !== null && initialTouchViewportStart !== null && initialTouchViewportEnd !== null) {
       const [touch1, touch2] = [...event.touches].sort((a, b) => a.clientX - b.clientX);
       const [initialTouch1, initialTouch2] = [touch1, touch2].map(t =>
         [...initialTouchList!].find(init => init.identifier === t.identifier)!
@@ -570,7 +570,7 @@
 
       const zoomAnchorX = (prevCenterX - containerLeft.value) / containerWidth.value;
 
-      const initialDuration = initialTouchViewportEnd! - initialTouchViewportStart!;
+      const initialDuration = initialTouchViewportEnd - initialTouchViewportStart;
       const newDuration = initialDuration / pinchZoomRatio;
       const deltaDuration = newDuration - initialDuration;
 
