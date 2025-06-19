@@ -150,6 +150,7 @@
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
   import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
+  import { getDistance } from '../helpers/getDistance.ts';
 
   type Props = {
     groups?: GTimelineGroup[];
@@ -384,7 +385,7 @@
     return Math.min(actualItemWidth, maxItemWidth.value);
   }
 
-  function scrollHorizontal (delta: number, event: WheelEvent) {
+  function scrollHorizontal (delta: number, event: WheelEvent | TouchEvent) {
     const deltaMs = (delta / containerWidth.value) * viewportDuration.value;
     if (delta > 0 && viewportEnd.value === props.viewportMax) {
       return;
@@ -394,7 +395,10 @@
     }
 
     setViewport(viewportStart.value + deltaMs, viewportEnd.value + deltaMs);
-    onMouseMove(event);
+
+    if (event instanceof WheelEvent) {
+      onMouseMove(event);
+    }
   }
 
   function checkValidityOfProps () {
@@ -509,13 +513,19 @@
   }
 
   let lastTouchX: number | null = null;
-  let initialPinchDistance: number | null = null;
-  let initialViewportStartTouch: number | null = null;
-  let initialViewportEndTouch: number | null = null;
 
-  function getDistance (a: Touch, b: Touch): number {
-    return Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+  /** Sets lastTouchX when there is only a single touch point or unset when there is none */
+  function setLastTouchX (event: TouchEvent) {
+    if (event.touches.length < 2) {
+      const [touch] = Array.from(event.touches);
+      lastTouchX = touch?.clientX || null;
+    }
   }
+
+  let initialTouchList: TouchList | null = null;
+  let initialTouchViewportStart: number | null = null;
+  let initialTouchViewportEnd: number | null = null;
+  let initialPinchDistance: number | null = null;
 
   function animateViewport (fromStart: number, toStart: number, fromEnd: number, toEnd: number) {
     const startTime = performance.now();
@@ -540,20 +550,36 @@
     requestAnimationFrame(frame);
   }
 
+  const pxPerMs = computed(() => containerWidth.value / viewportDuration.value);
+
   function onTouchMove (event: TouchEvent) {
     if (event.touches.length === 2 && initialPinchDistance !== null) {
-      const [touch1, touch2] = Array.from(event.touches);
-      const currentDistance = getDistance(touch1, touch2);
+      const [touch1, touch2] = [...event.touches].sort((a, b) => a.clientX - b.clientX);
+      const [initialTouch1, initialTouch2] = [touch1, touch2].map(t =>
+        [...initialTouchList!].find(init => init.identifier === t.identifier)!
+      );
 
-      const scale = currentDistance / initialPinchDistance;
-      const mid = (initialViewportStartTouch! + initialViewportEndTouch!) / 2;
-      const half = (initialViewportEndTouch! - initialViewportStartTouch!) / 2 / scale;
+      const currentPinchDistance = getDistance(touch1, touch2);
+      const pinchZoomRatio = currentPinchDistance / initialPinchDistance;
 
-      setViewport(mid - half, mid + half);
-      return;
+      const prevCenterX = (initialTouch1.screenX + initialTouch2.screenX) / 2;
+      const currCenterX = (touch1.screenX + touch2.screenX) / 2;
+
+      const panDeltaInPx = currCenterX - prevCenterX;
+      const panDeltaInMs = -panDeltaInPx / pxPerMs.value;
+
+      const zoomAnchorX = (prevCenterX - containerLeft.value) / containerWidth.value;
+
+      const initialDuration = initialTouchViewportEnd! - initialTouchViewportStart!;
+      const newDuration = initialDuration / pinchZoomRatio;
+      const deltaDuration = newDuration - initialDuration;
+
+      const proposedStart = initialTouchViewportStart - deltaDuration * zoomAnchorX + panDeltaInMs;
+      const proposedEnd = proposedStart + newDuration;
+
+      setViewport(proposedStart, proposedEnd);
     }
-
-    if (event.touches.length === 1) {
+    else if (event.touches.length === 1) {
       const [touch] = event.touches;
 
       if (lastTouchX === null) {
@@ -561,66 +587,64 @@
         return;
       }
 
-      const deltaX = touch.clientX - lastTouchX;
-      lastTouchX = touch.clientX;
+      const deltaX = lastTouchX - touch.clientX;
+      scrollHorizontal(deltaX, event);
+      setLastTouchX(event);
 
-      const pxPerMs = containerWidth.value / (viewportEnd.value - viewportStart.value);
-      const deltaMs = -deltaX / pxPerMs;
+    //   // const deltaX = touch.clientX - lastTouchX;
+    //   // lastTouchX = touch.clientX;
 
-      const proposedStart = viewportStart.value + deltaMs;
-      const proposedEnd = viewportEnd.value + deltaMs;
-      const duration = viewportEnd.value - viewportStart.value;
-      const min = props.viewportMin ?? -Infinity;
-      const max = props.viewportMax ?? Infinity;
+    //   // const deltaMs = -deltaX / pxPerMs.value;
 
-      if (proposedStart < min) {
-        const overshoot = min - proposedStart;
-        viewportStart.value = min - overshoot * 0.2;
-        viewportEnd.value = viewportStart.value + duration;
-      }
-      else if (proposedEnd > max) {
-        const overshoot = proposedEnd - max;
-        viewportEnd.value = max + overshoot * 0.2;
-        viewportStart.value = viewportEnd.value - duration;
-      }
-      else {
-        viewportStart.value = proposedStart;
-        viewportEnd.value = proposedEnd;
-      }
+    //   // const proposedStart = viewportStart.value + deltaMs;
+    //   // const proposedEnd = viewportEnd.value + deltaMs;
+    //   // const duration = viewportDuration.value;
+    //   // const min = props.viewportMin ?? -Infinity;
+    //   // const max = props.viewportMax ?? Infinity;
+
+    //   // if (proposedStart < min) {
+    //   //   const overshoot = min - proposedStart;
+    //   //   viewportStart.value = min - overshoot * 0.2;
+    //   //   viewportEnd.value = viewportStart.value + duration;
+    //   // }
+    //   // else if (proposedEnd > max) {
+    //   //   const overshoot = proposedEnd - max;
+    //   //   viewportEnd.value = max + overshoot * 0.2;
+    //   //   viewportStart.value = viewportEnd.value - duration;
+    //   // }
+    //   // else {
+    //   //   viewportStart.value = proposedStart;
+    //   //   viewportEnd.value = proposedEnd;
+    //   // }
     }
+  }
+
+  function setInitialTouchList (event: TouchEvent) {
+    initialTouchList = event.touches;
+    const [touch1, touch2] = Array.from(event.touches);
+    initialTouchViewportStart = viewportStart.value;
+    initialTouchViewportEnd = viewportEnd.value;
+    initialPinchDistance = touch1 && touch2 ? getDistance(touch1, touch2) : null;
   }
 
   function onTouchStart (event: TouchEvent) {
-    if (event.touches.length === 2) {
-      const [touch1, touch2] = Array.from(event.touches);
-      initialPinchDistance = getDistance(touch1, touch2);
-      initialViewportStartTouch = viewportStart.value;
-      initialViewportEndTouch = viewportEnd.value;
-    }
-    else if (event.touches.length === 1) {
-      const [touch] = Array.from(event.touches);
-      lastTouchX = touch.clientX;
-    }
+    setInitialTouchList(event);
+    setLastTouchX(event);
   }
 
   function onTouchEnd (event: TouchEvent) {
-    const duration = viewportEnd.value - viewportStart.value;
     const min = props.viewportMin ?? -Infinity;
     const max = props.viewportMax ?? Infinity;
 
     if (viewportStart.value < min) {
-      animateViewport(viewportStart.value, min, viewportEnd.value, min + duration);
+      animateViewport(viewportStart.value, min, viewportEnd.value, min + viewportDuration.value);
     }
     else if (viewportEnd.value > max) {
-      animateViewport(viewportStart.value, max - duration, viewportEnd.value, max);
+      animateViewport(viewportStart.value, max - viewportDuration.value, viewportEnd.value, max);
     }
 
-    if (event.touches.length === 0) {
-      lastTouchX = null;
-      initialPinchDistance = null;
-      initialViewportStartTouch = null;
-      initialViewportEndTouch = null;
-    }
+    setLastTouchX(event);
+    setInitialTouchList(event);
   }
 
   function onPointerDown (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
