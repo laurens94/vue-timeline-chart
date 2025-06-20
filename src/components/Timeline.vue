@@ -694,6 +694,7 @@
   }
 
   .timeline-wrapper {
+    touch-action: pan-y;
     overflow: hidden;
     position: relative;
     user-select: none;
