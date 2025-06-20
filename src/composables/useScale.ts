@@ -59,9 +59,9 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       steps: [.25, .5, 1, 5, 10],
     },
     {
-      // every 15 minutes, 30 minutes, 1 hour, 2 hours
+      // every 15 minutes, 30 minutes, 1 hour, 2 hours, etc.
       unit: 'hours',
-      steps: [.25, .5, 1, 2],
+      steps: [.25, .5, 1, 2, 4, 6, 12],
     },
     {
       // every day

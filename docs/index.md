@@ -28,9 +28,9 @@ features:
   - title: Plot anything
     icon: ␣
     details: Use ranges, points, markers, backgrounds or even line charts.
-  - title: Adjustable temporal labels
-    icon: 💬
-    details: Set different time labels per zoom-level.
+  - title: Smooth touch gestures
+    icon: 🤏
+    details: Pinch-to-zoom and 2-finger panning on touch devices.
   - title: Minimal default styling
     icon: 🎨
     details: Just the bare minimum to make it look good, easy to override.

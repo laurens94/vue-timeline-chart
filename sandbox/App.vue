@@ -20,6 +20,9 @@
       @pointermove="debugEvent"
       @pointerdown="debugEvent"
       @pointerup="debugEvent"
+      @touchmove="debugEvent"
+      @touchstart="debugEvent"
+      @touchend="debugEvent"
       @click="debugEvent"
       @contextmenu="debugEvent"
     >
@@ -199,8 +202,8 @@
     currentTime.value = new Date().valueOf();
   }, 40);
 
-  function debugEvent ({ time, event, item } : {time: number, event: MouseEvent, item: TimelineItem | null}) {
-    debug.firedEvents.push(`${event.type} (${time}) ${item || ''}`);
+  function debugEvent ({ time, event, item } : {time?: number, event: MouseEvent | TouchEvent, item?: TimelineItem | null}) {
+    debug.firedEvents.push(`${event.type} (${time ?? '-'}) ${item || ''}`);
   }
 
   const mouseHoverPosition = ref<number | null>(null);
@@ -240,9 +243,10 @@
 
 <style lang="scss" scoped>
   .timeline {
-    border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
-
     --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+
+    border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
+    touch-action: none;
 
     // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
     // --group-border-top: 1px solid rgba(255, 255, 255, 10%);
@@ -325,8 +329,9 @@
 
     .flex {
       display: flex;
-      gap: 2rem;
+      gap: 1rem .5rem;
       margin: 1rem;
+      flex-wrap: wrap;
     }
 
     label {
