@@ -329,8 +329,9 @@
 
     .flex {
       display: flex;
-      gap: 2rem;
+      gap: 1rem .5rem;
       margin: 1rem;
+      flex-wrap: wrap;
     }
 
     label {
