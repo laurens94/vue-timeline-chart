@@ -151,6 +151,7 @@
   import { useElementBounding } from '@vueuse/core';
   import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
+  import { useTouchEvents } from '../composables/useTouchEvents.ts';
 
   type Props = {
     groups?: GTimelineGroup[];
@@ -211,15 +212,15 @@
   });
 
   const emit = defineEmits<{
-    (e: 'touchmove', value: { time: number; event: TouchEvent, item: GTimelineItem | GTimelineMarker | null }): void;
-    (e: 'touchstart', value: { time: number; event: TouchEvent, item: GTimelineItem | GTimelineMarker | null }): void;
-    (e: 'touchend', value: { time: number; event: TouchEvent, item: GTimelineItem | GTimelineMarker | null }): void;
     (e: 'pointermove', value: { time: number; event: PointerEvent, item: GTimelineItem | GTimelineMarker | null }): void;
     (e: 'pointerdown', value: { time: number; event: PointerEvent, item: GTimelineItem | GTimelineMarker | null }): void;
     (e: 'pointerup', value: { time: number; event: PointerEvent, item: GTimelineItem | GTimelineMarker | null }): void;
     (e: 'wheel', value: WheelEvent): void;
     (e: 'click', value: { time: number; event: MouseEvent, item: GTimelineItem | GTimelineMarker | null }): void;
     (e: 'contextmenu', value: { time: number; event: MouseEvent, item: GTimelineItem | GTimelineMarker | null }): void;
+    (e: 'touchmove', value: { time: number; event: TouchEvent}): void;
+    (e: 'touchstart', value: { time: number; event: TouchEvent}): void;
+    (e: 'touchend', value: { event: TouchEvent}): void;
     (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
     (e: 'mouseleaveTimeline', value: { event: MouseEvent }): void;
     (e: 'changeViewport', value: { start: number; end: number }): void;
@@ -237,6 +238,9 @@
   const viewportStart = ref<number>(0);
   const viewportEnd = ref<number>(10000);
   const viewportDuration = computed(() => viewportEnd.value - viewportStart.value);
+
+  /** The number of screen pixels per timeline ms */
+  const pxPerMs = computed(() => containerWidth.value / viewportDuration.value);
 
   watch([viewportStart, viewportEnd], ([start, end]) => {
     emit('changeViewport', { start, end });
@@ -507,60 +511,34 @@
     onMouseMove(event);
   }
 
-  function getPositionInMsOfMouseEvent (event: MouseEvent | PointerEvent) {
-    const mousePosXPercentage = (event.clientX - containerLeft.value) / containerWidth.value;
+  /**
+   * Returns the position in the timeline where the mouse, pointer or touch event occurred.
+   * When multiple touch points are involved, the average position is returned.
+   */
+  function getPositionInMsOfUIEvent (event: MouseEvent | PointerEvent | TouchEvent) {
+    let xPos: number;
+    if (event instanceof TouchEvent) {
+      const averageX = Array.from(event.touches).reduce((sum, touch) => sum + touch.clientX, 0) / event.touches.length;
+      xPos = averageX;
+    }
+    else {
+      xPos = event.clientX;
+    }
+    const mousePosXPercentage = (xPos - containerLeft.value) / containerWidth.value;
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
-  let lastTouchX: number | null = null;
-
-  /** Sets lastTouchX when there is only a single touch point or unset when there is none */
-  function setLastTouchX (event: TouchEvent) {
-    if (event.touches.length < 2) {
-      const [touch] = Array.from(event.touches);
-      lastTouchX = touch?.clientX || null;
-    }
-  }
-
-  let initialTouchList: TouchList | null = null;
-  let initialTouchViewportStart: number | null = null;
-  let initialTouchViewportEnd: number | null = null;
-  let initialPinchDistance: number | null = null;
-
-  function animateViewport (fromStart: number, toStart: number, fromEnd: number, toEnd: number) {
-    const startTime = performance.now();
-    const durationMs = 300;
-
-    function easeOutCubic (t: number): number {
-      return 1 - Math.pow(1 - t, 3);
-    }
-
-    function frame (now: number) {
-      const t = Math.min((now - startTime) / durationMs, 1);
-      const eased = easeOutCubic(t);
-
-      viewportStart.value = fromStart + (toStart - fromStart) * eased;
-      viewportEnd.value = fromEnd + (toEnd - fromEnd) * eased;
-
-      if (t < 1) {
-        requestAnimationFrame(frame);
-      }
-    }
-
-    requestAnimationFrame(frame);
-  }
-
-  const pxPerMs = computed(() => containerWidth.value / viewportDuration.value);
+  const { state: touchState, setLastTouchX, setInitialTouchList, animateViewport } = useTouchEvents({ viewportStart, viewportEnd });
 
   function onTouchMove (event: TouchEvent) {
-    if (event.touches.length === 2 && initialPinchDistance !== null && initialTouchViewportStart !== null && initialTouchViewportEnd !== null) {
+    if (event.touches.length === 2 && touchState.initialPinchDistance !== null && touchState.initialTouchViewportStart !== null && touchState.initialTouchViewportEnd !== null) {
       const [touch1, touch2] = [...event.touches].sort((a, b) => a.clientX - b.clientX);
       const [initialTouch1, initialTouch2] = [touch1, touch2].map(t =>
-        [...initialTouchList!].find(init => init.identifier === t.identifier)!
+        [...touchState.initialTouchList!].find(init => init.identifier === t.identifier)!
       );
 
       const currentPinchDistance = getDistance(touch1, touch2);
-      const pinchZoomRatio = currentPinchDistance / initialPinchDistance;
+      const pinchZoomRatio = currentPinchDistance / touchState.initialPinchDistance;
 
       const prevCenterX = (initialTouch1.screenX + initialTouch2.screenX) / 2;
       const currCenterX = (touch1.screenX + touch2.screenX) / 2;
@@ -570,11 +548,11 @@
 
       const zoomAnchorX = (prevCenterX - containerLeft.value) / containerWidth.value;
 
-      const initialDuration = initialTouchViewportEnd - initialTouchViewportStart;
+      const initialDuration = touchState.initialTouchViewportEnd - touchState.initialTouchViewportStart;
       const newDuration = initialDuration / pinchZoomRatio;
       const deltaDuration = newDuration - initialDuration;
 
-      const proposedStart = initialTouchViewportStart - deltaDuration * zoomAnchorX + panDeltaInMs;
+      const proposedStart = touchState.initialTouchViewportStart - deltaDuration * zoomAnchorX + panDeltaInMs;
       const proposedEnd = proposedStart + newDuration;
 
       setViewport(proposedStart, proposedEnd);
@@ -582,17 +560,17 @@
     else if (event.touches.length === 1) {
       const [touch] = event.touches;
 
-      if (lastTouchX === null) {
-        lastTouchX = touch.clientX;
-        return;
+      if (touchState.lastTouchX === null) {
+        touchState.lastTouchX = touch.clientX;
+      }
+      else {
+        const deltaX = touchState.lastTouchX - touch.clientX;
+        scrollHorizontal(deltaX, event);
+        setLastTouchX(event);
       }
 
-      const deltaX = lastTouchX - touch.clientX;
-      scrollHorizontal(deltaX, event);
-      setLastTouchX(event);
-
-    //   // const deltaX = touch.clientX - lastTouchX;
-    //   // lastTouchX = touch.clientX;
+    //   // const deltaX = touch.clientX - touchHelpersState.lastTouchX;
+    //   // touchHelpersState.lastTouchX = touch.clientX;
 
     //   // const deltaMs = -deltaX / pxPerMs.value;
 
@@ -617,19 +595,15 @@
     //   //   viewportEnd.value = proposedEnd;
     //   // }
     }
-  }
 
-  function setInitialTouchList (event: TouchEvent) {
-    initialTouchList = event.touches;
-    const [touch1, touch2] = Array.from(event.touches);
-    initialTouchViewportStart = viewportStart.value;
-    initialTouchViewportEnd = viewportEnd.value;
-    initialPinchDistance = touch1 && touch2 ? getDistance(touch1, touch2) : null;
+    emit('touchmove', { time: getPositionInMsOfUIEvent(event), event });
   }
 
   function onTouchStart (event: TouchEvent) {
     setInitialTouchList(event);
     setLastTouchX(event);
+
+    emit('touchstart', { time: getPositionInMsOfUIEvent(event), event });
   }
 
   function onTouchEnd (event: TouchEvent) {
@@ -645,42 +619,32 @@
 
     setLastTouchX(event);
     setInitialTouchList(event);
+
+    emit('touchend', { event });
   }
 
   function onPointerDown (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    if (event.pointerType === 'touch') {
-      return;
-    }
-
-    emit('pointerdown', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('pointerdown', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onPointerMove (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    if (event.pointerType === 'touch') {
-      return;
-    }
-
-    emit('pointermove', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('pointermove', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onPointerUp (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    if (event.pointerType === 'touch') {
-      return;
-    }
-
-    emit('pointerup', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('pointerup', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onClick (event: MouseEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('click', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('click', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onContextMenu (event: MouseEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('contextmenu', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('contextmenu', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onMouseMove (event: MouseEvent) {
-    emit('mousemoveTimeline', { time: getPositionInMsOfMouseEvent(event), event });
+    emit('mousemoveTimeline', { time: getPositionInMsOfUIEvent(event), event });
   }
 
   function onMouseLeave (event: MouseEvent) {

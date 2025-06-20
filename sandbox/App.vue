@@ -202,8 +202,8 @@
     currentTime.value = new Date().valueOf();
   }, 40);
 
-  function debugEvent ({ time, event, item } : {time: number, event: MouseEvent | TouchEvent, item: TimelineItem | null}) {
-    debug.firedEvents.push(`${event.type} (${time}) ${item || ''}`);
+  function debugEvent ({ time, event, item } : {time?: number, event: MouseEvent | TouchEvent, item?: TimelineItem | null}) {
+    debug.firedEvents.push(`${event.type} (${time ?? '-'}) ${item || ''}`);
   }
 
   const mouseHoverPosition = ref<number | null>(null);
