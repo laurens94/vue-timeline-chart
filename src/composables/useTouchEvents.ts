@@ -36,29 +36,6 @@ export function useTouchEvents ({ viewportStart, viewportEnd }: { viewportStart:
     state.initialPinchDistance = touch1 && touch2 ? getDistance(touch1, touch2) : null;
   }
 
-  function animateViewport (fromStart: number, toStart: number, fromEnd: number, toEnd: number) {
-    const startTime = performance.now();
-    const durationMs = 300;
-
-    function easeOutCubic (t: number): number {
-      return 1 - Math.pow(1 - t, 3);
-    }
-
-    function frame (now: number) {
-      const t = Math.min((now - startTime) / durationMs, 1);
-      const eased = easeOutCubic(t);
-
-      viewportStart.value = fromStart + (toStart - fromStart) * eased;
-      viewportEnd.value = fromEnd + (toEnd - fromEnd) * eased;
-
-      if (t < 1) {
-        requestAnimationFrame(frame);
-      }
-    }
-
-    requestAnimationFrame(frame);
-  }
-
   const state = {
     get lastTouchX () {
       return lastTouchX;
@@ -94,7 +71,6 @@ export function useTouchEvents ({ viewportStart, viewportEnd }: { viewportStart:
   return {
     setLastTouchX,
     setInitialTouchList,
-    animateViewport,
     state,
   };
 }

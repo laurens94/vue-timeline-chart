@@ -568,32 +568,6 @@
         scrollHorizontal(deltaX, event);
         setLastTouchX(event);
       }
-
-    //   // const deltaX = touch.clientX - touchHelpersState.lastTouchX;
-    //   // touchHelpersState.lastTouchX = touch.clientX;
-
-    //   // const deltaMs = -deltaX / pxPerMs.value;
-
-    //   // const proposedStart = viewportStart.value + deltaMs;
-    //   // const proposedEnd = viewportEnd.value + deltaMs;
-    //   // const duration = viewportDuration.value;
-    //   // const min = props.viewportMin ?? -Infinity;
-    //   // const max = props.viewportMax ?? Infinity;
-
-    //   // if (proposedStart < min) {
-    //   //   const overshoot = min - proposedStart;
-    //   //   viewportStart.value = min - overshoot * 0.2;
-    //   //   viewportEnd.value = viewportStart.value + duration;
-    //   // }
-    //   // else if (proposedEnd > max) {
-    //   //   const overshoot = proposedEnd - max;
-    //   //   viewportEnd.value = max + overshoot * 0.2;
-    //   //   viewportStart.value = viewportEnd.value - duration;
-    //   // }
-    //   // else {
-    //   //   viewportStart.value = proposedStart;
-    //   //   viewportEnd.value = proposedEnd;
-    //   // }
     }
 
     emit('touchmove', { time: getPositionInMsOfUIEvent(event), event });
@@ -607,16 +581,6 @@
   }
 
   function onTouchEnd (event: TouchEvent) {
-    const min = props.viewportMin ?? -Infinity;
-    const max = props.viewportMax ?? Infinity;
-
-    if (viewportStart.value < min) {
-      animateViewport(viewportStart.value, min, viewportEnd.value, min + viewportDuration.value);
-    }
-    else if (viewportEnd.value > max) {
-      animateViewport(viewportStart.value, max - viewportDuration.value, viewportEnd.value, max);
-    }
-
     setLastTouchX(event);
     setInitialTouchList(event);
 
