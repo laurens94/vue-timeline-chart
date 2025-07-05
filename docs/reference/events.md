@@ -9,6 +9,9 @@ outline: deep
 | `pointermove` | `{time: number, event: PointerEvent, item: TimelineItem \| null}` | Pointermove event on the timeline |
 | `pointerdown` | `{time: number, event: PointerEvent, item: TimelineItem \| null}` | Pointerdown event on the timeline |
 | `pointerup` | `{time: number, event: PointerEvent, item: TimelineItem \| null}` | Pointerup event on the timeline |
+| `touchmove` | `{time: number, event: TouchEvent}` | Touchmove event on the timeline |
+| `touchstart` | `{time: number, event: TouchEvent}` | Touchstart event on the timeline |
+| `touchend` | `{event: TouchEvent}` | Touchend event on the timeline |
 | `wheel` | `WheelEvent` | Wheel event on the timeline |
 | `click` | `{time: number, event: MouseEvent, item: TimelineItem \| null}` | Click event on the timeline |
 | `contextmenu` | `{time: number, event: MouseEvent, item: TimelineItem \| null}` | Right-click event on the timeline |
@@ -21,4 +24,4 @@ outline: deep
 > The `time` argument is the position (in ms) in the timeline where the mouse is hovering.
 
 > [!TIP]
-> The `onWheel` event is exposed. This is useful when [syncing multiple timelines](/examples/synced-timelines.html).
+> The `onWheel` event handler is exposed as a method on the timeline component. This is useful when [syncing multiple timelines](/examples/synced-timelines.html).
