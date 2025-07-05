@@ -30,8 +30,10 @@
 
 - Zooming
 - Infinite scrolling _(using native horizontal scroll events, use shift+scroll to convert vertical to horizontal mouse scrolling)_
-- Plotting ranges, points, markers and backgrounds
+- Plot ranges, points, markers and backgrounds
+- Smooth touch gestures (pinch-to-zoom, up to 2-finger panning)
 - Adjustable timestamp labels per scale
+- Minimal styling
 - Customizable
 
 ## [Live demo](https://laurens94.github.io/vue-timeline-chart/examples/basic-example.html)
