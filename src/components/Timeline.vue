@@ -528,7 +528,7 @@
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
-  const { state: touchState, setLastTouchX, setInitialTouchList, animateViewport } = useTouchEvents({ viewportStart, viewportEnd });
+  const { state: touchState, setLastTouchX, setInitialTouchList } = useTouchEvents({ viewportStart, viewportEnd });
 
   function onTouchMove (event: TouchEvent) {
     if (event.touches.length === 2 && touchState.initialPinchDistance !== null && touchState.initialTouchViewportStart !== null && touchState.initialTouchViewportEnd !== null) {
