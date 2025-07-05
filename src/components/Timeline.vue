@@ -400,8 +400,8 @@
 
     setViewport(viewportStart.value + deltaMs, viewportEnd.value + deltaMs);
 
-    if (event instanceof WheelEvent) {
-      onMouseMove(event);
+    if (event.type === 'wheel') {
+      onMouseMove(event as WheelEvent);
     }
   }
 
@@ -517,7 +517,7 @@
    */
   function getPositionInMsOfUIEvent (event: MouseEvent | PointerEvent | TouchEvent) {
     let xPos: number;
-    if (event instanceof TouchEvent) {
+    if ('touches' in event) {
       const averageX = Array.from(event.touches).reduce((sum, touch) => sum + touch.clientX, 0) / event.touches.length;
       xPos = averageX;
     }
