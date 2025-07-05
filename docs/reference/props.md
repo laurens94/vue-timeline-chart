@@ -6,7 +6,7 @@ outline: deep
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `groups` | [TimelineGroup[]](/reference/types#timelinegroup) | `[]` | Define (rows)
+| `groups` | [TimelineGroup[]](/reference/types#timelinegroup) | `[]` | Rows that will contain the items |
 | `items` | [TimelineItem[]](/reference/types#timelineitem) | `[]` | Items to display |
 | `markers` | [TimelineMarker[]](/reference/types#timelinemarker) | `[]` | Markers to display |
 | `viewportMin` | `number` | `undefined` | Minimum timestamp (whole number) of the viewport (prevents scrolling to before this point) |
