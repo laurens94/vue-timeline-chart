@@ -13,6 +13,7 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/favicon.svg',
+    externalLinkIcon: true,
     search: {
       provider: 'local',
       options: {
@@ -27,11 +28,12 @@ export default defineConfig({
     ],
     sidebar: [
       {
-        text: 'Introduction',
+        text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'Performance', link: '/guide/performance' },
           { text: 'Timestamps and Scale', link: '/guide/timestamps-and-scale' },
+          { text: 'Touch input', link: '/guide/touch-input' },
         ]
       },
       {

@@ -5,6 +5,9 @@
       class="timeline"
       @wheel="onWheel"
       @click="onClick"
+      @touchmove="onTouchMove"
+      @touchstart="onTouchStart"
+      @touchend="onTouchEnd"
       @pointermove="onPointerMove"
       @pointerdown="onPointerDown"
       @pointerup="onPointerUp"
@@ -147,6 +150,8 @@
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
   import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
+  import { getDistance } from '../helpers/getDistance.ts';
+  import { useTouchEvents } from '../composables/useTouchEvents.ts';
 
   type Props = {
     groups?: GTimelineGroup[];
@@ -213,6 +218,9 @@
     (e: 'wheel', value: WheelEvent): void;
     (e: 'click', value: { time: number; event: MouseEvent, item: GTimelineItem | GTimelineMarker | null }): void;
     (e: 'contextmenu', value: { time: number; event: MouseEvent, item: GTimelineItem | GTimelineMarker | null }): void;
+    (e: 'touchmove', value: { time: number; event: TouchEvent}): void;
+    (e: 'touchstart', value: { time: number; event: TouchEvent}): void;
+    (e: 'touchend', value: { event: TouchEvent}): void;
     (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
     (e: 'mouseleaveTimeline', value: { event: MouseEvent }): void;
     (e: 'changeViewport', value: { start: number; end: number }): void;
@@ -230,6 +238,9 @@
   const viewportStart = ref<number>(0);
   const viewportEnd = ref<number>(10000);
   const viewportDuration = computed(() => viewportEnd.value - viewportStart.value);
+
+  /** The number of screen pixels per timeline ms */
+  const pxPerMs = computed(() => containerWidth.value / viewportDuration.value);
 
   watch([viewportStart, viewportEnd], ([start, end]) => {
     emit('changeViewport', { start, end });
@@ -378,7 +389,7 @@
     return Math.min(actualItemWidth, maxItemWidth.value);
   }
 
-  function scrollHorizontal (delta: number, event: WheelEvent) {
+  function scrollHorizontal (delta: number, event: WheelEvent | TouchEvent) {
     const deltaMs = (delta / containerWidth.value) * viewportDuration.value;
     if (delta > 0 && viewportEnd.value === props.viewportMax) {
       return;
@@ -388,7 +399,10 @@
     }
 
     setViewport(viewportStart.value + deltaMs, viewportEnd.value + deltaMs);
-    onMouseMove(event);
+
+    if (event instanceof WheelEvent) {
+      onMouseMove(event);
+    }
   }
 
   function checkValidityOfProps () {
@@ -497,33 +511,104 @@
     onMouseMove(event);
   }
 
-  function getPositionInMsOfMouseEvent (event: MouseEvent | PointerEvent) {
-    const mousePosXPercentage = (event.clientX - containerLeft.value) / containerWidth.value;
+  /**
+   * Returns the position in the timeline where the mouse, pointer or touch event occurred.
+   * When multiple touch points are involved, the average position is returned.
+   */
+  function getPositionInMsOfUIEvent (event: MouseEvent | PointerEvent | TouchEvent) {
+    let xPos: number;
+    if (event instanceof TouchEvent) {
+      const averageX = Array.from(event.touches).reduce((sum, touch) => sum + touch.clientX, 0) / event.touches.length;
+      xPos = averageX;
+    }
+    else {
+      xPos = event.clientX;
+    }
+    const mousePosXPercentage = (xPos - containerLeft.value) / containerWidth.value;
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
-  function onPointerMove (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointermove', { time: getPositionInMsOfMouseEvent(event), event, item });
+  const { state: touchState, setLastTouchX, setInitialTouchList } = useTouchEvents({ viewportStart, viewportEnd });
+
+  function onTouchMove (event: TouchEvent) {
+    if (event.touches.length === 2 && touchState.initialPinchDistance !== null && touchState.initialTouchViewportStart !== null && touchState.initialTouchViewportEnd !== null) {
+      const [touch1, touch2] = [...event.touches].sort((a, b) => a.clientX - b.clientX);
+      const [initialTouch1, initialTouch2] = [touch1, touch2].map(t =>
+        [...touchState.initialTouchList!].find(init => init.identifier === t.identifier)!
+      );
+
+      const currentPinchDistance = getDistance(touch1, touch2);
+      const pinchZoomRatio = currentPinchDistance / touchState.initialPinchDistance;
+
+      const prevCenterX = (initialTouch1.screenX + initialTouch2.screenX) / 2;
+      const currCenterX = (touch1.screenX + touch2.screenX) / 2;
+
+      const panDeltaInPx = currCenterX - prevCenterX;
+      const panDeltaInMs = -panDeltaInPx / pxPerMs.value;
+
+      const zoomAnchorX = (prevCenterX - containerLeft.value) / containerWidth.value;
+
+      const initialDuration = touchState.initialTouchViewportEnd - touchState.initialTouchViewportStart;
+      const newDuration = initialDuration / pinchZoomRatio;
+      const deltaDuration = newDuration - initialDuration;
+
+      const proposedStart = touchState.initialTouchViewportStart - deltaDuration * zoomAnchorX + panDeltaInMs;
+      const proposedEnd = proposedStart + newDuration;
+
+      setViewport(proposedStart, proposedEnd);
+    }
+    else if (event.touches.length === 1) {
+      const [touch] = event.touches;
+
+      if (touchState.lastTouchX === null) {
+        touchState.lastTouchX = touch.clientX;
+      }
+      else {
+        const deltaX = touchState.lastTouchX - touch.clientX;
+        scrollHorizontal(deltaX, event);
+        setLastTouchX(event);
+      }
+    }
+
+    emit('touchmove', { time: getPositionInMsOfUIEvent(event), event });
+  }
+
+  function onTouchStart (event: TouchEvent) {
+    setInitialTouchList(event);
+    setLastTouchX(event);
+
+    emit('touchstart', { time: getPositionInMsOfUIEvent(event), event });
+  }
+
+  function onTouchEnd (event: TouchEvent) {
+    setLastTouchX(event);
+    setInitialTouchList(event);
+
+    emit('touchend', { event });
   }
 
   function onPointerDown (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointerdown', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('pointerdown', { time: getPositionInMsOfUIEvent(event), event, item });
+  }
+
+  function onPointerMove (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
+    emit('pointermove', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onPointerUp (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointerup', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('pointerup', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onClick (event: MouseEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('click', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('click', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onContextMenu (event: MouseEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('contextmenu', { time: getPositionInMsOfMouseEvent(event), event, item });
+    emit('contextmenu', { time: getPositionInMsOfUIEvent(event), event, item });
   }
 
   function onMouseMove (event: MouseEvent) {
-    emit('mousemoveTimeline', { time: getPositionInMsOfMouseEvent(event), event });
+    emit('mousemoveTimeline', { time: getPositionInMsOfUIEvent(event), event });
   }
 
   function onMouseLeave (event: MouseEvent) {
@@ -537,6 +622,7 @@
   }
 
   .timeline-wrapper {
+    touch-action: pan-y;
     overflow: hidden;
     position: relative;
     user-select: none;
