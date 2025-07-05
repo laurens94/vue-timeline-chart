@@ -12,4 +12,4 @@ For more information, see: [Timestamps and scale](/guide/timestamps-and-scale)
 
 ## Code
 
-<<< ./custom-timestamp-intervals.vue{14-17}
+<<< ./custom-timestamp-intervals.vue{14-17,20-24}
