@@ -47,16 +47,16 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
   const possibleScales = computed(() => (scales.value?.length ? scales.value : [
     // #region default-scales
     {
-      // every 100ms, 1 second or 10 seconds
+      // every 100ms, 1 second, 2 seconds, 5 seconds or 10 seconds
       // NOTE: .1 seconds is used here instead of 100ms, so the first ms that would align with the gridline
       // (that provides the label) is shown when only the next occuring ms are within the viewport
       unit: 'seconds',
-      steps: [.1, 1, 10],
+      steps: [.1, 1, 2, 5, 10],
     },
     {
-      // every 15 seconds, 30 seconds, 1 minute, 5 minutes, etc.
+      // every 15 seconds, 30 seconds, 1 minute, 2 minutes, etc.
       unit: 'minutes',
-      steps: [.25, .5, 1, 5, 10],
+      steps: [.25, .5, 1, 2, 5, 10],
     },
     {
       // every 15 minutes, 30 minutes, 1 hour, 2 hours, etc.
