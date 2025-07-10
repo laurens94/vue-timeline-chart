@@ -35,21 +35,21 @@
         <slot name="timestamps-after" :scale="scale"></slot>
 
         <div
-          v-for="(item) in visibleMarkers.filter((item) => item.group === '_timestamps')"
-          :key="item.id ?? `${item.start}${item.type}`"
-          :style="getStyle(item)"
-          :class="[item.type, item.className]"
+          v-for="(markerItem) in visibleMarkers.filter((item) => item.group === '_timestamps')"
+          :key="markerItem.id ?? `${markerItem.start}${markerItem.type}`"
+          :class="[markerItem.type, markerItem.className]"
+          :style="getStyle(markerItem)"
         >
-          <slot name="marker" :item="item"></slot>
+          <slot :item="markerItem" name="marker"></slot>
         </div>
 
         <div
-          v-for="(item) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
-          :key="item.id ?? `${item.start}${item.type}`"
-          :style="getStyle(item)"
-          :class="[item.type, item.className]"
+          v-for="(markerItem) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
+          :key="markerItem.id ?? `${markerItem.start}${markerItem.type}`"
+          :class="[markerItem.type, markerItem.className]"
+          :style="getStyle(markerItem)"
         >
-          <slot name="marker" :item="item"></slot>
+          <slot :item="markerItem" name="marker"></slot>
         </div>
       </div>
 
@@ -66,7 +66,7 @@
             </slot>
           </div>
 
-          <div class="group-items">
+          <div :style="{ height: getGroupItemsHeight(group.id) }" class="group-items">
             <slot
               :name="`items-${group.id}`"
               :group="group"
@@ -75,43 +75,47 @@
               :viewportEnd="viewportEnd"
             >
               <div
-                v-for="(item, index) in visibleItems.filter((item) => item.group === group.id && item.type !== 'background')"
-                :key="item.id ?? index"
-                :style="getStyle(item)"
-                :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
-                @click.stop="onClick($event, item)"
-                @pointermove.stop="onPointerMove($event, item)"
-                @pointerdown.stop="onPointerDown($event, item)"
-                @pointerup.stop="onPointerUp($event, item)"
-                @contextmenu.prevent.stop="onContextMenu($event, item)"
+                v-for="(backgroundItem, index) in visibleItems.filter((item) => item.group === group.id && item.type !== 'background')"
+                :key="backgroundItem.id ?? index"
+                :class="['item', backgroundItem.type, backgroundItem.className, {active: activeItems.includes(backgroundItem.id)}]"
+                :style="getStyle(backgroundItem)"
+                @click.stop="onClick($event, backgroundItem)"
+                @pointermove.stop="onPointerMove($event, backgroundItem)"
+                @pointerdown.stop="onPointerDown($event, backgroundItem)"
+                @pointerup.stop="onPointerUp($event, backgroundItem)"
+                @contextmenu.prevent.stop="onContextMenu($event, backgroundItem)"
               >
-                <slot name="item" :item="item"></slot>
+                <slot :item="backgroundItem" name="item"></slot>
               </div>
             </slot>
           </div>
           <div
-            v-for="(item) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
-            :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
-            :style="getStyle(item)"
-            :class="[item.type, item.className]"
-            @click.stop="onClick($event, item)"
-            @pointermove.stop="onPointerMove($event, item)"
-            @pointerdown.stop="onPointerDown($event, item)"
-            @pointerup.stop="onPointerUp($event, item)"
-            @contextmenu.prevent.stop="onContextMenu($event, item)"
+            v-for="(backgroundItem) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
+            :key="backgroundItem.id ?? `${backgroundItem.start}${backgroundItem.type}${backgroundItem.end || ''}`"
+            :class="[backgroundItem.type, backgroundItem.className]"
+            :style="getStyle(backgroundItem)"
+            @click.stop="onClick($event, backgroundItem)"
+            @pointermove.stop="onPointerMove($event, backgroundItem)"
+            @pointerdown.stop="onPointerDown($event, backgroundItem)"
+            @pointerup.stop="onPointerUp($event, backgroundItem)"
+            @contextmenu.prevent.stop="onContextMenu($event, backgroundItem)"
           >
           </div>
           <div
-            v-for="(item) in visibleMarkers.filter((item) => item.group === group.id)"
-            :key="item.id ?? `${item.start}${item.type}`"
-            :style="getStyle(item, true)"
-            :class="[item.type, item.className]"
+            v-for="(markerItem) in visibleMarkers.filter((item) => item.group === group.id)"
+            :key="markerItem.id ?? `${markerItem.start}${markerItem.type}`"
+            :class="[markerItem.type, markerItem.className]"
+            :style="getStyle(markerItem, true)"
           >
-            <slot name="marker" :item="item"></slot>
+            <slot :item="markerItem" name="marker"></slot>
           </div>
         </div>
 
-        <div v-if="visibleBackgroundsWithoutGroup.length > 0" class="backgrounds">
+        <div
+          v-if="visibleBackgroundsWithoutGroup.length > 0"
+          :style="{ height: getGroupItemsHeight('_nogroup'), position: 'relative' }"
+          class="backgrounds"
+        >
           <div
             v-for="(item) in visibleBackgroundsWithoutGroup"
             :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
@@ -126,7 +130,11 @@
           </div>
         </div>
 
-        <div v-if="visibleMarkersWithoutGroup.length > 0" class="markers">
+        <div
+          v-if="visibleMarkersWithoutGroup.length > 0"
+          :style="{ height: getGroupItemsHeight('_nogroup'), position: 'relative' }"
+          class="markers"
+        >
           <div
             v-for="(item) in visibleMarkersWithoutGroup"
             :key="item.id ?? `${item.start}${item.type}`"
@@ -145,11 +153,11 @@
   import { computed, CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
-  import { useScale } from '../composables/useScale.ts';
   import type { Scale, Scales } from '../composables/useScale.ts';
+  import { useScale } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
-  import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
+  import type { TimelineGroup, TimelineItem, TimelineMarker } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
 
@@ -322,6 +330,7 @@
   function styleObject (item: TimelineItem) {
     return {
       '--_left': `${getLeftPos(item.start, item.end)}px`,
+      '--_top': `${getTopPos(item)}px`,
       '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : null,
       ...item.cssVariables,
     } as CSSProperties;
@@ -387,6 +396,125 @@
     const itemDuration = end - start;
     const actualItemWidth = (itemDuration / viewportDuration.value) * containerWidth.value;
     return Math.min(actualItemWidth, maxItemWidth.value);
+  }
+
+  // TODO: When completed, remove all unnecessary comments that was auto-generated by the AI
+
+  // Define a constant for the item level height (in pixels)
+  const ITEM_LEVEL_HEIGHT = 25; // This should match the --item-level-height CSS variable
+
+  // Track the maximum level for each group
+  const maxLevelByGroup = ref<Record<string, number>>({ _nogroup: 0 });
+
+  // Initialize maxLevelByGroup with all group IDs
+  watch(() => props.groups, (groups) => {
+    const newMaxLevelByGroup: Record<string, number> = { _nogroup: 0 };
+    for (const group of groups) {
+      newMaxLevelByGroup[group.id] = 0;
+    }
+    maxLevelByGroup.value = newMaxLevelByGroup;
+  }, { immediate: true });
+
+  // Compute the dynamic height for group-items based on maximum level
+  function getGroupItemsHeight (groupId: string) {
+    const maxLevel = maxLevelByGroup.value[groupId] || 0;
+    // Add 1 to maxLevel because levels are 0-indexed
+    return `${Math.max(1, maxLevel + 1) * ITEM_LEVEL_HEIGHT}px`;
+  }
+
+  function getTopPos (item: TimelineItem | TimelineMarker) {
+    let topPosition = 0;
+
+    // Determine if this is a marker or a regular item
+    const isMarker = 'type' in item && item.type === 'marker';
+
+    // Get all items that could potentially overlap with this one
+    let itemsToCheck: (TimelineItem | TimelineMarker)[] = [];
+    const groupId = item.group || '_nogroup';
+
+    if (item.group) {
+      // If the item has a group, check against other items in the same group
+      if (isMarker) {
+        // For markers, check against other markers in the same group
+        itemsToCheck = visibleMarkers.value.filter(i => i.group === item.group);
+      }
+      else {
+        // For regular items, check against other items in the same group
+        itemsToCheck = visibleItems.value.filter(i => i.group === item.group);
+      }
+    }
+    else {
+      // If the item doesn't have a group, check against other items without a group
+      if (isMarker) {
+        // For markers without a group
+        itemsToCheck = visibleMarkersWithoutGroup.value;
+      }
+      else if ('type' in item && item.type === 'background') {
+        // For backgrounds without a group
+        itemsToCheck = visibleBackgroundsWithoutGroup.value;
+      }
+    }
+
+    if (itemsToCheck.length > 0) {
+      // Sort items by start time to process them in chronological order
+      const sortedItems = [...itemsToCheck].sort((a, b) => a.start - b.start);
+
+      // Track occupied vertical positions
+      const occupiedPositions: { level: number; start: number; end: number }[] = [];
+
+      // Find the current item's index in the sorted array
+      const currentItemIndex = sortedItems.findIndex(i => i === item);
+
+      // Process items before the current one to build up the occupied positions
+      for (let i = 0; i < currentItemIndex; i++) {
+        const otherItem = sortedItems[i];
+        const otherItemStart = otherItem.start;
+        const otherItemEnd = otherItem.end ?? otherItem.start;
+
+        // Find the first available level for this item
+        let level = 0;
+        while (occupiedPositions.some(pos =>
+          pos.level === level &&
+          otherItemStart <= pos.end &&
+          otherItemEnd >= pos.start
+        )) {
+          level++;
+        }
+
+        // Add this item to occupied positions
+        occupiedPositions.push({
+          level,
+          start: otherItemStart,
+          end: otherItemEnd,
+        });
+      }
+
+      // Now find the first available level for the current item
+      const itemStart = item.start;
+      const itemEnd = item.end ?? item.start;
+
+      let level = 0;
+      while (occupiedPositions.some(pos =>
+        pos.level === level &&
+        itemStart <= pos.end &&
+        itemEnd >= pos.start
+      )) {
+        level++;
+      }
+
+      // Update the maximum level for this group if needed
+      if (level > (maxLevelByGroup.value[groupId] || 0)) {
+        maxLevelByGroup.value = {
+          ...maxLevelByGroup.value,
+          [groupId]: level,
+        };
+      }
+
+      // Calculate top position based on level using the item level height constant
+      topPosition = level * ITEM_LEVEL_HEIGHT;
+    }
+
+    return topPosition;
   }
 
   function scrollHorizontal (delta: number, event: WheelEvent | TouchEvent) {
@@ -518,8 +646,7 @@
   function getPositionInMsOfUIEvent (event: MouseEvent | PointerEvent | TouchEvent) {
     let xPos: number;
     if ('touches' in event) {
-      const averageX = Array.from(event.touches).reduce((sum, touch) => sum + touch.clientX, 0) / event.touches.length;
-      xPos = averageX;
+      xPos = Array.from(event.touches).reduce((sum, touch) => sum + touch.clientX, 0) / event.touches.length;
     }
     else {
       xPos = event.clientX;
@@ -626,7 +753,8 @@
     overflow: hidden;
     position: relative;
     user-select: none;
-    font-family: var(--font-family, inherit);
+    font-family: var(--font-family, inherit), sans-serif;
+    --item-level-height: 25px;
 
     @media print {
       color: black;
@@ -648,7 +776,7 @@
   .background,
   .timestamp,
   .marker {
-    translate: var(--_left) 0;
+    translate: var(--_left) var(--_top, 0);
     width: var(--_width);
     position: absolute;
     top: 0;
@@ -658,6 +786,7 @@
   .marker {
     background: var(--item-background, red);
     width: var(--item-marker-width, 1px);
+    height: var(--item-level-height, 25px);
     transform: translateX(-50%);
   }
 
@@ -715,13 +844,13 @@
 
     .group-items {
       position: relative;
-      height: var(--group-items-height, 2em);
+      min-height: 2em;
     }
   }
 
   .item {
     cursor: pointer;
-    height: 100%;
+    height: var(--item-level-height, 25px);
     background: var(--item-background, #007bff);
     opacity: 0.7;
 
@@ -742,10 +871,12 @@
 
     &.range {
       border-radius: var(--item-range-border-radius, 0.5em);
+      height: var(--item-level-height, 25px);
     }
   }
 
   .background {
     background: var(--item-background, rgba(0, 0, 0, 10%));
+    height: var(--item-level-height, 25px);
   }
 </style>

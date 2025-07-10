@@ -112,9 +112,9 @@
 </template>
 
 <script lang="ts" setup>
-  import { watch, computed, ref, reactive } from 'vue';
+  import { computed, reactive, ref, watch } from 'vue';
   import Timeline from '../src/components/Timeline.vue';
-  import type { TimelineGroup, TimelineItem, TimelineMarker } from '../src/types/timeline';
+  import type { TimelineGroup, TimelineItem, TimelineMarker } from '../src/index.js';
   import { type Scale } from '../src/composables/useScale';
 
   const debug = reactive({
@@ -167,7 +167,22 @@
     { type: 'background', start: 1691095000000, end: 1691096000000 },
     { type: 'background', group: 'background', start: 1691100120000, end: 1691101020000 },
     { group: 'group2', type: 'range', start: 1691095214000, end: 1691095428000 },
-    { group: 'group2', type: 'range', start: 1691091546000, end: 1691091615000, cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' } },
+    {
+      id: '1',
+      group: 'group2',
+      type: 'range',
+      start: 1691091546000,
+      end: 1691091615000,
+      cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' },
+    },
+    {
+      id: '2',
+      group: 'group2',
+      type: 'range',
+      start: 1691091546000,
+      end: 1691091615000,
+      cssVariables: { '--height': '50%', '--item-background': 'var(--color-1)' },
+    },
     { group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
     { group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
     { group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
@@ -288,12 +303,6 @@
 
     :deep(.item) {
       opacity: 0.7;
-
-      &.range {
-        height: var(--height, 100%);
-        bottom: 0;
-        top: auto;
-      }
 
       &:hover {
         opacity: 1;
