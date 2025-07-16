@@ -35,19 +35,19 @@
         <slot name="timestamps-after" :scale="scale"></slot>
 
         <div
-          v-for="(markerItem) in visibleMarkers.filter((item) => item.group === '_timestamps')"
+          v-for="(markerItem, index) in visibleMarkers.filter((item) => item.group === '_timestamps')"
           :key="markerItem.id ?? `${markerItem.start}${markerItem.type}`"
           :class="[markerItem.type, markerItem.className]"
-          :style="getStyle(markerItem)"
+          :style="getStyle(markerItem, index)"
         >
           <slot :item="markerItem" name="marker"></slot>
         </div>
 
         <div
-          v-for="(markerItem) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
+          v-for="(markerItem, index) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
           :key="markerItem.id ?? `${markerItem.start}${markerItem.type}`"
           :class="[markerItem.type, markerItem.className]"
-          :style="getStyle(markerItem)"
+          :style="getStyle(markerItem, index)"
         >
           <slot :item="markerItem" name="marker"></slot>
         </div>
@@ -76,72 +76,139 @@
             >
               <div
                 v-for="(backgroundItem, index) in visibleItems.filter((item) => item.group === group.id && item.type !== 'background')"
-                :key="backgroundItem.id ?? index"
-                :class="['item', backgroundItem.type, backgroundItem.className, {active: activeItems.includes(backgroundItem.id)}]"
-                :style="getStyle(backgroundItem)"
+                :key="backgroundItem.id ?? `${backgroundItem.start}${backgroundItem.type}${backgroundItem.end || ''}${index}`"
+                :class="[
+                  'item',
+                  backgroundItem.type,
+                  backgroundItem.className,
+                  {
+                    active: activeItems.includes(backgroundItem.id),
+                    'has-overlap': backgroundItem.overlapCount && backgroundItem.overlapCount > 1,
+                    [`overlap-index-${backgroundItem.overlapIndex}`]: backgroundItem.overlapIndex !== undefined,
+                    [`overlap-count-${backgroundItem.overlapCount}`]: backgroundItem.overlapCount !== undefined
+                  }
+                ]"
+                :style="getStyle(backgroundItem, index)"
                 @click.stop="onClick($event, backgroundItem)"
                 @pointermove.stop="onPointerMove($event, backgroundItem)"
                 @pointerdown.stop="onPointerDown($event, backgroundItem)"
                 @pointerup.stop="onPointerUp($event, backgroundItem)"
                 @contextmenu.prevent.stop="onContextMenu($event, backgroundItem)"
               >
-                <slot :item="backgroundItem" name="item"></slot>
+                <slot
+                  :item="backgroundItem"
+                  :overlapCount="backgroundItem.overlapCount"
+                  :overlapIndex="backgroundItem.overlapIndex"
+                  name="item"
+                ></slot>
               </div>
             </slot>
           </div>
           <div
-            v-for="(backgroundItem) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
+            v-for="(backgroundItem, index) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
             :key="backgroundItem.id ?? `${backgroundItem.start}${backgroundItem.type}${backgroundItem.end || ''}`"
-            :class="[backgroundItem.type, backgroundItem.className]"
-            :style="getStyle(backgroundItem)"
+            :class="[
+              backgroundItem.type,
+              backgroundItem.className,
+              {
+                'has-overlap': backgroundItem.overlapCount && backgroundItem.overlapCount > 1,
+                [`overlap-index-${backgroundItem.overlapIndex}`]: backgroundItem.overlapIndex !== undefined,
+                [`overlap-count-${backgroundItem.overlapCount}`]: backgroundItem.overlapCount !== undefined
+              }
+            ]"
+            :style="getStyle(backgroundItem, index)"
             @click.stop="onClick($event, backgroundItem)"
             @pointermove.stop="onPointerMove($event, backgroundItem)"
             @pointerdown.stop="onPointerDown($event, backgroundItem)"
             @pointerup.stop="onPointerUp($event, backgroundItem)"
             @contextmenu.prevent.stop="onContextMenu($event, backgroundItem)"
           >
+            <slot
+              :item="backgroundItem"
+              :overlapCount="backgroundItem.overlapCount"
+              :overlapIndex="backgroundItem.overlapIndex"
+              name="background"
+            ></slot>
           </div>
           <div
-            v-for="(markerItem) in visibleMarkers.filter((item) => item.group === group.id)"
+            v-for="(markerItem, index) in visibleMarkers.filter((item) => item.group === group.id)"
             :key="markerItem.id ?? `${markerItem.start}${markerItem.type}`"
-            :class="[markerItem.type, markerItem.className]"
-            :style="getStyle(markerItem, true)"
+            :class="[
+              markerItem.type,
+              markerItem.className,
+              {
+                'has-overlap': markerItem.overlapCount && markerItem.overlapCount > 1,
+                [`overlap-index-${markerItem.overlapIndex}`]: markerItem.overlapIndex !== undefined,
+                [`overlap-count-${markerItem.overlapCount}`]: markerItem.overlapCount !== undefined
+              }
+            ]"
+            :style="getStyle(markerItem, index, true)"
           >
-            <slot :item="markerItem" name="marker"></slot>
+            <slot
+              :item="markerItem"
+              :overlapCount="markerItem.overlapCount"
+              :overlapIndex="markerItem.overlapIndex"
+              name="marker"
+            ></slot>
           </div>
         </div>
 
         <div
           v-if="visibleBackgroundsWithoutGroup.length > 0"
-          :style="{ height: getGroupItemsHeight('_nogroup'), position: 'relative' }"
           class="backgrounds"
         >
           <div
-            v-for="(item) in visibleBackgroundsWithoutGroup"
+            v-for="(item, index) in visibleBackgroundsWithoutGroup"
             :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
-            :style="getStyle(item)"
-            :class="[item.type, item.className]"
+            :style="getStyle(item, index)"
+            :class="[
+              item.type,
+              item.className,
+              {
+                'has-overlap': item.overlapCount && item.overlapCount > 1,
+                [`overlap-index-${item.overlapIndex}`]: item.overlapIndex !== undefined,
+                [`overlap-count-${item.overlapCount}`]: item.overlapCount !== undefined
+              }
+            ]"
             @click.stop="onClick($event, item)"
             @pointermove.stop="onPointerMove($event, item)"
             @pointerdown.stop="onPointerDown($event, item)"
             @pointerup.stop="onPointerUp($event, item)"
             @contextmenu.prevent.stop="onContextMenu($event, item)"
           >
+            <slot
+              :item="item"
+              :overlapCount="item.overlapCount"
+              :overlapIndex="item.overlapIndex"
+              name="background"
+            ></slot>
           </div>
         </div>
 
         <div
           v-if="visibleMarkersWithoutGroup.length > 0"
-          :style="{ height: getGroupItemsHeight('_nogroup'), position: 'relative' }"
           class="markers"
         >
           <div
-            v-for="(item) in visibleMarkersWithoutGroup"
+            v-for="(item, index) in visibleMarkersWithoutGroup"
             :key="item.id ?? `${item.start}${item.type}`"
-            :style="getStyle(item, true)"
-            :class="[item.type, item.className]"
+            :style="getStyle(item, index, true)"
+            :class="[
+              item.type,
+              item.className,
+              {
+                'has-overlap': item.overlapCount && item.overlapCount > 1,
+                [`overlap-index-${item.overlapIndex}`]: item.overlapIndex !== undefined,
+                [`overlap-count-${item.overlapCount}`]: item.overlapCount !== undefined
+              }
+            ]"
           >
-            <slot name="marker" :item="item"></slot>
+            <slot
+              name="marker"
+              :item="item"
+              :overlapCount="item.overlapCount"
+              :overlapIndex="item.overlapIndex"
+            ></slot>
           </div>
         </div>
       </div>
@@ -150,7 +217,7 @@
 </template>
 
 <script lang="ts" setup generic="GTimelineItem extends TimelineItem, GTimelineGroup extends TimelineGroup, GTimelineMarker extends TimelineMarker">
-  import { computed, CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+  import { computed, CSSProperties, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
   import type { Scale, Scales } from '../composables/useScale.ts';
@@ -179,6 +246,8 @@
     maxOffsetOutsideViewport?: number;
     scales?: Scales[];
     weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    itemCompareFunction?: (a: TimelineItem, b: TimelineItem) => number;
+    dynamicRowHeight?: 'viewport' | 'dataset' | 'fixed';
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -217,6 +286,8 @@
     activeItems: () => [],
     maxOffsetOutsideViewport: 50,
     weekStartsOn: 0,
+    itemCompareFunction: undefined,
+    dynamicRowHeight: 'fixed',
   });
 
   const emit = defineEmits<{
@@ -233,6 +304,8 @@
     (e: 'mouseleaveTimeline', value: { event: MouseEvent }): void;
     (e: 'changeViewport', value: { start: number; end: number }): void;
     (e: 'changeScale', value: Scale): void;
+    (e: 'overlapChangeViewport', value: { groupId: string; oldCount: number; newCount: number }): void;
+    (e: 'overlapChangeDataset', value: { groupId: string; oldCount: number; newCount: number }): void;
   }>();
 
   defineExpose({
@@ -318,8 +391,23 @@
     styleCacheMarkers.clear();
   });
 
+  function updateItemLevelHeight () {
+    ITEM_LEVEL_HEIGHT.value = remToPixels(1.5);
+    styleCache.clear();
+    styleCacheMarkers.clear();
+  }
+
+  function handleResize () {
+    updateItemLevelHeight();
+  }
+
   onMounted(() => {
     setInitialViewportValues();
+    updateItemLevelHeight();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize);
+    }
 
     nextTick(() => {
       styleCache.clear();
@@ -327,23 +415,70 @@
     });
   });
 
+  onUnmounted(() => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('resize', handleResize);
+    }
+  });
+
+  function getItemHeight (item: TimelineItem | TimelineMarker, forCss = false): number {
+    let height = ITEM_LEVEL_HEIGHT.value;
+    const maxHeight = ITEM_LEVEL_HEIGHT.value;
+
+    if (item.cssVariables && ('--height' in item.cssVariables || '--item-level-height' in item.cssVariables)) {
+      const customHeight = item.cssVariables['--height'] || item.cssVariables['--item-level-height'];
+
+      if (customHeight) {
+        if (typeof customHeight === 'string' && customHeight.endsWith('%')) {
+          const percentage = parseFloat(customHeight) / 100;
+
+          if (!isNaN(percentage)) {
+            if (forCss) {
+              return percentage * 100;
+            }
+            height = ITEM_LEVEL_HEIGHT.value * percentage;
+          }
+        }
+
+        else if (typeof customHeight === 'string' && customHeight.endsWith('px')) {
+          const pixels = parseFloat(customHeight);
+          if (!isNaN(pixels)) {
+            height = pixels;
+          }
+        }
+
+
+        else if (typeof customHeight === 'string' && customHeight.endsWith('rem')) {
+          const rems = parseFloat(customHeight);
+          if (!isNaN(rems)) {
+            height = remToPixels(rems);
+          }
+        }
+      }
+    }
+
+    return Math.min(height, maxHeight);
+  }
+
   function styleObject (item: TimelineItem) {
+    const isFullHeight = item.type === 'marker' || item.type === 'background';
+
     return {
       '--_left': `${getLeftPos(item.start, item.end)}px`,
-      '--_top': `${getTopPos(item)}px`,
+      ...(!isFullHeight ? { '--_top': `${getTopPos(item)}px` } : {}),
       '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : null,
       ...item.cssVariables,
     } as CSSProperties;
   }
 
-  function getStyle (item: TimelineItem | TimelineMarker, markers = false) {
+  function getStyle (item: TimelineItem | TimelineMarker, itemIndex: number, markers = false) {
     const cache = markers ? styleCacheMarkers : styleCache;
-    const cachedValue = cache.get(item.id ?? `${item.start}${item.type}${item.end || ''}`);
+    const cachedValue = cache.get(item.id ?? `${item.start}${item.type}${item.end || ''}${itemIndex}`);
     if (cachedValue) {
       return cachedValue;
     }
     const value = styleObject(item);
-    cache.set(item.id ?? `${item.start}${item.type}${item.end || ''}`, value);
+    cache.set(item.id ?? `${item.start}${item.type}${item.end || ''}${itemIndex}`, value);
     return value;
   }
 
@@ -372,7 +507,6 @@
 
   function getLeftPos (startTs: number, endTs?: number) {
     if (endTs !== undefined && startTs < viewportStart.value - clampOffsetForPerformanceInMs.value) {
-      // makes sure item does not exceed viewport boundaries too much (too large items won't be rendered by the browser)
       const itemDuration = endTs - startTs;
       const actualItemWidth = (itemDuration / viewportDuration.value) * containerWidth.value;
       if (actualItemWidth > maxItemWidth.value) {
@@ -398,21 +532,165 @@
     return Math.min(actualItemWidth, maxItemWidth.value);
   }
 
-  const ITEM_LEVEL_HEIGHT = 25; // This should match the --item-level-height CSS variable
+  function remToPixels (rem: number): number {
+    try {
+      if (typeof document === 'undefined' || !document.documentElement) {
+        return rem * 16;
+      }
+
+      const fontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      return rem * fontSize;
+    }
+    catch (e) {
+      console.warn('[vue-timeline-chart] Error converting rem to pixels:', e);
+      return rem * 16;
+    }
+  }
+
+  const ITEM_LEVEL_HEIGHT = ref(24);
 
   const maxLevelByGroup = ref<Record<string, number>>({ _nogroup: 0 });
+  const maxOverlapCountByGroup = ref<Record<string, number>>({ _nogroup: 0 });
+  const prevViewportOverlapByGroup = ref<Record<string, number>>({ _nogroup: 0 });
 
   watch(() => props.groups, (groups) => {
     const newMaxLevelByGroup: Record<string, number> = { _nogroup: 0 };
+    const newMaxOverlapCountByGroup: Record<string, number> = { _nogroup: 0 };
+    const newPrevViewportOverlapByGroup: Record<string, number> = { _nogroup: 0 };
+
     for (const group of groups) {
       newMaxLevelByGroup[group.id] = 0;
+      newMaxOverlapCountByGroup[group.id] = 0;
+      newPrevViewportOverlapByGroup[group.id] = 0;
     }
+
     maxLevelByGroup.value = newMaxLevelByGroup;
+    maxOverlapCountByGroup.value = newMaxOverlapCountByGroup;
+    prevViewportOverlapByGroup.value = newPrevViewportOverlapByGroup;
   }, { immediate: true });
 
   function getGroupItemsHeight (groupId: string) {
     const maxLevel = maxLevelByGroup.value[groupId] || 0;
-    return `${Math.max(1, maxLevel + 1) * ITEM_LEVEL_HEIGHT}px`;
+
+    let itemsToConsider: TimelineItem[];
+    if (props.dynamicRowHeight === 'viewport') {
+      itemsToConsider = visibleItems.value.filter(item => item.group === groupId);
+    }
+    else if (props.dynamicRowHeight === 'dataset') {
+      itemsToConsider = props.items.filter(item => item.group === groupId);
+    }
+    else {
+      itemsToConsider = visibleItems.value.filter(item => item.group === groupId);
+    }
+
+    const levelHeights: number[] = [];
+    const itemsByLevel: Record<number, TimelineItem[]> = {};
+
+    const sortedItems = [...itemsToConsider].sort(props.itemCompareFunction || ((a, b) => a.start - b.start));
+
+    const occupiedPositions: { level: number; start: number; end: number }[] = [];
+    const overlapGroups: Record<number, TimelineItem[]> = {};
+    let maxOverlapCount = 0;
+
+    for (const item of sortedItems) {
+      const itemStart = item.start;
+      const itemEnd = item.end ?? item.start;
+
+      let level = 0;
+      while (occupiedPositions.some(pos =>
+        pos.level === level &&
+        itemStart <= pos.end &&
+        itemEnd >= pos.start
+      )) {
+        level++;
+      }
+
+      if (!overlapGroups[level]) {
+        overlapGroups[level] = [];
+      }
+
+      item.overlapIndex = overlapGroups[level].length;
+      overlapGroups[level].push(item);
+
+      const overlapCount = overlapGroups[level].length;
+      for (const groupItem of overlapGroups[level]) {
+        groupItem.overlapCount = overlapCount;
+      }
+
+      maxOverlapCount = Math.max(maxOverlapCount, overlapCount);
+
+      occupiedPositions.push({
+        level,
+        start: itemStart,
+        end: itemEnd,
+      });
+
+      if (!itemsByLevel[level]) {
+        itemsByLevel[level] = [];
+      }
+      itemsByLevel[level].push(item);
+    }
+
+    if (maxOverlapCountByGroup.value[groupId] !== maxOverlapCount) {
+      const oldCount = maxOverlapCountByGroup.value[groupId] || 0;
+      maxOverlapCountByGroup.value = {
+        ...maxOverlapCountByGroup.value,
+        [groupId]: maxOverlapCount,
+      };
+
+      if (props.dynamicRowHeight === 'dataset') {
+        emit('overlapChangeDataset', {
+          groupId,
+          oldCount,
+          newCount: maxOverlapCount,
+        });
+      }
+    }
+
+    if (props.dynamicRowHeight === 'fixed') {
+      for (let level = 0; level <= maxLevel; level++) {
+        const itemsAtLevel = itemsByLevel[level] || [];
+        let maxHeightAtLevel = ITEM_LEVEL_HEIGHT.value;
+
+        for (const item of itemsAtLevel) {
+          const itemHeight = getItemHeight(item);
+          maxHeightAtLevel = Math.max(maxHeightAtLevel, itemHeight);
+        }
+
+        levelHeights[level] = maxHeightAtLevel;
+      }
+    }
+    else {
+      for (let level = 0; level <= maxLevel; level++) {
+        const itemsAtLevel = itemsByLevel[level] || [];
+        let maxHeightAtLevel = ITEM_LEVEL_HEIGHT.value;
+
+        if (itemsAtLevel.length > 0 && itemsAtLevel[0].overlapCount && itemsAtLevel[0].overlapCount > 1) {
+          const overlapFactor = Math.min(itemsAtLevel[0].overlapCount, 3);
+          maxHeightAtLevel = ITEM_LEVEL_HEIGHT.value * overlapFactor;
+        }
+
+        levelHeights[level] = maxHeightAtLevel;
+      }
+    }
+
+    const totalHeight = levelHeights.reduce((sum, height) => sum + height, 0);
+
+    if (props.dynamicRowHeight === 'viewport' && prevViewportOverlapByGroup.value[groupId] !== maxOverlapCount) {
+      const oldCount = prevViewportOverlapByGroup.value[groupId] || 0;
+      prevViewportOverlapByGroup.value = {
+        ...prevViewportOverlapByGroup.value,
+        [groupId]: maxOverlapCount,
+      };
+
+      emit('overlapChangeViewport', {
+        groupId,
+        oldCount,
+        newCount: maxOverlapCount,
+      });
+    }
+
+    return `${Math.max(ITEM_LEVEL_HEIGHT.value, totalHeight)}px`;
   }
 
   function getTopPos (item: TimelineItem | TimelineMarker) {
@@ -441,16 +719,38 @@
     }
 
     if (itemsToCheck.length > 0) {
-      const sortedItems = [...itemsToCheck].sort((a, b) => a.start - b.start);
+      const sortedItems = [...itemsToCheck].sort(props.itemCompareFunction || ((a, b) => a.start - b.start));
 
-      const occupiedPositions: { level: number; start: number; end: number }[] = [];
+      const occupiedPositions: { level: number; start: number; end: number; height: number }[] = [];
+      const levelHeights: number[] = [];
+      const overlapGroups: Record<number, (TimelineItem | TimelineMarker)[]> = {};
 
       const currentItemIndex = sortedItems.findIndex(i => i === item);
+      let currentItemHeight: number = 0;
 
       for (let i = 0; i < currentItemIndex; i++) {
         const otherItem = sortedItems[i];
         const otherItemStart = otherItem.start;
         const otherItemEnd = otherItem.end ?? otherItem.start;
+
+        let otherItemHeight = ITEM_LEVEL_HEIGHT.value;
+
+        if (otherItem.cssVariables && '--height' in otherItem.cssVariables) {
+          const heightValue = otherItem.cssVariables['--height'];
+          if (typeof heightValue === 'string' && heightValue.endsWith('%')) {
+            otherItemHeight = ITEM_LEVEL_HEIGHT.value;
+          }
+          else {
+            otherItemHeight = getItemHeight(otherItem);
+          }
+        }
+        else {
+          otherItemHeight = getItemHeight(otherItem);
+        }
+
+        if (!currentItemHeight) {
+          currentItemHeight = otherItemHeight;
+        }
 
         let level = 0;
         while (occupiedPositions.some(pos =>
@@ -461,10 +761,29 @@
           level++;
         }
 
+        if (!overlapGroups[level]) {
+          overlapGroups[level] = [];
+        }
+
+        otherItem.overlapIndex = overlapGroups[level].length;
+        overlapGroups[level].push(otherItem);
+
+        for (const groupItem of overlapGroups[level]) {
+          groupItem.overlapCount = overlapGroups[level].length;
+        }
+
+        if (levelHeights[level] === undefined) {
+          levelHeights[level] = otherItemHeight;
+        }
+        else {
+          levelHeights[level] = Math.max(levelHeights[level], otherItemHeight);
+        }
+
         occupiedPositions.push({
           level,
           start: otherItemStart,
           end: otherItemEnd,
+          height: otherItemHeight,
         });
       }
 
@@ -480,6 +799,17 @@
         level++;
       }
 
+      if (!overlapGroups[level]) {
+        overlapGroups[level] = [];
+      }
+
+      item.overlapIndex = overlapGroups[level].length;
+      overlapGroups[level].push(item);
+
+      for (const groupItem of overlapGroups[level]) {
+        groupItem.overlapCount = overlapGroups[level].length;
+      }
+
       if (level > (maxLevelByGroup.value[groupId] || 0)) {
         maxLevelByGroup.value = {
           ...maxLevelByGroup.value,
@@ -487,7 +817,7 @@
         };
       }
 
-      topPosition = level * ITEM_LEVEL_HEIGHT;
+      topPosition = level * ITEM_LEVEL_HEIGHT.value;
     }
 
     return topPosition;
@@ -556,13 +886,11 @@
     emit('wheel', e);
 
     if (e.deltaY === 0) {
-      // prevent swipe gesture triggered history navigation:
       e.preventDefault();
     }
 
     if (e.shiftKey) {
       e.preventDefault();
-      // if there's no native horizontal scroll going on, convert vertical scroll to horizontal:
       const delta = e.deltaY === 0 && e.deltaX !== 0 ? e.deltaX : e.deltaY;
       scrollHorizontal(delta * (e.deltaMode === 0 ? 1 : 18), e);
       return;
@@ -577,28 +905,23 @@
     e.preventDefault();
 
     const mousePosXPercentage = (e.clientX - containerLeft.value) / containerWidth.value;
-    // Clamp deltaY so that the mouse scrollspeed does not affect the zoom speed too much, also take deltaMode into account:
     const clampedDeltaY = props.maxZoomSpeed ? Math.max(-props.maxZoomSpeed, Math.min(props.maxZoomSpeed, e.deltaY * (e.deltaMode === 0 ? 1 : 10))) : e.deltaY * (e.deltaMode === 0 ? 1 : 10);
     const zoomDelta = Math.round(-viewportDuration.value * 0.01 * clampedDeltaY);
     zoom(zoomDelta, mousePosXPercentage, e);
   }
 
   function zoom (zoomDeltaInMs: number, mousePosXPercentage = .5, event: WheelEvent) {
-    // limit zoomDelta so that it can never zoom with more ms than the viewportDuration:
     if (zoomDeltaInMs > 0) {
-      // zooming in
       zoomDeltaInMs = viewportDuration.value - zoomDeltaInMs < props.minViewportDuration
         ? viewportDuration.value - props.minViewportDuration
         : zoomDeltaInMs;
     }
     else if (props.maxViewportDuration) {
-      // zooming out
       zoomDeltaInMs = viewportDuration.value - zoomDeltaInMs > props.maxViewportDuration
         ? -(props.maxViewportDuration - viewportDuration.value)
         : zoomDeltaInMs;
     }
 
-    // mousePosXPercentage of 0.5 means the zoomDeltaInMs is equally distributed between viewportStart and viewportEnd
     const viewportDeltaLeft = zoomDeltaInMs * mousePosXPercentage;
     const viewportDeltaRight = zoomDeltaInMs - viewportDeltaLeft;
 
@@ -606,7 +929,7 @@
     const proposedViewportEnd = viewportEnd.value - viewportDeltaRight;
 
     if (proposedViewportStart >= proposedViewportEnd) {
-      console.error('Rounding issue probably occured while zooming.\n\nSetting different values for minViewportDuration and maxViewportDuration might help.');
+      console.error('Rounding issue probably occurred while zooming.\n\nSetting different values for minViewportDuration and maxViewportDuration might help.');
       return;
     }
 
@@ -617,7 +940,7 @@
 
   /**
    * Returns the position in the timeline where the mouse, pointer or touch event occurred.
-   * When multiple touch points are involved, the average position is returned.
+   * When multiple touchpoints are involved, the average position is returned.
    */
   function getPositionInMsOfUIEvent (event: MouseEvent | PointerEvent | TouchEvent) {
     let xPos: number;
@@ -730,7 +1053,7 @@
     position: relative;
     user-select: none;
     font-family: var(--font-family, inherit), sans-serif;
-    --item-level-height: 25px;
+    --item-level-height: 1.5rem;
 
     @media print {
       color: black;
@@ -762,7 +1085,6 @@
   .marker {
     background: var(--item-background, red);
     width: var(--item-marker-width, 1px);
-    height: var(--item-level-height, 25px);
     transform: translateX(-50%);
   }
 
@@ -820,15 +1142,17 @@
 
     .group-items {
       position: relative;
-      min-height: 2em;
+      height: var(--group-items-height, 2em);
     }
   }
 
   .item {
     cursor: pointer;
-    height: var(--item-level-height, 25px);
+    height: var(--height, var(--item-level-height, 1.5rem));
+    max-height: var(--item-level-height, 1.5rem);
     background: var(--item-background, #007bff);
     opacity: 0.7;
+    bottom: auto;
 
     &:hover,
     &.active {
@@ -841,18 +1165,17 @@
       height: var(--_size);
       width: var(--_size);
       border-radius: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%, 0);
     }
 
     &.range {
       border-radius: var(--item-range-border-radius, 0.5em);
-      height: var(--item-level-height, 25px);
+      height: var(--height, var(--item-level-height, 1.5rem));
+      max-height: var(--item-level-height, 1.5rem); /* Enforce maximum height */
     }
   }
 
   .background {
     background: var(--item-background, rgba(0, 0, 0, 10%));
-    height: var(--item-level-height, 25px);
   }
 </style>

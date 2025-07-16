@@ -168,25 +168,23 @@
     { type: 'background', group: 'background', start: 1691100120000, end: 1691101020000 },
     { group: 'group2', type: 'range', start: 1691095214000, end: 1691095428000 },
     {
-      id: '1',
       group: 'group2',
       type: 'range',
       start: 1691091546000,
       end: 1691091615000,
-      cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' },
+      cssVariables: { '--height': '1rem', '--item-background': 'var(--color-2)' },
     },
     {
-      id: '2',
       group: 'group2',
       type: 'range',
       start: 1691091546000,
-      end: 1691091615000,
-      cssVariables: { '--height': '50%', '--item-background': 'var(--color-1)' },
+      end: 1691091895000,
+      cssVariables: { '--height': '20%', '--item-background': 'var(--color-1)' },
     },
     { group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
     { group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
     { group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
-    { group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000 },
+    { group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000, cssVariables: { '--height': '20px' } },
     { group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000 },
     { group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000 },
     { group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000 },
@@ -247,112 +245,112 @@
 </script>
 
 <style>
-  :root {
-    --color-1: #8338ec;
-    --color-2: #ffbe0b;
-    --color-3: #3a86ff;
-    --color-4: #ff006e;
-    --item-background: var(--color-3);
-  }
+:root {
+  --color-1: #8338ec;
+  --color-2: #ffbe0b;
+  --color-3: #3a86ff;
+  --color-4: #ff006e;
+  --item-background: var(--color-3);
+}
 </style>
 
 <style lang="scss" scoped>
-  .timeline {
-    --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+.timeline {
+  --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
-    border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
-    touch-action: none;
+  border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
+  touch-action: none;
 
-    // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
-    // --group-border-top: 1px solid rgba(255, 255, 255, 10%);
-    // --group-padding-top: 0.5em;
-    // --group-padding-bottom: 0.5em;
+  // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
+  // --group-border-top: 1px solid rgba(255, 255, 255, 10%);
+  // --group-padding-top: 0.5em;
+  // --group-padding-bottom: 0.5em;
 
-    // --item-marker-width: 2px;
-    // --item-point-size: 1rem;
-    // --item-range-border-radius: 0.5em;
-    // --label-background: rgba(0, 0, 0, 100%);
-    // --label-color: rgb(50, 50, 50);
+  // --item-marker-width: 2px;
+  // --item-point-size: 1rem;
+  // --item-range-border-radius: 0.5em;
+  // --label-background: rgba(0, 0, 0, 100%);
+  // --label-color: rgb(50, 50, 50);
 
-    // --label-width: 5.5em;
+  // --label-width: 5.5em;
 
-    // --label-padding: 0.2em 0.5em;
-    // --label-line-height: 1em;
-    // --timestamps-background:  color-mix(in srgb, white 50%, transparent);
+  // --label-padding: 0.2em 0.5em;
+  // --label-line-height: 1em;
+  // --timestamps-background:  color-mix(in srgb, white 50%, transparent);
 
-    // --timestamps-color: rgb(255, 112, 255);
-    // --timestamp-line-height: 1.5em;
-    // --timestamp-padding-block: 0.2em;
-    // --timestamp-padding-inline: 0.4em;
+  // --timestamps-color: rgb(255, 112, 255);
+  // --timestamp-line-height: 1.5em;
+  // --timestamp-padding-block: 0.2em;
+  // --timestamp-padding-inline: 0.4em;
 
-    border-radius: 0.5rem;
+  border-radius: 0.5rem;
 
-    :deep(.group-label) {
-      opacity: 0.5;
-    }
+  :deep(.group-label) {
+    opacity: 0.5;
+  }
 
-    :deep(.group) {
-      &:hover {
-        background-color:  color-mix(in srgb, white 15%, transparent);
+  :deep(.group) {
+    &:hover {
+      background-color:  color-mix(in srgb, white 15%, transparent);
 
-        .group-label {
-          opacity: 1;
-        }
-      }
-    }
-
-    :deep(.item) {
-      opacity: 0.7;
-
-      &:hover {
+      .group-label {
         opacity: 1;
       }
     }
+  }
 
-    :deep(.background) {
-      --item-background: color-mix(in srgb, black 10%, transparent);
+  :deep(.item) {
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  :deep(.background) {
+    --item-background: color-mix(in srgb, black 10%, transparent);
+  }
+
+  :deep(.marker) {
+    --item-marker-width: 2px;
+
+    &.red {
+      --item-marker-width: 1px;
+      --item-background: var(--color-4);
     }
 
-    :deep(.marker) {
+    &.gray {
+      --item-background: rgba(150, 150, 150, 20%);
       --item-marker-width: 2px;
-
-      &.red {
-        --item-marker-width: 1px;
-        --item-background: var(--color-4);
-      }
-
-      &.gray {
-        --item-background: rgba(150, 150, 150, 20%);
-        --item-marker-width: 2px;
-      }
     }
   }
+}
 
-  details {
-    background-color: rgba(0, 0, 0, 50%);
-    color: white;
-    padding: 0.5rem;
-    font-family: monospace;
-    border-radius: 0.5rem;
-    margin-top: 2rem;
+details {
+  background-color: rgba(0, 0, 0, 50%);
+  color: white;
+  padding: 0.5rem;
+  font-family: monospace;
+  border-radius: 0.5rem;
+  margin-top: 2rem;
 
-    .flex {
-      display: flex;
-      gap: 1rem .5rem;
-      margin: 1rem;
-      flex-wrap: wrap;
-    }
-
-    label {
-      font-weight: bold;
-      flex: 0 0 10rem;
-      text-align: right;
-    }
-
-    .data {
-      max-height: 20rem;
-      overflow: auto;
-      flex: 1;
-    }
+  .flex {
+    display: flex;
+    gap: 1rem .5rem;
+    margin: 1rem;
+    flex-wrap: wrap;
   }
+
+  label {
+    font-weight: bold;
+    flex: 0 0 10rem;
+    text-align: right;
+  }
+
+  .data {
+    max-height: 20rem;
+    overflow: auto;
+    flex: 1;
+  }
+}
 </style>
