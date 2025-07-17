@@ -223,10 +223,12 @@
   function onMousemoveTimeline ({ time }: { time: number }) {
     mouseHoverPosition.value = time;
     debug.firedEvents.push(`mousemoveTimeline (${time})`);
+    document.body.classList.add('disable-overscroll-behavior-x');
   }
   function onMouseleaveTimeline () {
     mouseHoverPosition.value = null;
     debug.firedEvents.push(`mouseleaveTimeline`);
+    document.body.classList.remove('disable-overscroll-behavior-x');
   }
   function onChangeScale (scale: Scale) {
     debug.scale = scale;
@@ -245,13 +247,17 @@
 </script>
 
 <style>
-:root {
-  --color-1: #8338ec;
-  --color-2: #ffbe0b;
-  --color-3: #3a86ff;
-  --color-4: #ff006e;
-  --item-background: var(--color-3);
-}
+  :root {
+    --color-1: #8338ec;
+    --color-2: #ffbe0b;
+    --color-3: #3a86ff;
+    --color-4: #ff006e;
+    --item-background: var(--color-3);
+  }
+
+  body.disable-overscroll-behavior-x {
+    overscroll-behavior-x: none; /* Prevents history navigation when scrolling the timeline */
+  }
 </style>
 
 <style lang="scss" scoped>
