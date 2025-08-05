@@ -112,126 +112,125 @@
 </template>
 
 <script lang="ts" setup>
-  import { watch, computed, ref, reactive } from 'vue';
-  import Timeline from '../src/components/Timeline.vue';
-  import type { TimelineGroup, TimelineItem, TimelineMarker } from '../src/types/timeline';
-  import { type Scale } from '../src/composables/useScale';
+import { watch, computed, ref, reactive } from 'vue';
+import Timeline from '../src/components/Timeline.vue';
+import type { TimelineGroup, TimelineItem, TimelineMarker } from '../src/types/timeline';
+import { type Scale } from '../src/composables/useScale';
 
-  const debug = reactive({
-    scale: undefined as Scale | undefined,
-    viewport: {
-      start: 0,
-      end: 0,
-    },
-    firedEvents: [] as string[],
-  });
+const debug = reactive({
+  scale: undefined as Scale | undefined,
+  viewport: {
+    start: 0,
+    end: 0,
+  },
+  firedEvents: [] as string[],
+});
 
-  const viewportSize = computed(() => debug.viewport.end - debug.viewport.start);
+const viewportSize = computed(() => debug.viewport.end - debug.viewport.start);
 
-  const timeline = ref();
+const timeline = ref();
 
-  const maxRange = ref([-500000000000000, 100000000000000]);
-  const initialViewportRange = ref([1691089357146, 1691101020000]);
-  const minViewportDuration = ref(10000);
-  const maxViewportDuration = ref(10000000000000);
+const maxRange = ref([-500000000000000, 100000000000000]);
+const initialViewportRange = ref([1691089357146, 1691101020000]);
+const minViewportDuration = ref(10000);
+const maxViewportDuration = ref(10000000000000);
 
-  const groups = computed((): TimelineGroup[] => {
-    return [
-      { label: 'Points', id: 'group1' },
-      { label: 'Ranges', id: 'group2', cssVariables: { '--height': '50%' } },
-      { label: 'Markers', id: 'group3' },
-    ];
-  });
+const groups = computed((): TimelineGroup[] => {
+  return [
+    { label: 'Points', id: 'group1' },
+    { label: 'Ranges', id: 'group2', cssVariables: { '--height': '50%' } },
+    { label: 'Markers', id: 'group3' },
+  ];
+});
 
-  type customTimelineItem = TimelineItem & { value?: number };
+type customTimelineItem = TimelineItem & { value?: number };
 
-  // TEST PERFORMANCE:
-  // const items = computed((): customTimelineItem[] => {
-  //   const items = [];
-  //   for (let i = 0; i < 4000; i++) {
-  //     items.push({
-  //       group: 'group1',
-  //       type: 'point',
-  //       start: 1691089357146 + Math.floor(Math.random() * (1691101020000 - 1691089357146)),
-  //     });
-  //   }
-  //   return items;
-  // });
+// TEST PERFORMANCE:
+// const items = computed((): customTimelineItem[] => {
+//   const items = [];
+//   for (let i = 0; i < 4000; i++) {
+//     items.push({
+//       group: 'group1',
+//       type: 'point',
+//       start: 1691089357146 + Math.floor(Math.random() * (1691101020000 - 1691089357146)),
+//     });
+//   }
+//   return items;
+// });
 
-  const items = computed((): customTimelineItem[] => ([
-    { group: 'group1', type: 'point', start: 1691090880000, title: '21:28:00' },
-    { group: 'group1', type: 'point', start: (new Date().valueOf() - 200000), title: '21:28:00' },
-    { group: 'group1', type: 'point', start: (new Date().valueOf() + 40000200000), title: '21:28:00' },
-    { group: 'group3', type: 'marker', start: 1691090970000 },
-    { group: 'group1', type: 'point', start: 1691099529000, title: '23:52:09' },
-    { type: 'background', start: 1691095000000, end: 1691096000000 },
-    { type: 'background', group: 'background', start: 1691100120000, end: 1691101020000 },
-    { group: 'group2', type: 'range', start: 1691095214000, end: 1691095428000 },
-    { group: 'group2', type: 'range', start: 1691091546000, end: 1691091615000, cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' } },
-    { group: 'group2', type: 'range', start: 1691091546000, end: 1691091915000, cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' } },
-    { group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
-    { group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
-    { group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
-    { group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000 },
-    { group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000 },
-    { group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000 },
-    { group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000 },
-    { group: 'group2', type: 'range', start: 1691092246000, end: 1691092430000 },
-    { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096029000, end: 1691096293000 },
-    { group: 'group2', type: 'range', start: 1691097646000, end: 1691097805000 },
-    { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096693000, end: 1691096779000 },
-    { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691092544000, end: 1691092671000 },
-    { group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
-  ]));
+const items = computed((): customTimelineItem[] => ([
+  { group: 'group1', type: 'point', start: 1691090880000, title: '21:28:00' },
+  { group: 'group1', type: 'point', start: (new Date().valueOf() - 200000), title: '21:28:00' },
+  { group: 'group1', type: 'point', start: (new Date().valueOf() + 40000200000), title: '21:28:00' },
+  { group: 'group3', type: 'marker', start: 1691090970000 },
+  { group: 'group1', type: 'point', start: 1691099529000, title: '23:52:09' },
+  { type: 'background', start: 1691095000000, end: 1691096000000 },
+  { type: 'background', group: 'background', start: 1691100120000, end: 1691101020000 },
+  { group: 'group2', type: 'range', start: 1691095214000, end: 1691095428000 },
+  { group: 'group2', type: 'range', start: 1691091546000, end: 1691091615000, cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' } },
+  { group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
+  { group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
+  { group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
+  { group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000 },
+  { group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000 },
+  { group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000 },
+  { group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000 },
+  { group: 'group2', type: 'range', start: 1691092246000, end: 1691092430000 },
+  { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096029000, end: 1691096293000 },
+  { group: 'group2', type: 'range', start: 1691097646000, end: 1691097805000 },
+  { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096693000, end: 1691096779000 },
+  { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691092544000, end: 1691092671000 },
+  { group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
+]));
 
-  const currentTime = ref(new Date().valueOf());
-  const markers = computed((): TimelineMarker[] => {
-    return [{
-      start: currentTime.value,
-      type: 'marker',
-      id: 'marker-1',
-      className: 'red',
-    }, mouseHoverPosition.value ? {
-      start: mouseHoverPosition.value,
-      type: 'marker',
-      id: 'mousehover',
-      className: 'gray',
-    } : null].filter(Boolean) as TimelineMarker[];
-  });
+const currentTime = ref(new Date().valueOf());
+const markers = computed((): TimelineMarker[] => {
+  return [{
+    start: currentTime.value,
+    type: 'marker',
+    id: 'marker-1',
+    className: 'red',
+  }, mouseHoverPosition.value ? {
+    start: mouseHoverPosition.value,
+    type: 'marker',
+    id: 'mousehover',
+    className: 'gray',
+  } : null].filter(Boolean) as TimelineMarker[];
+});
 
-  setInterval(() => {
-    currentTime.value = new Date().valueOf();
-  }, 40);
+setInterval(() => {
+  currentTime.value = new Date().valueOf();
+}, 40);
 
-  function debugEvent ({ time, event, item } : {time?: number, event: MouseEvent | TouchEvent, item?: TimelineItem | null}) {
-    debug.firedEvents.push(`${event.type} (${time ?? '-'}) ${item || ''}`);
+function debugEvent ({ time, event, item } : {time?: number, event: MouseEvent | TouchEvent, item?: TimelineItem | null}) {
+  debug.firedEvents.push(`${event.type} (${time ?? '-'}) ${item || ''}`);
+}
+
+const mouseHoverPosition = ref<number | null>(null);
+function onMousemoveTimeline ({ time }: { time: number }) {
+  mouseHoverPosition.value = time;
+  debug.firedEvents.push(`mousemoveTimeline (${time})`);
+  document.body.classList.add('disable-overscroll-behavior-x');
+}
+function onMouseleaveTimeline () {
+  mouseHoverPosition.value = null;
+  debug.firedEvents.push(`mouseleaveTimeline`);
+  document.body.classList.remove('disable-overscroll-behavior-x');
+}
+function onChangeScale (scale: Scale) {
+  debug.scale = scale;
+  debug.firedEvents.push('changeScale');
+}
+function onChangeViewport (viewport: {start: number, end: number}) {
+  debug.viewport = viewport;
+  debug.firedEvents.push('changeViewport');
+}
+
+watch(() => debug.firedEvents.length, () => {
+  if (debug.firedEvents.length > 100) {
+    debug.firedEvents = debug.firedEvents.slice(-30);
   }
-
-  const mouseHoverPosition = ref<number | null>(null);
-  function onMousemoveTimeline ({ time }: { time: number }) {
-    mouseHoverPosition.value = time;
-    debug.firedEvents.push(`mousemoveTimeline (${time})`);
-    document.body.classList.add('disable-overscroll-behavior-x');
-  }
-  function onMouseleaveTimeline () {
-    mouseHoverPosition.value = null;
-    debug.firedEvents.push(`mouseleaveTimeline`);
-    document.body.classList.remove('disable-overscroll-behavior-x');
-  }
-  function onChangeScale (scale: Scale) {
-    debug.scale = scale;
-    debug.firedEvents.push('changeScale');
-  }
-  function onChangeViewport (viewport: {start: number, end: number}) {
-    debug.viewport = viewport;
-    debug.firedEvents.push('changeViewport');
-  }
-
-  watch(() => debug.firedEvents.length, () => {
-    if (debug.firedEvents.length > 100) {
-      debug.firedEvents = debug.firedEvents.slice(-30);
-    }
-  });
+});
 </script>
 
 <style>
