@@ -145,8 +145,8 @@
   import { computed, CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
-  import type { Scale, Scales } from '../composables/useScale.ts';
   import { useScale } from '../composables/useScale.ts';
+  import type { Scale, Scales } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
   import type { TimelineGroup, TimelineItem, TimelineItemRange, TimelineMarker } from '../types/timeline.ts';
@@ -290,7 +290,7 @@
     setViewport(props.initialViewportStart, props.initialViewportEnd);
   });
 
-  const visibleItems = computed(() => props.items.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start));
+  const visibleItems = computed(() => props.items.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start) || []);
   const visibleMarkers = computed(() => props.markers.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
   const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter((item) => !item.group));
   const visibleBackgroundsWithoutGroup = computed(() => visibleItems.value.filter((item) => item.type === 'background' && !item.group));
