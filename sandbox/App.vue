@@ -112,9 +112,9 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, reactive, ref, watch } from 'vue';
+  import { watch, computed, ref, reactive } from 'vue';
   import Timeline from '../src/components/Timeline.vue';
-  import type { TimelineGroup, TimelineItem, TimelineMarker } from '../src/index.js';
+  import type { TimelineGroup, TimelineItem, TimelineMarker } from '../src/types/timeline';
   import { type Scale } from '../src/composables/useScale';
 
   const debug = reactive({
@@ -167,24 +167,12 @@
     { type: 'background', start: 1691095000000, end: 1691096000000 },
     { type: 'background', group: 'background', start: 1691100120000, end: 1691101020000 },
     { group: 'group2', type: 'range', start: 1691095214000, end: 1691095428000 },
-    {
-      group: 'group2',
-      type: 'range',
-      start: 1691091546000,
-      end: 1691091615000,
-      cssVariables: { '--height': '1rem', '--item-background': 'var(--color-2)' },
-    },
-    {
-      group: 'group2',
-      type: 'range',
-      start: 1691091546000,
-      end: 1691091895000,
-      cssVariables: { '--height': '20%', '--item-background': 'var(--color-1)' },
-    },
+    { group: 'group2', type: 'range', start: 1691091546000, end: 1691091615000, cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' } },
+    { group: 'group2', type: 'range', start: 1691091546000, end: 1691091915000, cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' } },
     { group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
     { group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
     { group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
-    { group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000, cssVariables: { '--height': '20px' } },
+    { group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000 },
     { group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000 },
     { group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000 },
     { group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000 },
@@ -247,17 +235,17 @@
 </script>
 
 <style>
-  :root {
-    --color-1: #8338ec;
-    --color-2: #ffbe0b;
-    --color-3: #3a86ff;
-    --color-4: #ff006e;
-    --item-background: var(--color-3);
-  }
+:root {
+  --color-1: #8338ec;
+  --color-2: #ffbe0b;
+  --color-3: #3a86ff;
+  --color-4: #ff006e;
+  --item-background: var(--color-3);
+}
 
-  body.disable-overscroll-behavior-x {
-    overscroll-behavior-x: none; /* Prevents history navigation when scrolling the timeline */
-  }
+body.disable-overscroll-behavior-x {
+  overscroll-behavior-x: none; /* Prevents history navigation when scrolling the timeline */
+}
 </style>
 
 <style lang="scss" scoped>
@@ -307,6 +295,11 @@
 
   :deep(.item) {
     opacity: 0.7;
+
+    &.range {
+      height: var(--height, 100%);
+      bottom: 0;
+    }
 
     &:hover {
       opacity: 1;
