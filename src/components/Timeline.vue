@@ -142,14 +142,14 @@
 </template>
 
 <script lang="ts" setup generic="GTimelineItem extends TimelineItem, GTimelineGroup extends TimelineGroup, GTimelineMarker extends TimelineMarker">
-  import { computed, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+  import { computed, CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
-  import { useScale } from '../composables/useScale.ts';
   import type { Scale, Scales } from '../composables/useScale.ts';
+  import { useScale } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
-  import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
+  import type { TimelineGroup, TimelineItem, TimelineItemRange, TimelineMarker } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
 
@@ -290,35 +290,7 @@
     setViewport(props.initialViewportStart, props.initialViewportEnd);
   });
 
-  const visibleItems = computed(() => {
-    const items = props.items
-      .filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value)
-      .sort((a, b) => a.start - b.start);
-
-    items.forEach(item => {
-      if (item.type === 'range' && item.end) {
-        const overlappingItems = items.filter(otherItem =>
-          otherItem.type === 'range' &&
-          otherItem !== item &&
-          otherItem.group === item.group &&
-          otherItem.end &&
-          item.start < otherItem.end &&
-          item.end > otherItem.start
-        );
-
-        let level = 0;
-        while (overlappingItems.some(overlap => overlap.overlapIndex === level)) {
-          level++;
-        }
-        item.overlapIndex = level;
-      }
-      else {
-        item.overlapIndex = 0;
-      }
-    });
-
-    return items;
-  });
+  const visibleItems = computed(() => props.items.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start));
   const visibleMarkers = computed(() => props.markers.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
   const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter((item) => !item.group));
   const visibleBackgroundsWithoutGroup = computed(() => visibleItems.value.filter((item) => item.type === 'background' && !item.group));
@@ -347,53 +319,109 @@
     });
   });
 
-  function styleObject (item: TimelineItem) {
-    const baseStyle = {
-      '--_left': `${getLeftPos(item.start)}px`,
-      '--_width': `${getItemWidth(item.start, item.end)}px`,
-      ...item.cssVariables,
-    };
+  const groupOverlapCache = new Map<string, {
+    hasOverlap: boolean;
+    maxOverlapIndex: number;
+    items: TimelineItemRange[];
+  }>();
 
-    if (item.type !== 'range') {
-      return baseStyle;
-    }
+  function processAllGroups (items: TimelineItem[]) {
+    groupOverlapCache.clear();
 
-    const group = props.groups.find(g => g.id === item.group);
-    if (!group) {
-      return baseStyle;
-    }
+    const groupedItems = new Map<string, TimelineItemRange[]>();
 
-    const groupItems = visibleItems.value.filter(i =>
-      i.group === group.id &&
-      i.type === 'range'
-    );
-
-    const hasOverlap = groupItems.some((currentItem, idx) => {
-      return groupItems.some((otherItem, otherIdx) =>
-        idx !== otherIdx &&
-        currentItem.end &&
-        otherItem.end &&
-        currentItem.start < otherItem.end &&
-        otherItem.start < currentItem.end
-      );
+    items.forEach(item => {
+      if (item.type === 'range' && item.group) {
+        if (!groupedItems.has(item.group)) {
+          groupedItems.set(item.group, []);
+        }
+        groupedItems.get(item.group)!.push(item as TimelineItemRange);
+      }
     });
 
-    if (hasOverlap) {
-      const maxOverlapIndex = Math.max(...groupItems.map(i => i.overlapIndex ?? 0));
-      const totalLevels = maxOverlapIndex + 1;
-      const height = `${100 / totalLevels}%`;
+    groupedItems.forEach((groupItems, groupId) => {
+      groupItems.forEach(item => {
+        if (item.end) {
+          const overlappingItems = groupItems.filter(otherItem =>
+            otherItem !== item &&
+            otherItem.end &&
+            item.start < otherItem.end &&
+            otherItem.start < item.end
+          );
 
-      console.log(`${(item.overlapIndex ?? 0) * (100 / totalLevels)}%`);
+          let level = 0;
+          while (overlappingItems.some(overlap => overlap.overlapIndex === level)) {
+            level++;
+          }
+          item.overlapIndex = level;
+        }
+        else {
+          item.overlapIndex = 0;
+        }
+      });
 
-      return {
-        ...baseStyle,
-        '--height': height,
-        'top': `${(item.overlapIndex ?? 0) * (100 / totalLevels)}%`,
-      };
+      const maxOverlapIndex = Math.max(...groupItems.map(item => item.overlapIndex ?? 0));
+      const hasOverlap = groupItems.some((currentItem, idx) => {
+        return groupItems.some((otherItem, otherIdx) =>
+          idx !== otherIdx &&
+          currentItem.end &&
+          otherItem.end &&
+          currentItem.start < otherItem.end &&
+          otherItem.start < currentItem.end
+        );
+      });
+
+      groupOverlapCache.set(groupId, {
+        hasOverlap,
+        maxOverlapIndex,
+        items: groupItems,
+      });
+    });
+  }
+
+
+  function getGroupOverlapInfo (groupId: string) {
+    if (groupOverlapCache.size === 0) {
+      processAllGroups(props.items);
     }
 
-    // No overlap, use full height
-    return baseStyle;
+    return groupOverlapCache.get(groupId) ?? {
+      hasOverlap: false,
+      maxOverlapIndex: 0,
+      items: [],
+    };
+  }
+
+  watch(() => props.items, () => {
+    groupOverlapCache.clear();
+  }, { deep: true });
+
+
+  function styleObject (item: TimelineItem) {
+    const baseStyle = {
+      '--_left': `${getLeftPos(item.start, item.end)}px`,
+      '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : null,
+      ...item.cssVariables,
+    } as CSSProperties;
+
+    if (item.type !== 'range' || !item.group) {
+      return baseStyle;
+    }
+
+    const { hasOverlap, maxOverlapIndex } = getGroupOverlapInfo(item.group);
+
+    if (!hasOverlap) {
+      return baseStyle;
+    }
+
+    const totalLevels = maxOverlapIndex + 1;
+    const height = `${100 / totalLevels}%`;
+
+    return {
+      ...baseStyle,
+      '--height': height,
+      'top': `${(item.overlapIndex ?? 0) * (100 / totalLevels)}%`,
+    };
   }
 
   function getGroupStyle (group: TimelineGroup) {
@@ -401,28 +429,13 @@
       return group.cssVariables;
     }
 
-    const groupItems = props.items.filter(item =>
-      item.group === group.id &&
-      item.type === 'range'
-    );
-
-    const hasOverlap = groupItems.some((item, idx) => {
-      return groupItems.some((otherItem, otherIdx) => {
-        return idx !== otherIdx &&
-          item.end &&
-          otherItem.end &&
-          item.start < otherItem.end &&
-          otherItem.start < item.end;
-      });
-    });
+    const { hasOverlap, maxOverlapIndex } = getGroupOverlapInfo(group.id);
 
     if (!hasOverlap) {
       return group.cssVariables;
     }
 
-    const maxOverlapIndex = Math.max(...groupItems.map(item => item.overlapIndex ?? 0));
     const totalLevels = maxOverlapIndex + 1;
-
     const totalHeight = `calc(${group.cssVariables?.['--group-items-height'] || '2em'} + ${totalLevels * 30}px)`;
 
     return {
