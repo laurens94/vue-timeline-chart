@@ -14,4 +14,4 @@ When manually adding tooltips using CSS, you might want to overwrite the [`conta
 
 ## Code
 
-<<< ./tooltips.vue{vue}
+<<< ./tooltips.vue{vue twoslash}

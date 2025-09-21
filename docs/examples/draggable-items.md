@@ -8,4 +8,4 @@ import Example from './draggable-items.vue'
 
 ## Code
 
-<<< ./draggable-items.vue{vue}
+<<< ./draggable-items.vue{vue twoslash}

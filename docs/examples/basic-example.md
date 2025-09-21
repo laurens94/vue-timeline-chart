@@ -8,7 +8,7 @@ import Example from './basic-example.vue'
 
 ## Code
 
-<<< ./basic-example-with-imports.vue{vue}
+<<< ./basic-example-with-imports.vue{vue twoslash}
 
 ::: tip
 Setting the `viewportMin` and `viewportMax` is useful for determining the initial zoom level.  

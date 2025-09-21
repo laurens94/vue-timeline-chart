@@ -1,3 +1,4 @@
+// @noErrors
 <template>
   <Timeline
     :groups="[{id: '1'}, {id: '2'}]"

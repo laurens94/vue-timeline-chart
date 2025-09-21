@@ -1,6 +1,7 @@
+// @noErrors
 <script setup>
   import { onMounted } from 'vue';
-  // import tippy from 'tippy.js'; (disabled due to vitepress)
+  // import tippy from 'tippy.js'; (disabled for vitepress, but should be enabled)
 
   let tippyInstances = [];
 

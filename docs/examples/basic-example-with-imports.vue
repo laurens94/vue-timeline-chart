@@ -1,3 +1,4 @@
+// @noErrors
 <script setup>
   import { Timeline } from 'vue-timeline-chart';
   import 'vue-timeline-chart/style.css';

@@ -1,3 +1,4 @@
+// @noErrors
 <script setup lang="ts">
   import { ref } from 'vue';
   import LineChart from './components/LineChart.vue';
@@ -7,7 +8,8 @@
     { id: 3, group: 1, type: 'range', start: 6000000, end: 8000000 },
   ]);
 
-  const linechartData = [{ group: 'linechart', value: 1, type: 'point', start: 1000000 },
+  const linechartData = [
+    { group: 'linechart', value: 1, type: 'point', start: 1000000 },
     { group: 'linechart', value: 1, type: 'point', start: 1500000 },
     { group: 'linechart', value: 0.7, type: 'point', start: 2000000 },
     { group: 'linechart', value: 0, type: 'point', start: 2500000 },
@@ -31,13 +33,12 @@
     :viewportMin="0"
     :viewportMax="8000000"
   >
-
-  <template #items-linechart="{ viewportStart, viewportEnd, group }">
-    <LineChart
-      :viewportStart="viewportStart"
-      :viewportEnd="viewportEnd"
-      :data="linechartData"
-    />
+    <template #items-linechart="{ viewportStart, viewportEnd, group }">
+      <LineChart
+        :viewportStart="viewportStart"
+        :viewportEnd="viewportEnd"
+        :data="linechartData"
+      />
     </template>
   </Timeline>
 </template>

@@ -30,7 +30,7 @@ yarn add vue-timeline-chart
 
 ## Usage
 
-<<< @/examples/basic-example-with-imports.vue{vue}
+<<< @/examples/basic-example-with-imports.vue{vue twoslash}
 
 ::: tip
 Setting the `viewportMin` and `viewportMax` is useful for determining the initial zoom level.  

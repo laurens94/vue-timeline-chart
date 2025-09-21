@@ -12,4 +12,4 @@ If you want to modify how many timestamps are displayed, see: [Custom timestamp 
 
 ## Code
 
-<<< ./custom-timestamp-labels.vue{6}
+<<< ./custom-timestamp-labels.vue{vue twoslash:6}

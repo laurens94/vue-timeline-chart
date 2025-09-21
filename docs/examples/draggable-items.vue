@@ -1,10 +1,11 @@
+// @noErrors
 <script setup lang="ts">
   import { ref } from 'vue';
 
   const items = ref([
-    { id: 1, group: 1, type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000000, end: 4500000 },
-    { id: 2, group: 2, type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 4500000, end: 6000000 },
-    { id: 3, group: 3, type: 'range', start: 6000000, end: 8000000 },
+    { id: '1', group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000000, end: 4500000 },
+    { id: '2', group: '2', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 4500000, end: 6000000 },
+    { id: '3', group: '3', type: 'range', start: 6000000, end: 8000000 },
   ]);
 
   let previousDragTimePos = 0;
@@ -49,7 +50,7 @@
 <template>
   <Timeline
     :items="items"
-    :groups="[{id: 1}, {id: 2}, {id: 3}]"
+    :groups="[{id: '1'}, {id: '2'}, {id: '3'}]"
     :viewportMin="0"
     :viewportMax="8000000"
     @pointermove="handleItemDrag"

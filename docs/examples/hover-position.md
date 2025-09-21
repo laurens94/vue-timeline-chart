@@ -8,7 +8,7 @@ import Example from './hover-position.vue'
 
 ## Code
 
-<<< ./hover-position.vue{16-22,32-33}
+<<< ./hover-position.vue{vue twoslash:16-22,32-33}
 
 ::: info
 `contain: unset` is set on the marker to allow the text content to overflow the `1px` wide marker.

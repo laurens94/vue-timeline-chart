@@ -8,4 +8,4 @@ import Example from './synced-timelines.vue'
 
 ## Code
 
-<<< ./synced-timelines.vue{vue}
+<<< ./synced-timelines.vue{vue twoslash}

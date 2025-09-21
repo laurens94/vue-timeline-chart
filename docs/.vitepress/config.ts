@@ -1,3 +1,4 @@
+import { transformerTwoslash } from '@shikijs/vitepress-twoslash';
 import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
@@ -10,6 +11,14 @@ export default defineConfig({
     ['script', { src: 'https://unpkg.com/@popperjs/core@2.11.8/dist/umd/popper.min.js', integrity: 'sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r', crossorigin: 'anonymous', defer: 'true' }],
     ['script', { src: 'https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js', integrity: 'sha384-AiTRpehQ7zqeua0Ypfa6Q4ki/ddhczZxrKtiQbTQUlJIhBkTeyoZP9/W/5ulFt29', crossorigin: 'anonymous', defer: 'true' }],
   ],
+  markdown: {
+    codeTransformers: [
+      transformerTwoslash()
+    ],
+    // Explicitly load these languages for types highlighting
+    languages: ['js', 'ts', 'tsx', 'vue', 'scss', 'css'],
+    theme: 'one-dark-pro',
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/favicon.svg',

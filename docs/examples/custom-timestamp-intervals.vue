@@ -1,3 +1,4 @@
+// @noErrors
 <script setup>
   function getQuarter (timestamp) {
     const year = new Date(timestamp).getFullYear();

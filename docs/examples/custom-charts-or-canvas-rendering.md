@@ -17,6 +17,6 @@ Position the custom component over a timeline row with CSS.
 ## Code
 
 ::: code-group
-<<< ./line-chart.vue{vue} [Main code]
-<<< ./components/LineChart.vue{vue} [LineChart.vue (custom component utilizing D3.js)]
+<<< ./line-chart.vue{vue twoslash} [Main code]
+<<< ./components/LineChart.vue{vue twoslash} [LineChart.vue (custom component utilizing D3.js)]
 :::

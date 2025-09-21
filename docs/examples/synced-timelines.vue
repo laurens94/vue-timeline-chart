@@ -1,5 +1,6 @@
+// @noErrors
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
+  import { ref } from 'vue';
 
   const timeline = ref(null);
 

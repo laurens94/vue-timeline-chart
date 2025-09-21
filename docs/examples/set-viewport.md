@@ -8,4 +8,4 @@ import Example from './set-viewport.vue'
 
 ## Code
 
-<<< ./set-viewport.vue{vue}
+<<< ./set-viewport.vue{vue twoslash}
