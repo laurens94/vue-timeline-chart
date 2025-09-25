@@ -11,6 +11,8 @@ export interface TimelineItemBase {
   end?: number;
   id?: string;
   cssVariables?: Record<string, string>;
+  overlapCount?: number;
+  overlapIndex?: number;
 }
 
 export interface TimelineItemRange extends TimelineItemBase {

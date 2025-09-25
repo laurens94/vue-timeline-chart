@@ -58,7 +58,7 @@
           v-for="group in groups"
           :key="group.id"
           :class="['group', group.className]"
-          :style="group.cssVariables"
+          :style="getGroupStyle(group)"
         >
           <div :class="['group-label', { fixed: fixedLabels }]">
             <slot name="group-label" :group="group">
@@ -149,7 +149,7 @@
   import type { Scale, Scales } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
-  import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
+  import type { TimelineGroup, TimelineItem, TimelineItemRange, TimelineMarker } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
 
@@ -319,12 +319,129 @@
     });
   });
 
+  const groupOverlapCache = new Map<string, {
+    hasOverlap: boolean;
+    maxOverlapIndex: number;
+    items: TimelineItemRange[];
+  }>();
+
+  function processAllGroups (items: TimelineItem[]) {
+    groupOverlapCache.clear();
+
+    const groupedItems = new Map<string, TimelineItemRange[]>();
+
+    items.forEach(item => {
+      if (item.type === 'range' && item.group) {
+        if (!groupedItems.has(item.group)) {
+          groupedItems.set(item.group, []);
+        }
+        groupedItems.get(item.group)!.push(item as TimelineItemRange);
+      }
+    });
+
+    groupedItems.forEach((groupItems, groupId) => {
+      groupItems.forEach(item => {
+        if (item.end) {
+          const overlappingItems = groupItems.filter(otherItem =>
+            otherItem !== item &&
+            otherItem.end &&
+            item.start < otherItem.end &&
+            otherItem.start < item.end
+          );
+
+          let level = 0;
+          while (overlappingItems.some(overlap => overlap.overlapIndex === level)) {
+            level++;
+          }
+          item.overlapIndex = level;
+        }
+        else {
+          item.overlapIndex = 0;
+        }
+      });
+
+      const maxOverlapIndex = Math.max(...groupItems.map(item => item.overlapIndex ?? 0));
+      const hasOverlap = groupItems.some((currentItem, idx) => {
+        return groupItems.some((otherItem, otherIdx) =>
+          idx !== otherIdx &&
+          currentItem.end &&
+          otherItem.end &&
+          currentItem.start < otherItem.end &&
+          otherItem.start < currentItem.end
+        );
+      });
+
+      groupOverlapCache.set(groupId, {
+        hasOverlap,
+        maxOverlapIndex,
+        items: groupItems,
+      });
+    });
+  }
+
+
+  function getGroupOverlapInfo (groupId: string) {
+    if (groupOverlapCache.size === 0) {
+      processAllGroups(props.items);
+    }
+
+    return groupOverlapCache.get(groupId) ?? {
+      hasOverlap: false,
+      maxOverlapIndex: 0,
+      items: [],
+    };
+  }
+
+  watch(() => props.items, () => {
+    groupOverlapCache.clear();
+  }, { deep: true });
+
+
   function styleObject (item: TimelineItem) {
-    return {
+    const baseStyle = {
       '--_left': `${getLeftPos(item.start, item.end)}px`,
       '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : null,
       ...item.cssVariables,
     } as CSSProperties;
+
+    if (item.type !== 'range' || !item.group) {
+      return baseStyle;
+    }
+
+    const { hasOverlap, maxOverlapIndex } = getGroupOverlapInfo(item.group);
+
+    if (!hasOverlap) {
+      return baseStyle;
+    }
+
+    const totalLevels = maxOverlapIndex + 1;
+    const height = `${100 / totalLevels}%`;
+
+    return {
+      ...baseStyle,
+      '--height': height,
+      'top': `${(item.overlapIndex ?? 0) * (100 / totalLevels)}%`,
+    };
+  }
+
+  function getGroupStyle (group: TimelineGroup) {
+    if (group.cssVariables?.['--group-items-height']) {
+      return group.cssVariables;
+    }
+
+    const { hasOverlap, maxOverlapIndex } = getGroupOverlapInfo(group.id);
+
+    if (!hasOverlap) {
+      return group.cssVariables;
+    }
+
+    const totalLevels = maxOverlapIndex + 1;
+    const totalHeight = `calc(${group.cssVariables?.['--group-items-height'] || '2em'} + ${totalLevels * 30}px)`;
+
+    return {
+      '--group-items-height': totalHeight,
+      ...group.cssVariables,
+    };
   }
 
   function getStyle (item: TimelineItem | TimelineMarker, markers = false) {
@@ -617,135 +734,136 @@
 </script>
 
 <style lang="scss" scoped>
-  * {
-    box-sizing: border-box;
-  }
+* {
+  box-sizing: border-box;
+}
 
-  .timeline-wrapper {
-    touch-action: pan-y;
-    overflow: hidden;
-    position: relative;
-    user-select: none;
-    font-family: var(--font-family, inherit);
+.timeline-wrapper {
+  touch-action: pan-y;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+  font-family: var(--font-family, inherit);
 
-    @media print {
-      color: black;
-      print-color-adjust: exact;
-    }
+  @media print {
+    color: black;
+    print-color-adjust: exact;
   }
+}
 
-  .item,
-  .background,
-  .marker {
-    contain: strict;
-  }
+.item,
+.background,
+.marker {
+  contain: strict;
+}
+
+.timestamp {
+  contain: layout paint style;
+}
+
+.item,
+.background,
+.timestamp,
+.marker {
+  translate: var(--_left) var(--_top, 0);
+  width: var(--_width);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+
+.marker {
+  background: var(--item-background, red);
+  width: var(--item-marker-width, 1px);
+  transform: translateX(-50%);
+}
+
+.timestamps {
+  --_padding-block: var(--timestamp-padding-block, 0.2em);
+  --_padding-inline: var(--timestamp-padding-inline, 0.4em);
+  --_lineheight: var(--timestamp-line-height, 1.5em);
+
+  height: calc(var(--_padding-block) * 2 + var(--_lineheight));
+  line-height: var(--_lineheight);
+  background: var(--timestamps-background, color-mix(in srgb, currentColor 5%, transparent));
+  color: var(--timestamps-color, inherit);
 
   .timestamp {
-    contain: layout paint style;
-  }
-
-  .item,
-  .background,
-  .timestamp,
-  .marker {
-    translate: var(--_left) 0;
-    width: var(--_width);
+    padding: var(--_padding-block) var(--_padding-inline);
     position: absolute;
-    top: 0;
-    bottom: 0;
+    height: 100%;
+    border-left: var(--gridline-border-left, 1px dashed color-mix(in srgb, currentColor 15%, transparent));
+    z-index: 0;
+    font-size: 0.85em;
+    white-space: nowrap;
   }
 
   .marker {
-    background: var(--item-background, red);
-    width: var(--item-marker-width, 1px);
-    transform: translateX(-50%);
+    height: calc(var(--_lineheight) + var(--_padding-block) * 2);
   }
+}
 
-  .timestamps {
-    --_padding-block: var(--timestamp-padding-block, 0.2em);
-    --_padding-inline: var(--timestamp-padding-inline, 0.4em);
-    --_lineheight: var(--timestamp-line-height, 1.5em);
+.groups {
+  position: relative;
+}
 
-    height: calc(var(--_padding-block) * 2 + var(--_lineheight));
-    line-height: var(--_lineheight);
-    background: var(--timestamps-background, color-mix(in srgb, currentColor 5%, transparent));
-    color: var(--timestamps-color, inherit);
+.group {
+  border-top: var(--group-border-top, 1px solid color-mix(in srgb, currentColor 15%, transparent));
+  padding-top: var(--group-padding-top, 0);
+  padding-bottom: var(--group-padding-bottom, 0.4em);
+  z-index: 1;
+  position: relative;
 
-    .timestamp {
-      padding: var(--_padding-block) var(--_padding-inline);
+  .group-label {
+    padding: var(--label-padding, 0.2em 0.4em 0.4em);
+    line-height: var(--label-line-height, 1em);
+    font-size: 0.85em;
+    color: var(--label-color, currentColor);
+    background: var(--label-background, transparent);
+    width: var(--label-width, auto);
+
+    &.fixed {
       position: absolute;
-      height: 100%;
-      border-left: var(--gridline-border-left, 1px dashed color-mix(in srgb, currentColor 15%, transparent));
-      z-index: 0;
-      font-size: 0.85em;
-      white-space: nowrap;
-    }
-
-    .marker {
-      height: calc(var(--_lineheight) + var(--_padding-block) * 2);
+      top: 0;
+      bottom: 0;
+      z-index: 1;
     }
   }
 
-  .groups {
+  .group-items {
     position: relative;
+    height: var(--group-items-height, 2em);
+  }
+}
+
+.item {
+  cursor: pointer;
+  height: var(--height, 100%);
+  background: var(--item-background, #007bff);
+  opacity: 0.7;
+
+  &:hover,
+  &.active {
+    opacity: 1;
   }
 
-  .group {
-    border-top: var(--group-border-top, 1px solid color-mix(in srgb, currentColor 15%, transparent));
-    padding-top: var(--group-padding-top, 0);
-    padding-bottom: var(--group-padding-bottom, 0.4em);
-    z-index: 1;
-    position: relative;
+  &.point {
+    --_size: var(--item-point-size, 1rem);
 
-    .group-label {
-      padding: var(--label-padding, 0.2em 0.4em 0.4em);
-      line-height: var(--label-line-height, 1em);
-      font-size: 0.85em;
-      color: var(--label-color, currentColor);
-      background: var(--label-background, transparent);
-      width: var(--label-width, auto);
-
-      &.fixed {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        z-index: 1;
-      }
-    }
-
-    .group-items {
-      position: relative;
-      height: var(--group-items-height, 2em);
-    }
+    height: var(--_size);
+    width: var(--_size);
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
 
-  .item {
-    cursor: pointer;
-    height: 100%;
-    background: var(--item-background, #007bff);
-    opacity: 0.7;
-
-    &:hover,
-    &.active {
-      opacity: 1;
-    }
-
-    &.point {
-      --_size: var(--item-point-size, 1rem);
-
-      height: var(--_size);
-      width: var(--_size);
-      border-radius: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    &.range {
-      border-radius: var(--item-range-border-radius, 0.5em);
-    }
+  &.range {
+    border-radius: var(--item-range-border-radius, 0.5em);
   }
+}
 
-  .background {
-    background: var(--item-background, rgba(0, 0, 0, 10%));
-  }
+.background {
+  background: var(--item-background, rgba(0, 0, 0, 10%));
+}
 </style>
