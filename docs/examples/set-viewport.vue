@@ -5,9 +5,9 @@
   const timeline = ref(null);
 
   const items = [
-    { group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 100000, end: 450000 },
-    { group: '2', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 450000, end: 600000 },
-    { group: '3', type: 'range', start: 600000, end: 800000 },
+    { id: 'item-1', group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 100000, end: 450000 },
+    { id: 'item-2', group: '2', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 450000, end: 600000 },
+    { id: 'item-3', group: '3', type: 'range', start: 600000, end: 800000 },
   ];
 
   const initialViewportRange = ref({ start: 400000, end: 700000 });

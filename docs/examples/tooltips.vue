@@ -27,9 +27,9 @@
   });
 
   const items = [
-    { id: 1, tooltip: 'Tooltip 1', name: 'Hover me!', group: 'group1', type: 'range', start: 1707135072000, end: 1708431072000, cssVariables: { '--item-background': 'var(--color-4)' } },
-    { id: 2, tooltip: 'Tooltip 2', name: 'Hover me!', group: 'group1', type: 'range', start: 1708517472000, end: 1709813472000, cssVariables: { '--item-background': 'var(--color-2)' } },
-    { id: 3, tooltip: 'Tooltip 3', name: 'Hover me!', group: 'group1', type: 'range', start: 1709903872000, end: 1711199872000, cssVariables: { '--item-background': 'var(--color-3)' } },
+    { id: 'item-1', tooltip: 'Tooltip 1', name: 'Hover me!', group: 'group1', type: 'range', start: 1707135072000, end: 1708431072000, cssVariables: { '--item-background': 'var(--color-4)' } },
+    { id: 'item-2', tooltip: 'Tooltip 2', name: 'Hover me!', group: 'group1', type: 'range', start: 1708517472000, end: 1709813472000, cssVariables: { '--item-background': 'var(--color-2)' } },
+    { id: 'item-3', tooltip: 'Tooltip 3', name: 'Hover me!', group: 'group1', type: 'range', start: 1709903872000, end: 1711199872000, cssVariables: { '--item-background': 'var(--color-3)' } },
   ];
 </script>
 

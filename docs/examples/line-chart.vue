@@ -2,10 +2,11 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import LineChart from './components/LineChart.vue';
+  import type { TimelineItem } from 'vue-timeline-chart';
 
-  const items = ref([
-    { id: 1, group: 1, type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000000, end: 4500000 },
-    { id: 3, group: 1, type: 'range', start: 6000000, end: 8000000 },
+  const items = ref<TimelineItem[]>([
+    { id: '1', group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000000, end: 4500000 },
+    { id: '3', group: '1', type: 'range', start: 6000000, end: 8000000 },
   ]);
 
   const linechartData = [
@@ -29,7 +30,7 @@
 <template>
   <Timeline
     :items="items"
-    :groups="[{id: 1},{id: 'linechart'}]"
+    :groups="[{id: '1'},{id: 'linechart'}]"
     :viewportMin="0"
     :viewportMax="8000000"
   >

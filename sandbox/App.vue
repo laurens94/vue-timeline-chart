@@ -181,7 +181,7 @@
     { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096693000, end: 1691096779000 },
     { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691092544000, end: 1691092671000 },
     { group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
-  ]));
+  ].map((item, index) => ({ ...item, id: index.toString() }))));
 
   const currentTime = ref(new Date().valueOf());
   const markers = computed((): TimelineMarker[] => {
