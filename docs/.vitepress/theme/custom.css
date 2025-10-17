@@ -1,5 +1,16 @@
 .timeline-wrapper {
   margin: 1rem 0;
+
+  .item,
+  .background,
+  .timestamp,
+  .marker {
+    transition: opacity 0.2s ease-out;
+
+    @starting-style {
+      opacity: 0 !important;
+    }
+  }
 }
 
 :root {
