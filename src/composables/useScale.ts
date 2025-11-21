@@ -9,9 +9,10 @@ import {
 } from 'date-fns';
 
 import {  ComputedRef, Ref, computed, ref, watch } from 'vue';
+import {  TimelineBaseUnits,  TimelineScale,  TimelineScales } from '../types/timeline.ts';
 
 // Order of units is important for sorting:
-const baseDividers = {
+const baseDividers: Record<TimelineBaseUnits, number> = {
   ms: 1,
   seconds: 1000,
   minutes: 1000 * 60,
@@ -20,17 +21,7 @@ const baseDividers = {
   weeks: 1000 * 60 * 60 * 24 * 7,
   months: 1000 * 60 * 60 * 24 * 7 * 4,
   years: 1000 * 60 * 60 * 24 * 7 * 4 * 12,
-};
-
-export type Scale = {
-  unit: keyof typeof baseDividers;
-  step: number;
-}
-
-export type Scales = {
-  unit: keyof typeof baseDividers;
-  steps: number[];
-}
+} as const;
 
 const getUnitIndex = (unit: keyof typeof baseDividers): number => {
   return Object.keys(baseDividers).indexOf(unit);
@@ -39,7 +30,7 @@ const getUnitIndex = (unit: keyof typeof baseDividers): number => {
 /**
  * The scales define the temporal units and their regularity.
  */
-export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, viewportDuration: Ref<number>, maxLabelsInView: Ref<number>, scales: ComputedRef<Scales[]>, weekStartsOn: ComputedRef<0 | 1 | 2 | 3 | 4 | 5 | 6>) => {
+export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, viewportDuration: Ref<number>, maxLabelsInView: Ref<number>, scales: ComputedRef<TimelineScales[]>, weekStartsOn: ComputedRef<0 | 1 | 2 | 3 | 4 | 5 | 6>) => {
   // cached values:
   const _viewportDuration = ref(viewportDuration.value);
   const _maxLabelsInView = ref(maxLabelsInView.value);
@@ -86,7 +77,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     // #endregion default-scales
   ] as const).toSorted((a, b) => getUnitIndex(a.unit) - getUnitIndex(b.unit)).flatMap((scale) => {
     return scale.steps.toSorted((a, b) => a - b).map((step) => ({ unit: scale.unit, step: step }));
-  }) as Scale[]);
+  }) satisfies TimelineScale[]);
 
   watch (viewportDuration, () => {
     _viewportDuration.value = viewportDuration.value;
@@ -146,14 +137,14 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     const start = viewportStart.value;
     const end = viewportEnd.value;
 
-    let baseTimestamps = [] as Date[];
+    let baseTimestamps: Date[] = [];
     switch (scale.value.unit) {
       case 'ms':
         baseTimestamps = Array.from({ length: end - start }, (_, i) => new Date(start + i));
         break;
       case 'seconds':
         baseTimestamps = eachMinuteOfInterval({ start, end }).flatMap((minute) => {
-          const secondsInMinute = [] as Date[];
+          const secondsInMinute: Date[] = [];
           for (let i = 0; i < 60; i++) {
             secondsInMinute.push(new Date(minute.valueOf() + i * baseDividers.seconds));
           }

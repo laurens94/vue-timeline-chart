@@ -4,16 +4,11 @@
 
 TimelineGroups are the rows in the timeline with items.
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `id` | `string` | <Badge type="info" text="required" /> | Unique ID, to bind items to |
-| `label` | `string` | `undefined` | Group label |
-| `className` | `string` | `''` | CSS class(es) |
-| `cssVariables` | `Record<string, string>` | `{}` | CSS variables to apply to the group (e.g. `{ '--height': '20%' }`) |
+<<< ../../src/types/timeline.ts#TimelineGroup
 
 ## TimelineItem
 
-TimelineItems can be points, ranges, backgrounds or markers. They are assigned to a group by their `group` property.
+TimelineItems can be points, ranges, backgrounds or markers. They are assigned to a group's `id` by their `group` property.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -21,9 +16,11 @@ TimelineItems can be points, ranges, backgrounds or markers. They are assigned t
 | `start` | `number` | <Badge type="info" text="required" /> | Timestamp |
 | `group` | `string` | `undefined` | `id` of the [TimelineGroup](#timelinegroup) to assign the item to |
 | `end` | `number` | <Badge type="info" text="required for range and background" /> | Timestamp, only used for type `range` and `background` |
-| `className` | `string` | `''` | CSS class(es) |
 | `type` | `string` | <Badge type="info" text="required" /> | Type of item, one of: `point`, `range`, `background` or `marker` |
+| `className` | `string` | `''` | CSS class(es) |
 | `cssVariables` | `Record<string, string>` | `{}` | CSS variables to apply to the item (e.g. `{ '--height': '20%' }`) |
+
+<<< ../../src/types/timeline.ts#TimelineItem
 
 ## TimelineMarker
 
@@ -32,7 +29,30 @@ To improve performance, you can add markers as an individual prop, instead of to
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `id` | `string` | `undefined` | Unique ID, to match with `activeItems` prop |
+| `type` | `string` | <Badge type="info" text="required" /> | `marker` |
 | `start` | `number` | <Badge type="info" text="required" /> | Timestamp |
 | `className` | `string` | `''` | CSS class(es) |
-| `type` | `string` | <Badge type="info" text="required" /> | `marker` |
 | `cssVariables` | `Record<string, string>` | `{}` | CSS variables to apply to the item (e.g. `{ '--height': '20%' }`) |
+
+## TimelineBaseUnits
+
+See [Timestamps and scale](/guide/timestamps-and-scale.md) for more information.
+
+<<< ../../src/types/timeline.ts#TimelineBaseUnits
+
+## TimelineScale
+
+See [Timestamps and scale](/guide/timestamps-and-scale.md) for more information.
+
+<<< ../../src/types/timeline.ts#TimelineScale
+
+## TimelineScales
+
+See [Timestamps and scale](/guide/timestamps-and-scale.md) for more information.
+
+```ts
+export type TimelineScales = {
+  unit: TimelineBaseUnits;
+  steps: number[];
+}
+```

@@ -57,6 +57,7 @@ export default defineConfig({
             { text: 'TimelineGroup', link: '/reference/types#timelinegroup' },
             { text: 'TimelineItem', link: '/reference/types#timelineitem' },
             { text: 'TimelineMarker', link: '/reference/types#timelinemarker' },
+            { text: 'TimelineScales', link: '/reference/types#timelinescales' },
           ] },
         ]
       },

@@ -4,8 +4,12 @@ export * from './components/Timeline.vue';
 export type {
   TimelineGroup,
   TimelineItem,
+  TimelineItemBase,
   TimelineItemRange,
   TimelineItemPoint,
   TimelineItemBackground,
   TimelineMarker,
-} from './types/timeline';
+  TimelineBaseUnits,
+  TimelineScale,
+  TimelineScales,
+} from './types/timeline.ts';
