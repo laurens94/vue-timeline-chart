@@ -114,11 +114,10 @@
 <script lang="ts" setup>
   import { watch, computed, ref, reactive } from 'vue';
   import Timeline from '../src/components/Timeline.vue';
-  import type { TimelineGroup, TimelineItem, TimelineMarker } from '../src/types/timeline';
-  import { type Scale } from '../src/composables/useScale';
+  import type { TimelineGroup, TimelineItem, TimelineMarker, TimelineScale } from '../src/types/timeline.ts';
 
   const debug = reactive({
-    scale: undefined as Scale | undefined,
+    scale: undefined as TimelineScale | undefined,
     viewport: {
       start: 0,
       end: 0,
@@ -181,7 +180,7 @@
     { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096693000, end: 1691096779000 },
     { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691092544000, end: 1691092671000 },
     { group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
-  ].map((item, index) => ({ ...item, id: index.toString() }))));
+  ].map((item, index) => ({ ...item, id: index.toString() } as customTimelineItem))));
 
   const currentTime = ref(new Date().valueOf());
   const markers = computed((): TimelineMarker[] => {
@@ -217,7 +216,7 @@
     debug.firedEvents.push(`mouseleaveTimeline`);
     document.body.classList.remove('disable-overscroll-behavior-x');
   }
-  function onChangeScale (scale: Scale) {
+  function onChangeScale (scale: TimelineScale) {
     debug.scale = scale;
     debug.firedEvents.push('changeScale');
   }

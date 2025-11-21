@@ -142,14 +142,13 @@
 </template>
 
 <script lang="ts" setup generic="GTimelineItem extends TimelineItem, GTimelineGroup extends TimelineGroup, GTimelineMarker extends TimelineMarker">
-  import { computed, CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+  import { computed, type CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
   import { useScale } from '../composables/useScale.ts';
-  import type { Scale, Scales } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
-  import type { TimelineItem, TimelineGroup, TimelineMarker } from '../types/timeline.ts';
+  import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
 
@@ -169,7 +168,7 @@
     maxZoomSpeed?: number;
     activeItems?: TimelineItem['id'][];
     maxOffsetOutsideViewport?: number;
-    scales?: Scales[];
+    scales?: TimelineScales[];
     weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   }
 
@@ -224,12 +223,13 @@
     (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
     (e: 'mouseleaveTimeline', value: { event: MouseEvent }): void;
     (e: 'changeViewport', value: { start: number; end: number }): void;
-    (e: 'changeScale', value: Scale): void;
+    (e: 'changeScale', value: TimelineScale): void;
   }>();
 
   defineExpose({
     setViewport,
     onWheel,
+    clearCache,
   });
 
   const timelineEl = ref<HTMLElement | null>(null);
@@ -297,9 +297,13 @@
 
   const styleCache = new Map();
   const styleCacheMarkers = new Map();
-  watch([viewportStart, viewportEnd, containerWidth], () => {
+  /** Clears the style cache */
+  function clearCache () {
     styleCache.clear();
     styleCacheMarkers.clear();
+  }
+  watch([viewportStart, viewportEnd, containerWidth], () => {
+    clearCache();
   });
 
   watch(visibleItems, () => {
@@ -314,8 +318,7 @@
     setInitialViewportValues();
 
     nextTick(() => {
-      styleCache.clear();
-      styleCacheMarkers.clear();
+      clearCache();
     });
   });
 
