@@ -325,9 +325,9 @@
   function styleObject (item: TimelineItem) {
     return {
       '--_left': `${getLeftPos(item.start, item.end)}px`,
-      '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : null,
+      '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : undefined,
       ...item.cssVariables,
-    } as CSSProperties;
+    } satisfies CSSProperties;
   }
 
   function getStyle (item: TimelineItem | TimelineMarker, markers = false) {

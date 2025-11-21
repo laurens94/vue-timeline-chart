@@ -142,8 +142,6 @@
     ];
   });
 
-  type customTimelineItem = TimelineItem & { value?: number };
-
   // TEST PERFORMANCE:
   // const items = computed((): customTimelineItem[] => {
   //   const items = [];
@@ -157,30 +155,30 @@
   //   return items;
   // });
 
-  const items = computed((): customTimelineItem[] => ([
-    { group: 'group1', type: 'point', start: 1691090880000, title: '21:28:00' },
-    { group: 'group1', type: 'point', start: (new Date().valueOf() - 200000), title: '21:28:00' },
-    { group: 'group1', type: 'point', start: (new Date().valueOf() + 40000200000), title: '21:28:00' },
-    { group: 'group3', type: 'marker', start: 1691090970000 },
-    { group: 'group1', type: 'point', start: 1691099529000, title: '23:52:09' },
-    { type: 'background', start: 1691095000000, end: 1691096000000 },
-    { type: 'background', group: 'background', start: 1691100120000, end: 1691101020000 },
-    { group: 'group2', type: 'range', start: 1691095214000, end: 1691095428000 },
-    { group: 'group2', type: 'range', start: 1691091546000, end: 1691091615000, cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' } },
-    { group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
-    { group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
-    { group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
-    { group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000 },
-    { group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000 },
-    { group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000 },
-    { group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000 },
-    { group: 'group2', type: 'range', start: 1691092246000, end: 1691092430000 },
-    { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096029000, end: 1691096293000 },
-    { group: 'group2', type: 'range', start: 1691097646000, end: 1691097805000 },
-    { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096693000, end: 1691096779000 },
-    { group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691092544000, end: 1691092671000 },
-    { group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
-  ].map((item, index) => ({ ...item, id: index.toString() } as customTimelineItem))));
+  const items = computed(() => ([
+    { id: 'marker-1', group: 'group3', type: 'marker', start: 1691090970000 },
+    { id: 'point-1', group: 'group1', type: 'point', start: 1691090880000, title: '21:28:00' },
+    { id: 'point-2', group: 'group1', type: 'point', start: (new Date().valueOf() - 200000), title: '21:28:00' },
+    { id: 'point-3', group: 'group1', type: 'point', start: (new Date().valueOf() + 40000200000), title: '21:28:00' },
+    { id: 'point-4', group: 'group1', type: 'point', start: 1691099529000, title: '23:52:09' },
+    { id: 'background-1', type: 'background', start: 1691095000000, end: 1691096000000 },
+    { id: 'background-1', type: 'background', group: 'background', start: 1691100120000, end: 1691101020000 },
+    { id: 'range-1', group: 'group2', type: 'range', start: 1691095214000, end: 1691095428000 },
+    { id: 'range-2', group: 'group2', type: 'range', start: 1691091546000, end: 1691091615000, cssVariables: { '--height': '50%', '--item-background': 'var(--color-2)' } },
+    { id: 'range-3', group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
+    { id: 'range-4', group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
+    { id: 'range-5', group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
+    { id: 'range-6', group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000 },
+    { id: 'range-6', group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000 },
+    { id: 'range-7', group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000 },
+    { id: 'range-8', group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000 },
+    { id: 'range-9', group: 'group2', type: 'range', start: 1691092246000, end: 1691092430000 },
+    { id: 'range-10', group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096029000, end: 1691096293000 },
+    { id: 'range-11', group: 'group2', type: 'range', start: 1691097646000, end: 1691097805000 },
+    { id: 'range-12', group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691096693000, end: 1691096779000 },
+    { id: 'range-13', group: 'group2', type: 'range', cssVariables: { '--item-background': 'var(--color-1)' }, start: 1691092544000, end: 1691092671000 },
+    { id: 'range-14', group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
+  ] satisfies TimelineItem[]));
 
   const currentTime = ref(new Date().valueOf());
   const markers = computed((): TimelineMarker[] => {
@@ -189,12 +187,12 @@
       type: 'marker',
       id: 'marker-1',
       className: 'red',
-    }, mouseHoverPosition.value ? {
+    } satisfies TimelineMarker, mouseHoverPosition.value ? {
       start: mouseHoverPosition.value,
       type: 'marker',
       id: 'mousehover',
       className: 'gray',
-    } : null].filter(Boolean) as TimelineMarker[];
+    } satisfies TimelineMarker : null].filter(Boolean) as TimelineMarker[];
   });
 
   setInterval(() => {

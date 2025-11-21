@@ -77,7 +77,7 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     // #endregion default-scales
   ] as const).toSorted((a, b) => getUnitIndex(a.unit) - getUnitIndex(b.unit)).flatMap((scale) => {
     return scale.steps.toSorted((a, b) => a - b).map((step) => ({ unit: scale.unit, step: step }));
-  }) as TimelineScale[]);
+  }) satisfies TimelineScale[]);
 
   watch (viewportDuration, () => {
     _viewportDuration.value = viewportDuration.value;
@@ -137,14 +137,14 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     const start = viewportStart.value;
     const end = viewportEnd.value;
 
-    let baseTimestamps = [] as Date[];
+    let baseTimestamps: Date[] = [];
     switch (scale.value.unit) {
       case 'ms':
         baseTimestamps = Array.from({ length: end - start }, (_, i) => new Date(start + i));
         break;
       case 'seconds':
         baseTimestamps = eachMinuteOfInterval({ start, end }).flatMap((minute) => {
-          const secondsInMinute = [] as Date[];
+          const secondsInMinute: Date[] = [];
           for (let i = 0; i < 60; i++) {
             secondsInMinute.push(new Date(minute.valueOf() + i * baseDividers.seconds));
           }
