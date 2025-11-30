@@ -57,7 +57,7 @@
     "docs:preview": "vitepress preview docs"
   },
   "engines": {
-    "node": ">=18.12.0"
+    "node": ">=20.19.0"
   },
   "dependencies": {
     "vue": "^3.4.38"
