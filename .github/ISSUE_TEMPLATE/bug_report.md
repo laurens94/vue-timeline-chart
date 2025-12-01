@@ -11,7 +11,7 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **Reproduction**
-Please provide a link to [Stackblitz](https://stackblitz.com/github/laurens94/vue-timeline-chart?file=sandbox/App.vue&startScript=start) with a [minimal reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).
+Please provide a link to [Stackblitz](https://stackblitz.com/edit/vue-timeline-chart?file=src%2FApp.vue) with a [minimal reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
