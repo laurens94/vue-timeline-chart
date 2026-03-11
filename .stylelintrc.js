@@ -1,14 +1,14 @@
 /** @type {import('stylelint').Config} */
 export default {
   extends: [
-    "stylelint-config-standard-scss",
-    "stylelint-config-standard-vue/scss",
     '@stylistic/stylelint-config',
+    'stylelint-config-recommended-vue',
   ],
   plugins: [
     "@stylistic/stylelint-plugin"
   ],
   rules: {
+    'no-descending-specificity': null,
     "@stylistic/selector-combinator-space-before": "always",
     "@stylistic/max-line-length": null,
     'custom-property-pattern': [
@@ -17,21 +17,9 @@ export default {
         message: 'Custom properties must use kebab-case and may start with an underscore for local variables.',
       },
     ],
-    "@stylistic/indentation": [
-      2,
-      {
-        baseIndentLevel: 1
-      }
-    ],
   },
   defaultSeverity: "warning",
   overrides: [
-    {
-      files: [
-        "**/*.scss"
-      ],
-      customSyntax: "postcss-scss"
-    },
     {
       files: [
         "**/*.vue"

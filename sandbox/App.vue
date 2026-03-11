@@ -243,14 +243,14 @@
   }
 </style>
 
-<style lang="scss" scoped>
+<style scoped>
   .timeline {
     --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
     border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
     touch-action: none;
 
-    // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
+    /* // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
     // --group-border-top: 1px solid rgba(255, 255, 255, 10%);
     // --group-padding-top: 0.5em;
     // --group-padding-bottom: 0.5em;
@@ -270,15 +270,15 @@
     // --timestamps-color: rgb(255, 112, 255);
     // --timestamp-line-height: 1.5em;
     // --timestamp-padding-block: 0.2em;
-    // --timestamp-padding-inline: 0.4em;
+    // --timestamp-padding-inline: 0.4em; */
 
     border-radius: 0.5rem;
 
-    :deep(.group-label) {
+    &:deep(.group-label) {
       opacity: 0.5;
     }
 
-    :deep(.group) {
+    &:deep(.group) {
       &:hover {
         background-color: color-mix(in srgb, white 15%, transparent);
 
@@ -288,7 +288,7 @@
       }
     }
 
-    :deep(.item) {
+    &:deep(.item) {
       opacity: 0.7;
 
       &.range {
@@ -302,11 +302,11 @@
       }
     }
 
-    :deep(.background) {
+    &:deep(.background) {
       --item-background: color-mix(in srgb, black 10%, transparent);
     }
 
-    :deep(.marker) {
+    &:deep(.marker) {
       --item-marker-width: 2px;
 
       &.red {

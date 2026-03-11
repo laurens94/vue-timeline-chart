@@ -65,7 +65,7 @@
   </Timeline>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
   .draggable {
     position: absolute;
     inset: 0;
@@ -78,10 +78,10 @@
       width: 1.2rem;
       height: 100%;
       cursor: ew-resize;
-      opacity: .6;
+      opacity: 0.6;
 
       &::before {
-        content: '';
+        content: "";
         border-inline: 1px solid white;
         width: 4px;
         height: 40%;

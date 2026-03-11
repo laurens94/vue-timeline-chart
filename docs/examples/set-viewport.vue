@@ -52,10 +52,10 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
   .controls {
     display: flex;
-    gap: .5rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
   }
 

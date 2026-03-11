@@ -619,7 +619,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
   * {
     box-sizing: border-box;
   }
