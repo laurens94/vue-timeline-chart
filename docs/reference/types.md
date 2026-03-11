@@ -12,7 +12,7 @@ TimelineItems can be points, ranges, backgrounds or markers. They are assigned t
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | `undefined` | Unique ID, to match with `activeItems` prop |
+| `id` | `string` | <Badge type="info" text="required" /> | Unique ID, to match with `activeItems` prop |
 | `start` | `number` | <Badge type="info" text="required" /> | Timestamp |
 | `group` | `string` | `undefined` | `id` of the [TimelineGroup](#timelinegroup) to assign the item to |
 | `end` | `number` | <Badge type="info" text="required for range and background" /> | Timestamp, only used for type `range` and `background` |
