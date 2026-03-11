@@ -36,7 +36,7 @@
 
         <div
           v-for="(item) in visibleMarkers.filter((item) => item.group === '_timestamps')"
-          :key="item.id ?? `${item.start}${item.type}`"
+          :key="item.id"
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
@@ -45,7 +45,7 @@
 
         <div
           v-for="(item) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
-          :key="item.id ?? `${item.start}${item.type}`"
+          :key="item.id"
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
@@ -75,8 +75,8 @@
               :viewportEnd="viewportEnd"
             >
               <div
-                v-for="(item, index) in visibleItems.filter((item) => item.group === group.id && item.type !== 'background')"
-                :key="item.id ?? index"
+                v-for="item in visibleItems.filter((item) => item.group === group.id && item.type !== 'background')"
+                :key="item.id"
                 :style="getStyle(item)"
                 :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
                 @click.stop="onClick($event, item)"
@@ -91,7 +91,7 @@
           </div>
           <div
             v-for="(item) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
-            :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
+            :key="item.id"
             :style="getStyle(item)"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -103,7 +103,7 @@
           </div>
           <div
             v-for="(item) in visibleMarkers.filter((item) => item.group === group.id)"
-            :key="item.id ?? `${item.start}${item.type}`"
+            :key="item.id"
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
@@ -114,7 +114,7 @@
         <div v-if="visibleBackgroundsWithoutGroup.length > 0" class="backgrounds">
           <div
             v-for="(item) in visibleBackgroundsWithoutGroup"
-            :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
+            :key="item.id"
             :style="getStyle(item)"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -129,7 +129,7 @@
         <div v-if="visibleMarkersWithoutGroup.length > 0" class="markers">
           <div
             v-for="(item) in visibleMarkersWithoutGroup"
-            :key="item.id ?? `${item.start}${item.type}`"
+            :key="item.id"
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
@@ -332,12 +332,12 @@
 
   function getStyle (item: TimelineItem | TimelineMarker, markers = false) {
     const cache = markers ? styleCacheMarkers : styleCache;
-    const cachedValue = cache.get(item.id ?? `${item.start}${item.type}${item.end || ''}`);
+    const cachedValue = cache.get(item.id);
     if (cachedValue) {
       return cachedValue;
     }
     const value = styleObject(item);
-    cache.set(item.id ?? `${item.start}${item.type}${item.end || ''}`, value);
+    cache.set(item.id, value);
     return value;
   }
 
