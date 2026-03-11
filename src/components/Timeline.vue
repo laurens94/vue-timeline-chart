@@ -749,6 +749,6 @@
   }
 
   .background {
-    background: var(--item-background, rgba(0, 0, 0, 10%));
+    background: var(--item-background, rgb(0 0 0 / 10%));
   }
 </style>

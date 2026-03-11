@@ -280,7 +280,7 @@
 
     :deep(.group) {
       &:hover {
-        background-color:  color-mix(in srgb, white 15%, transparent);
+        background-color: color-mix(in srgb, white 15%, transparent);
 
         .group-label {
           opacity: 1;
@@ -315,14 +315,14 @@
       }
 
       &.gray {
-        --item-background: rgba(150, 150, 150, 20%);
+        --item-background: rgb(150 150 150 / 20%);
         --item-marker-width: 2px;
       }
     }
   }
 
   details {
-    background-color: rgba(0, 0, 0, 50%);
+    background-color: rgb(0 0 0 / 50%);
     color: white;
     padding: 0.5rem;
     font-family: monospace;
@@ -331,7 +331,7 @@
 
     .flex {
       display: flex;
-      gap: 1rem .5rem;
+      gap: 1rem 0.5rem;
       margin: 1rem;
       flex-wrap: wrap;
     }
