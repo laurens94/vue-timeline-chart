@@ -45,7 +45,7 @@ const baseMarkers: TimelineMarker[] = [
 ];
 
 function mountTimeline(props: Record<string, unknown> = {}, slots?: Record<string, unknown>) {
-  return mount(Timeline, {
+  return mount(Timeline as any, {
     props: {
       groups: baseGroups,
       items: baseItems,
