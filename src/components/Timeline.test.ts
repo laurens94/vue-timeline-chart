@@ -44,7 +44,7 @@ const baseMarkers: TimelineMarker[] = [
   { id: 'marker-ts', type: 'marker', start: now + hour, group: '_timestamps' },
 ];
 
-function mountTimeline(props: Record<string, unknown> = {}, slots: Record<string, unknown> = {}) {
+function mountTimeline(props: Record<string, unknown> = {}, slots?: Record<string, unknown>) {
   return mount(Timeline, {
     props: {
       groups: baseGroups,
@@ -56,6 +56,7 @@ function mountTimeline(props: Record<string, unknown> = {}, slots: Record<string
       initialViewportEnd: now + hour * 4,
       ...props,
     },
+    // @ts-expect-error -- slot render functions are loosely typed in tests
     slots,
     attachTo: document.body,
   });
