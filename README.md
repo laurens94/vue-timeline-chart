@@ -16,7 +16,6 @@
     <img src="https://img.shields.io/github/license/laurens94/vue-timeline-chart" alt="license">
   </a>
 </p>
-
 <p align="center">
   A simple yet versatile Vue 3 component that allows you to plot points or ranges on a timeline.<br>
   Zoom in/out, scroll horizontally and update content dynamically.
@@ -100,3 +99,7 @@ pnpm dev
 ### Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+
+<p align="center">
+  <a href='https://ko-fi.com/L3L0BR8QG' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+</p>
