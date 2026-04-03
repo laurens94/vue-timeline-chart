@@ -27,6 +27,12 @@
 
 ---
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0164911c-2178-4f92-acca-a92df1371448" alt="timeline with customized styling">
+</p>
+
+---
+
 ## Features
 
 - **Zooming** — zoom in and out with scroll or pinch gestures
