@@ -56,7 +56,6 @@ function mountTimeline(props: Record<string, unknown> = {}, slots?: Record<strin
       initialViewportEnd: now + hour * 4,
       ...props,
     },
-    // @ts-expect-error -- slot render functions are loosely typed in tests
     slots,
     attachTo: document.body,
   });
