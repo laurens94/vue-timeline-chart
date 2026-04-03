@@ -52,6 +52,9 @@
     "build": "vite build && pnpm build:types",
     "build:types": "vue-tsc --project tsconfig.build-types.json --declaration --emitDeclarationOnly --outDir dist/types",
     "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
@@ -68,14 +71,17 @@
   "devDependencies": {
     "@shikijs/vitepress-twoslash": "^4.0.2",
     "@vitejs/plugin-vue": "^6.0.4",
+    "@vitest/coverage-v8": "4.0.18",
     "@vue/eslint-config-typescript": "^14.7.0",
+    "@vue/test-utils": "^2.4.6",
     "@vueuse/core": "^14.2.1",
     "date-fns": "^4.1.0",
+    "happy-dom": "^20.8.9",
     "postcss": "^8.5.8",
     "postcss-html": "^1.8.1",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vitepress": "^2.0.0-alpha.16",
+    "vite": "^8.0.0",
+    "vitepress": "^2.0.0-alpha.17",
     "vue-tsc": "^3.2.5"
   },
   "optionalDependencies": {
