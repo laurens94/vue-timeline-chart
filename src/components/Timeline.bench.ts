@@ -34,29 +34,28 @@ function generateItems(count: number): TimelineItem[] {
   return items;
 }
 
-function generateGroups(count: number): TimelineGroup[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `g${i + 1}`,
-    label: `Group ${i + 1}`,
-  }));
-}
+const groups5 = Array.from({ length: 5 }, (_, i) => ({
+  id: `g${i + 1}`,
+  label: `Group ${i + 1}`,
+})) satisfies TimelineGroup[];
 
-function generateMarkers(count: number): TimelineMarker[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `marker-${i}`,
-    type: 'marker' as const,
-    start: now + (i * hour * 0.5),
-  }));
-}
+const markers10 = Array.from({ length: 10 }, (_, i) => ({
+  id: `marker-${i}`,
+  type: 'marker' as const,
+  start: now + (i * hour * 0.5),
+})) satisfies TimelineMarker[];
 
-function mountWith(itemCount: number) {
-  const items = generateItems(itemCount);
-  const vpEnd = now + hour * Math.max(4, itemCount * 0.01);
+const items100 = generateItems(100);
+const items1k = generateItems(1_000);
+const items10k = generateItems(10_000);
+
+function mountWith(items: TimelineItem[]) {
+  const vpEnd = now + hour * Math.max(4, items.length * 0.01);
   return mount(Timeline as any, {
     props: {
-      groups: generateGroups(5),
+      groups: groups5,
       items,
-      markers: generateMarkers(10),
+      markers: markers10,
       initialViewportStart: now,
       initialViewportEnd: vpEnd,
     },
@@ -64,29 +63,31 @@ function mountWith(itemCount: number) {
   });
 }
 
+const benchOpts = { time: 5000, warmupTime: 1000, warmupIterations: 10 };
+
 describe('Timeline mount performance', () => {
   bench('mount with 100 items', async () => {
-    const wrapper = mountWith(100);
+    const wrapper = mountWith(items100);
     await nextTick();
     wrapper.unmount();
-  });
+  }, benchOpts);
 
   bench('mount with 1,000 items', async () => {
-    const wrapper = mountWith(1_000);
+    const wrapper = mountWith(items1k);
     await nextTick();
     wrapper.unmount();
-  });
+  }, benchOpts);
 
   bench('mount with 10,000 items', async () => {
-    const wrapper = mountWith(10_000);
+    const wrapper = mountWith(items10k);
     await nextTick();
     wrapper.unmount();
-  });
+  }, benchOpts);
 });
 
 describe('Timeline viewport panning performance', () => {
   bench('pan 50 steps with 1,000 items', async () => {
-    const wrapper = mountWith(1_000);
+    const wrapper = mountWith(items1k);
     await nextTick();
 
     const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
@@ -101,10 +102,10 @@ describe('Timeline viewport panning performance', () => {
     }
     await nextTick();
     wrapper.unmount();
-  });
+  }, benchOpts);
 
   bench('pan 50 steps with 10,000 items', async () => {
-    const wrapper = mountWith(10_000);
+    const wrapper = mountWith(items10k);
     await nextTick();
 
     const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
@@ -119,12 +120,12 @@ describe('Timeline viewport panning performance', () => {
     }
     await nextTick();
     wrapper.unmount();
-  });
+  }, benchOpts);
 });
 
 describe('Timeline zoom performance', () => {
   bench('zoom in/out 50 steps with 1,000 items', async () => {
-    const wrapper = mountWith(1_000);
+    const wrapper = mountWith(items1k);
     await nextTick();
 
     const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
@@ -143,5 +144,5 @@ describe('Timeline zoom performance', () => {
     }
     await nextTick();
     wrapper.unmount();
-  });
+  }, benchOpts);
 });
