@@ -110,7 +110,7 @@ describe('Timeline rendering', () => {
       expect(wrapper.findAll('.background').length).toBeGreaterThanOrEqual(1);
     });
 
-    it('does not render items outside the viewport', async () => {
+    it('does not render items fully outside the viewport', async () => {
       const farFuture = now + hour * 100;
       const wrapper = mountTimeline({
         items: [
@@ -119,6 +119,142 @@ describe('Timeline rendering', () => {
       });
       await nextTick();
       expect(wrapper.findAll('.item.range').length).toBe(0);
+    });
+
+    it('includes a range item that partially overlaps the viewport start', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 3;
+      const wrapper = mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'overlap-start', type: 'range', start: vpStart - hour, end: vpStart + hour, group: 'group-1' },
+        ],
+      });
+      await nextTick();
+      expect(wrapper.findAll('.item.range').length).toBe(1);
+    });
+
+    it('includes a range item that partially overlaps the viewport end', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 3;
+      const wrapper = mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'overlap-end', type: 'range', start: vpEnd - hour, end: vpEnd + hour, group: 'group-1' },
+        ],
+      });
+      await nextTick();
+      expect(wrapper.findAll('.item.range').length).toBe(1);
+    });
+
+    it('excludes a range item whose end equals the viewport start (not overlapping)', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 3;
+      const wrapper = mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'touching-start', type: 'range', start: vpStart - hour * 2, end: vpStart, group: 'group-1' },
+        ],
+      });
+      await nextTick();
+      expect(wrapper.findAll('.item.range').length).toBe(0);
+    });
+
+    it('excludes a range item whose start equals the viewport end (not overlapping)', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 3;
+      const wrapper = mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'touching-end', type: 'range', start: vpEnd, end: vpEnd + hour, group: 'group-1' },
+        ],
+      });
+      await nextTick();
+      expect(wrapper.findAll('.item.range').length).toBe(0);
+    });
+
+    it('includes a point item inside the viewport', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 3;
+      const wrapper = mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'point-inside', type: 'point', start: vpStart + hour, group: 'group-1' },
+        ],
+      });
+      await nextTick();
+      expect(wrapper.findAll('.item.point').length).toBe(1);
+    });
+
+    it('excludes a point item exactly at the viewport start (uses > not >=)', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 3;
+      const wrapper = mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'point-at-start', type: 'point', start: vpStart, group: 'group-1' },
+        ],
+      });
+      await nextTick();
+      // item.start > viewportStart is false when equal, so excluded
+      expect(wrapper.findAll('.item.point').length).toBe(0);
+    });
+
+    it('excludes a point item exactly at the viewport end', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 3;
+      const wrapper = mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'point-at-end', type: 'point', start: vpEnd, group: 'group-1' },
+        ],
+      });
+      await nextTick();
+      // item.start < viewportEnd is false when equal, so excluded
+      expect(wrapper.findAll('.item.point').length).toBe(0);
+    });
+
+    it('includes a range that spans the entire viewport', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 3;
+      const wrapper = mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'spanning', type: 'range', start: vpStart - hour, end: vpEnd + hour, group: 'group-1' },
+        ],
+      });
+      await nextTick();
+      expect(wrapper.findAll('.item.range').length).toBe(1);
+    });
+
+    it('sorts visible items by start time', async () => {
+      const vpStart = now;
+      const vpEnd = now + hour * 5;
+      const receivedItems: TimelineItem[] = [];
+      mountTimeline({
+        initialViewportStart: vpStart,
+        initialViewportEnd: vpEnd,
+        items: [
+          { id: 'late', type: 'range', start: now + hour * 3, end: now + hour * 4, group: 'group-1' },
+          { id: 'early', type: 'range', start: now + hour, end: now + hour * 2, group: 'group-1' },
+          { id: 'mid', type: 'range', start: now + hour * 2, end: now + hour * 3, group: 'group-1' },
+        ],
+      }, {
+        item: (slotProps: { item: TimelineItem }) => {
+          receivedItems.push(slotProps.item);
+          return h('span', {}, slotProps.item.id);
+        },
+      });
+      await nextTick();
+      expect(receivedItems.map((i) => i.id)).toEqual(['early', 'mid', 'late']);
     });
 
     it('applies custom className on items', async () => {
