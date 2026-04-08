@@ -55,7 +55,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "bench": "vitest bench --run",
+    "bench": "vitest bench --run --outputJson benchmarks/latest.json",
+    "bench:compare": "vitest bench --run --compare benchmarks/latest.json",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"

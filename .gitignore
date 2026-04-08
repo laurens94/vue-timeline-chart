@@ -26,3 +26,4 @@ docs/.vitepress/cache
 
 # Test coverage
 coverage
+benchmarks
