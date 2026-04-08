@@ -309,6 +309,20 @@ describe('Timeline rendering', () => {
       expect(renderFn).toHaveBeenCalled();
       expect(timestamps[0].text()).toBe('CUSTOM');
     });
+
+    it('applies is-day class to local midnight timestamps', async () => {
+      // Create a viewport spanning a local midnight so useScale generates a day-boundary timestamp
+      const localMidnight = new Date('2024-06-15T00:00:00').valueOf(); // local midnight
+      const wrapper = mountTimeline({
+        initialViewportStart: localMidnight - hour * 12,
+        initialViewportEnd: localMidnight + hour * 12,
+        viewportMin: localMidnight - hour * 24,
+        viewportMax: localMidnight + hour * 24,
+      });
+      await nextTick();
+      const dayTimestamps = wrapper.findAll('.timestamp.is-day');
+      expect(dayTimestamps.length).toBeGreaterThanOrEqual(1);
+    });
   });
 
   describe('markers', () => {

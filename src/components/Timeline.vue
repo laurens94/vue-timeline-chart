@@ -353,12 +353,15 @@
   }, { immediate: true });
 
   function timestampClassNames (timestamp: number) {
-    return {
-      'is-second': timestamp % 1000 === 0,
-      'is-minute': timestamp % 60000 === 0,
-      'is-hour': timestamp % 3600000 === 0,
-      'is-day': timestamp % 86400000 === 0,
-    };
+    const d = new Date(timestamp);
+    const isSecond = d.getMilliseconds() === 0;
+    const isMinute = isSecond && d.getSeconds() === 0;
+    const isHour = isMinute && d.getMinutes() === 0;
+    const isDay = isHour && d.getHours() === 0;
+    const isWeek = isDay && d.getDay() === props.weekStartsOn;
+    const isMonth = isDay && d.getDate() === 1;
+    const isYear = isMonth && d.getMonth() === 0;
+    return { 'is-second': isSecond, 'is-minute': isMinute, 'is-hour': isHour, 'is-day': isDay, 'is-week': isWeek, 'is-month': isMonth, 'is-year': isYear };
   }
 
   const clampOffsetForPerformanceInMs = computed(() => (props.maxOffsetOutsideViewport / containerWidth.value) * viewportDuration.value);
