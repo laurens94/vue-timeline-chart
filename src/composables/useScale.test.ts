@@ -248,6 +248,19 @@ describe('useScale', () => {
       expect(scale.value.unit).toBe('ms');
       expect(visibleTimestamps.value.length).toBe(5);
     });
+
+    it('aligns ms timestamps to step boundary and excludes viewport end', () => {
+      const customScales: TimelineScales[] = [
+        { unit: 'ms', steps: [2] },
+      ];
+      const start = 1001;
+      const end = 1009;
+      const { visibleTimestamps, scale } = createScale({ start, end, scales: customScales, maxLabels: 100 });
+
+      expect(scale.value.unit).toBe('ms');
+      expect(visibleTimestamps.value).toEqual([1002, 1004, 1006, 1008]);
+      expect(visibleTimestamps.value.every((ts) => ts >= start && ts < end)).toBe(true);
+    });
   });
 
   describe('alignsWithGridlines branches', () => {
