@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, defineComponent, onMounted, h } from 'vue';
+import { mount } from '@vue/test-utils';
 import { useElementSize } from './useElementSize.ts';
 
 let observeCallbacks: Array<(entries: ResizeObserverEntry[]) => void>;
@@ -93,5 +94,52 @@ describe('useElementSize', () => {
     await nextTick();
 
     expect(observeCallbacks.length).toBeGreaterThan(callbackCount);
+  });
+
+  it('updates width before component re-renders (pre-flush)', async () => {
+    vi.stubGlobal('ResizeObserver', class {
+      callback: (entries: ResizeObserverEntry[]) => void;
+      constructor(cb: (entries: ResizeObserverEntry[]) => void) {
+        this.callback = cb;
+        observeCallbacks.push(cb);
+      }
+      observe() {
+        this.callback([{
+          contentRect: { width: 1000, height: 400, x: 0, y: 0, top: 0, right: 1000, bottom: 400, left: 0, toJSON: () => ({}) },
+        } as unknown as ResizeObserverEntry]);
+      }
+      disconnect() { disconnectFn(); }
+      unobserve() {}
+    });
+
+    const widthAtRender: number[] = [];
+
+    const Comp = defineComponent({
+      setup() {
+        const el = ref<HTMLElement | null>(null);
+        const { width } = useElementSize(el);
+        const dummy = ref(0);
+
+        onMounted(() => {
+          // Trigger a re-render during mount, like Timeline's setInitialViewportValues
+          dummy.value++;
+        });
+
+        return () => {
+          widthAtRender.push(width.value);
+          return h('div', { ref: el }, `${dummy.value}`);
+        };
+      },
+    });
+
+    mount(Comp);
+    await nextTick();
+    await nextTick();
+
+    // Pre-flush: the element watcher fires before the re-render caused by
+    // onMounted's dummy++, so width=1000 is ready during that re-render.
+    // A flush:'post' watcher would defer observer setup until after that
+    // re-render, producing an extra render cycle: [0, 0, 1000].
+    expect(widthAtRender).toEqual([0, 1000]);
   });
 });
