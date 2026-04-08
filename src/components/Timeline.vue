@@ -246,6 +246,17 @@
     emit('changeViewport', { start, end });
   });
 
+  watch(() => props.items, (value) => {
+    if (value.some((item) => item.id === undefined)) {
+      console.warn(`[vue-timeline-chart] Deprecation warning: some items are missing an \`id\` property. This will be required in the next major version.`);
+    }
+  }, { immediate: true });
+  watch(() => props.markers, (value) => {
+    if (value.some((marker) => marker.id === undefined)) {
+      console.warn(`[vue-timeline-chart] Deprecation warning: some markers are missing an \`id\` property. This will be required in the next major version.`);
+    }
+  }, { immediate: true });
+
   watchEffect(() => {
     try {
       checkValidityOfProps();
