@@ -248,12 +248,12 @@
 
   watch(() => props.items, (value) => {
     if (value.some((item) => item.id === undefined)) {
-      console.warn(`[vue-timeline-chart] Deprecation warning: some items are missing an \`id\` property. This will be required in the next major version.`);
+      console.error(`[vue-timeline-chart] Some items are missing an \`id\` property. Please provide a unique ID for each item.`);
     }
   }, { immediate: true });
   watch(() => props.markers, (value) => {
     if (value.some((marker) => marker.id === undefined)) {
-      console.warn(`[vue-timeline-chart] Deprecation warning: some markers are missing an \`id\` property. This will be required in the next major version.`);
+      console.error(`[vue-timeline-chart] Some markers are missing an \`id\` property. Please provide a unique ID for each marker.`);
     }
   }, { immediate: true });
 
