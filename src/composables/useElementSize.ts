@@ -1,8 +1,8 @@
-import { Ref, ref, watch } from 'vue';
+import { shallowRef, TemplateRef, watch } from 'vue';
 
-export const useElementSize = (element: Ref<HTMLElement | null>) => {
-  const width = ref(0);
-  const height = ref(0);
+export const useElementSize = (element: TemplateRef<HTMLElement>) => {
+  const width = shallowRef(0);
+  const height = shallowRef(0);
 
   let observer: ResizeObserver;
 

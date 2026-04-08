@@ -112,7 +112,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { watch, computed, ref, reactive } from 'vue';
+  import { watch, computed, ref, reactive, useTemplateRef, shallowRef } from 'vue';
   import Timeline from '../src/components/Timeline.vue';
   import type { TimelineGroup, TimelineItem, TimelineMarker, TimelineScale } from '../src/types/timeline.ts';
 
@@ -127,12 +127,12 @@
 
   const viewportSize = computed(() => debug.viewport.end - debug.viewport.start);
 
-  const timeline = ref();
+  const timeline = useTemplateRef('timeline');
 
   const maxRange = ref([-500000000000000, 100000000000000]);
   const initialViewportRange = ref([1691089357146, 1691101020000]);
-  const minViewportDuration = ref(10000);
-  const maxViewportDuration = ref(10000000000000);
+  const minViewportDuration = shallowRef(10000);
+  const maxViewportDuration = shallowRef(10000000000000);
 
   const groups = computed((): TimelineGroup[] => {
     return [
@@ -179,7 +179,7 @@
     { id: 'range-14', group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
   ] satisfies TimelineItem[]));
 
-  const currentTime = ref(new Date().valueOf());
+  const currentTime = shallowRef(new Date().valueOf());
   const markers = computed((): TimelineMarker[] => {
     return [{
       start: currentTime.value,
@@ -202,7 +202,7 @@
     debug.firedEvents.push(`${event.type} (${time ?? '-'}) ${item || ''}`);
   }
 
-  const mouseHoverPosition = ref<number | null>(null);
+  const mouseHoverPosition = shallowRef<number | null>(null);
   function onMousemoveTimeline ({ time }: { time: number }) {
     mouseHoverPosition.value = time;
     debug.firedEvents.push(`mousemoveTimeline (${time})`);

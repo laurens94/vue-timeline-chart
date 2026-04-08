@@ -142,7 +142,7 @@
 </template>
 
 <script lang="ts" setup generic="GTimelineItem extends TimelineItem, GTimelineGroup extends TimelineGroup, GTimelineMarker extends TimelineMarker">
-  import { computed, type CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+  import { computed, type CSSProperties, nextTick, onMounted, shallowRef, useTemplateRef, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
   import { useScale } from '../composables/useScale.ts';
@@ -232,11 +232,11 @@
     clearCache,
   });
 
-  const timelineEl = ref<HTMLElement | null>(null);
+  const timelineEl = useTemplateRef('timelineEl');
   const { width: containerWidth } = useElementSize(timelineEl);
 
-  const viewportStart = ref<number>(0);
-  const viewportEnd = ref<number>(10000);
+  const viewportStart = shallowRef<number>(0);
+  const viewportEnd = shallowRef<number>(10000);
   const viewportDuration = computed(() => viewportEnd.value - viewportStart.value);
 
   /** The number of screen pixels per timeline ms */
