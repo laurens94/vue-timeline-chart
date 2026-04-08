@@ -23,3 +23,6 @@ dist-ssr
 
 docs/.vitepress/dist
 docs/.vitepress/cache
+
+coverage
+benchmarks

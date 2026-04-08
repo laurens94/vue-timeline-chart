@@ -168,7 +168,6 @@
     { id: 'range-3', group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
     { id: 'range-4', group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
     { id: 'range-5', group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
-    { id: 'range-6', group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000 },
     { id: 'range-6', group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000 },
     { id: 'range-7', group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000 },
     { id: 'range-8', group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000 },
