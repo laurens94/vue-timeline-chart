@@ -257,7 +257,7 @@
 
   const { left: containerLeft } = useElementBounding(timelineEl);
 
-  function getFirstItemOccurence () {
+  function getFirstItemOccurrence () {
     return props.items?.reduce((min, item) => {
       if (item.start < min) {
         return item.start;
@@ -266,7 +266,7 @@
     }, Infinity);
   }
 
-  function getLastItemOccurence () {
+  function getLastItemOccurrence () {
     return props.items?.reduce((max, item) => {
       if ((item.end !== undefined && item.end > max) || item.start > max) {
         return item.end ?? item.start;
@@ -277,8 +277,8 @@
 
   function setInitialViewportValues () {
     setViewport(
-      props.initialViewportStart ?? props.viewportMin ?? getFirstItemOccurence() ?? 0,
-      props.initialViewportEnd ?? props.viewportMax ?? getLastItemOccurence() ?? 10000
+      props.initialViewportStart ?? props.viewportMin ?? getFirstItemOccurrence() ?? 0,
+      props.initialViewportEnd ?? props.viewportMax ?? getLastItemOccurrence() ?? 10000
     );
   }
 
