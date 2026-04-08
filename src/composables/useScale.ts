@@ -11,8 +11,8 @@ import {
 import {  ComputedRef, Ref, computed, shallowRef, watch } from 'vue';
 import {  TimelineBaseUnits,  TimelineScale,  TimelineScales } from '../types/timeline.ts';
 
-// Order of units is important for sorting:
-const baseDividers: Record<TimelineBaseUnits, number> = {
+/** note: order of units is important for sorting */
+const baseDividers = {
   ms: 1,
   seconds: 1000,
   minutes: 1000 * 60,
@@ -21,7 +21,7 @@ const baseDividers: Record<TimelineBaseUnits, number> = {
   weeks: 1000 * 60 * 60 * 24 * 7,
   months: 1000 * 60 * 60 * 24 * 7 * 4,
   years: 1000 * 60 * 60 * 24 * 7 * 4 * 12,
-} as const;
+} as const satisfies Record<TimelineBaseUnits, number>;
 
 const getUnitIndex = (unit: keyof typeof baseDividers): number => {
   return Object.keys(baseDividers).indexOf(unit);
