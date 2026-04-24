@@ -3,18 +3,11 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/laurens94/vue-timeline-chart">
-    <img src="https://img.shields.io/github/v/release/laurens94/vue-timeline-chart" alt="GitHub release">
-  </a>
-  <a href="https://www.npmjs.com/package/vue-timeline-chart">
-    <img src="https://img.shields.io/npm/v/vue-timeline-chart" alt="npm version">
-  </a>
-  <a href="https://www.npmjs.com/package/vue-timeline-chart">
-    <img src="https://img.shields.io/bundlephobia/min/vue-timeline-chart" alt="bundle size">
-  </a>
-  <a href="https://github.com/laurens94/vue-timeline-chart/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/laurens94/vue-timeline-chart" alt="license">
-  </a>
+  <a href="https://github.com/laurens94/vue-timeline-chart"><img src="https://badgen.net/github/release/laurens94/vue-timeline-chart" alt="GitHub release"></a>
+  <a href="https://www.npmjs.com/package/vue-timeline-chart"><img src="https://badgen.net/npm/v/vue-timeline-chart" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/vue-timeline-chart"><img src="https://badgen.net/npm/dm/vue-timeline-chart" alt="downloads/month"></a>
+  <a href="https://www.npmjs.com/package/vue-timeline-chart"><img src="https://badgen.net/bundlephobia/min/vue-timeline-chart" alt="minified size"></a>
+  <a href="https://github.com/laurens94/vue-timeline-chart/blob/main/LICENSE"><img src="https://badgen.net/github/license/laurens94/vue-timeline-chart" alt="license"></a>
 </p>
 <p align="center">
   A simple yet versatile Vue 3 component that allows you to plot points or ranges on a timeline.<br>
