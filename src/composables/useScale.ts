@@ -8,11 +8,11 @@ import {
   getWeek,
 } from 'date-fns';
 
-import {  ComputedRef, Ref, computed, ref, watch } from 'vue';
+import {  ComputedRef, Ref, computed, shallowRef, watch } from 'vue';
 import {  TimelineBaseUnits,  TimelineScale,  TimelineScales } from '../types/timeline.ts';
 
-// Order of units is important for sorting:
-const baseDividers: Record<TimelineBaseUnits, number> = {
+/** note: order of units is important for sorting */
+const baseDividers = {
   ms: 1,
   seconds: 1000,
   minutes: 1000 * 60,
@@ -21,7 +21,7 @@ const baseDividers: Record<TimelineBaseUnits, number> = {
   weeks: 1000 * 60 * 60 * 24 * 7,
   months: 1000 * 60 * 60 * 24 * 7 * 4,
   years: 1000 * 60 * 60 * 24 * 7 * 4 * 12,
-} as const;
+} as const satisfies Record<TimelineBaseUnits, number>;
 
 const getUnitIndex = (unit: keyof typeof baseDividers): number => {
   return Object.keys(baseDividers).indexOf(unit);
@@ -32,8 +32,8 @@ const getUnitIndex = (unit: keyof typeof baseDividers): number => {
  */
 export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, viewportDuration: Ref<number>, maxLabelsInView: Ref<number>, scales: ComputedRef<TimelineScales[]>, weekStartsOn: ComputedRef<0 | 1 | 2 | 3 | 4 | 5 | 6>) => {
   // cached values:
-  const _viewportDuration = ref(viewportDuration.value);
-  const _maxLabelsInView = ref(maxLabelsInView.value);
+  const _viewportDuration = shallowRef(viewportDuration.value);
+  const _maxLabelsInView = shallowRef(maxLabelsInView.value);
 
   const possibleScales = computed(() => (scales.value?.length ? scales.value : [
     // #region default-scales
@@ -136,12 +136,20 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     const timestamps: number[] = [];
     const start = viewportStart.value;
     const end = viewportEnd.value;
+    const { unit, step } = scale.value;
+
+    if (unit === 'ms') {
+      // Skip creating datetime objects for every millisecond, only create timestamps for the step interval.
+      const stepMs = Math.max(1, step);
+      const alignedStart = Math.ceil(start / stepMs) * stepMs;
+      for (let t = alignedStart; t < end; t += stepMs) {
+        timestamps.push(t);
+      }
+      return timestamps;
+    }
 
     let baseTimestamps: Date[] = [];
-    switch (scale.value.unit) {
-      case 'ms':
-        baseTimestamps = Array.from({ length: end - start }, (_, i) => new Date(start + i));
-        break;
+    switch (unit) {
       case 'seconds':
         baseTimestamps = eachMinuteOfInterval({ start, end }).flatMap((minute) => {
           const secondsInMinute: Date[] = [];
@@ -172,16 +180,16 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
     }
 
     for (const timestamp of baseTimestamps) {
-      if (scale.value.step > 1 && !alignsWithGridlines(timestamp)) {
+      if (step > 1 && !alignsWithGridlines(timestamp)) {
         continue;
       }
 
       timestamps.push(timestamp.valueOf());
 
-      if (scale.value.step < 1) {
+      if (step < 1) {
         // Also add the fractions within this unit:
-        for (let i = 1; i < 1 / scale.value.step; i++) {
-          timestamps.push(timestamp.valueOf() + i * scale.value.step * baseDividers[scale.value.unit]);
+        for (let i = 1; i < 1 / step; i++) {
+          timestamps.push(timestamp.valueOf() + i * step * baseDividers[unit]);
         }
       }
     }

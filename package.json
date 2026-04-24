@@ -1,6 +1,6 @@
 {
   "name": "vue-timeline-chart",
-  "version": "4.1.3",
+  "version": "5.0.0",
   "description": "Vue3 Timeline Chart component",
   "author": "Laurens Bruijn",
   "license": "MIT",
@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/laurens94/vue-timeline-chart/issues"
   },
-  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
   "keywords": [
     "vue",
     "vue3",
@@ -52,6 +52,11 @@
     "build": "vite build && pnpm build:types",
     "build:types": "vue-tsc --project tsconfig.build-types.json --declaration --emitDeclarationOnly --outDir dist/types",
     "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "bench": "vitest bench --run --outputJson benchmarks/latest.json",
+    "bench:compare": "vitest bench --run --compare benchmarks/latest.json",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
@@ -60,34 +65,38 @@
     "node": ">=20.19.0"
   },
   "dependencies": {
-    "vue": "^3.4.38"
+    "vue": "^3.5.30"
   },
   "peerDependencies": {
-    "vue": "^3.0.0"
+    "vue": "^3.5.0"
   },
   "devDependencies": {
-    "@shikijs/vitepress-twoslash": "^2.5.0",
-    "@stylistic/stylelint-plugin": "^2.1.3",
+    "@shikijs/vitepress-twoslash": "^4.0.2",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "@vitest/coverage-v8": "4.0.18",
+    "@vue/eslint-config-typescript": "^14.7.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vueuse/core": "^14.2.1",
+    "date-fns": "^4.1.0",
+    "happy-dom": "^20.8.9",
+    "postcss": "^8.5.8",
+    "postcss-html": "^1.8.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.0",
+    "vitepress": "^2.0.0-alpha.17",
+    "vue-tsc": "^3.2.5"
+  },
+  "optionalDependencies": {
+    "@stylistic/stylelint-config": "^4.0.0",
+    "@stylistic/stylelint-plugin": "^5.0.0",
     "@types/node": "^20.16.2",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/eslint-config-typescript": "^12.0.0",
-    "@vueuse/core": "^11.1.0",
-    "autoprefixer": "^10.4.20",
-    "date-fns": "^3.6.0",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.27.0",
-    "postcss": "^8.4.41",
-    "postcss-html": "^1.7.0",
-    "postcss-scss": "^4.0.9",
-    "sass": "^1.77.8",
-    "stylelint": "^16.9.0",
-    "stylelint-config-standard-scss": "^13.1.0",
-    "stylelint-config-standard-vue": "^1.0.0",
-    "typescript": "^5.3.3",
-    "vite": "^7.1.6",
-    "vitepress": "1.6.4",
-    "vue-eslint-parser": "^9.4.3",
-    "vue-tsc": "^1.8.27"
+    "globals": "^17.4.0",
+    "stylelint": "^17.0.0",
+    "stylelint-config-recommended-vue": "^1.6.1",
+    "vitest": "^4.0.18",
+    "vue-eslint-parser": "^9.4.3"
   }
 }

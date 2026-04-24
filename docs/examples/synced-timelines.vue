@@ -78,30 +78,30 @@
   />
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
   .map {
-    --group-items-height: .5em;
+    --group-items-height: 0.5em;
     --group-border-top: 0;
     --label-padding: 0;
-    --group-padding-top: .1em;
-    --group-padding-bottom: .1em;
+    --group-padding-top: 0.1em;
+    --group-padding-bottom: 0.1em;
 
-    :deep(.group:first-of-type) {
+    &:deep(.group:first-of-type) {
       padding-top: 1rem;
     }
 
-    :deep(.group:nth-of-type(3)) {
+    &:deep(.group:nth-of-type(3)) {
       padding-bottom: 1rem;
     }
 
-    :deep(.background)  {
+    &:deep(.background) {
       --item-background: color-mix(in srgb, currentcolor, transparent 90%);
 
       cursor: pointer;
       z-index: 1;
     }
 
-    :deep(.item)  {
+    &:deep(.item) {
       pointer-events: none;
     }
   }

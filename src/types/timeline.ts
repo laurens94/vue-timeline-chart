@@ -13,8 +13,8 @@ export interface TimelineGroup {
 
 // #region TimelineItem
 export interface TimelineItemBase {
-  /** Unique ID for the item, should be defined for stability */
-  id?: string;
+  /** Unique ID for the item, required for stability and performance */
+  id: string;
   /** Type of item, one of: `point`, `range`, `background` or `marker` */
   type: 'point' | 'range' | 'background' | 'marker';
   /** Start timestamp */

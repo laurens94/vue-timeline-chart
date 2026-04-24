@@ -1,0 +1,145 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ref, nextTick, defineComponent, onMounted, h } from 'vue';
+import { mount } from '@vue/test-utils';
+import { useElementSize } from './useElementSize.ts';
+
+let observeCallbacks: Array<(entries: ResizeObserverEntry[]) => void>;
+let disconnectFn: () => void;
+
+beforeEach(() => {
+  observeCallbacks = [];
+  disconnectFn = vi.fn();
+
+  vi.stubGlobal('ResizeObserver', class {
+    callback: (entries: ResizeObserverEntry[]) => void;
+    constructor(callback: (entries: ResizeObserverEntry[]) => void) {
+      this.callback = callback;
+      observeCallbacks.push(callback);
+    }
+    observe() {}
+    disconnect() { disconnectFn(); }
+    unobserve() {}
+  });
+});
+
+function fireResize(width: number, height: number) {
+  const entry = {
+    contentRect: { width, height, x: 0, y: 0, top: 0, right: width, bottom: height, left: 0, toJSON: () => ({}) },
+  } as unknown as ResizeObserverEntry;
+
+  for (const cb of observeCallbacks) {
+    cb([entry]);
+  }
+}
+
+describe('useElementSize', () => {
+  it('returns 0 width and height initially', () => {
+    const el = ref<HTMLElement | null>(null);
+    const { width, height } = useElementSize(el);
+    expect(width.value).toBe(0);
+    expect(height.value).toBe(0);
+  });
+
+  it('updates dimensions when ResizeObserver fires', async () => {
+    const el = ref<HTMLElement | null>(null);
+    const { width, height } = useElementSize(el);
+
+    el.value = document.createElement('div');
+    await nextTick();
+
+    fireResize(800, 600);
+
+    expect(width.value).toBe(800);
+    expect(height.value).toBe(600);
+  });
+
+  it('updates when resize fires a second time', async () => {
+    const el = ref<HTMLElement | null>(null);
+    const { width, height } = useElementSize(el);
+
+    el.value = document.createElement('div');
+    await nextTick();
+
+    fireResize(800, 600);
+    expect(width.value).toBe(800);
+
+    fireResize(1024, 768);
+    expect(width.value).toBe(1024);
+    expect(height.value).toBe(768);
+  });
+
+  it('disconnects observer when element becomes null', async () => {
+    const el = ref<HTMLElement | null>(null);
+    useElementSize(el);
+
+    el.value = document.createElement('div');
+    await nextTick();
+    expect(disconnectFn).not.toHaveBeenCalled();
+
+    el.value = null;
+    await nextTick();
+
+    expect(disconnectFn).toHaveBeenCalled();
+  });
+
+  it('reconnects observer when element changes', async () => {
+    const el = ref<HTMLElement | null>(null);
+    useElementSize(el);
+
+    el.value = document.createElement('div');
+    await nextTick();
+    const callbackCount = observeCallbacks.length;
+
+    el.value = document.createElement('div');
+    await nextTick();
+
+    expect(observeCallbacks.length).toBeGreaterThan(callbackCount);
+  });
+
+  it('updates width before component re-renders (pre-flush)', async () => {
+    vi.stubGlobal('ResizeObserver', class {
+      callback: (entries: ResizeObserverEntry[]) => void;
+      constructor(cb: (entries: ResizeObserverEntry[]) => void) {
+        this.callback = cb;
+        observeCallbacks.push(cb);
+      }
+      observe() {
+        this.callback([{
+          contentRect: { width: 1000, height: 400, x: 0, y: 0, top: 0, right: 1000, bottom: 400, left: 0, toJSON: () => ({}) },
+        } as unknown as ResizeObserverEntry]);
+      }
+      disconnect() { disconnectFn(); }
+      unobserve() {}
+    });
+
+    const widthAtRender: number[] = [];
+
+    const Comp = defineComponent({
+      setup() {
+        const el = ref<HTMLElement | null>(null);
+        const { width } = useElementSize(el);
+        const dummy = ref(0);
+
+        onMounted(() => {
+          // Trigger a re-render during mount, like Timeline's setInitialViewportValues
+          dummy.value++;
+        });
+
+        return () => {
+          widthAtRender.push(width.value);
+          return h('div', { ref: el }, `${dummy.value}`);
+        };
+      },
+    });
+
+    mount(Comp);
+    await nextTick();
+    await nextTick();
+
+    // Pre-flush: the element watcher fires before the re-render caused by
+    // onMounted's dummy++, so width=1000 is ready during that re-render.
+    // A flush:'post' watcher would defer observer setup until after that
+    // re-render, producing an extra render cycle: [0, 0, 1000].
+    expect(widthAtRender).toEqual([0, 1000]);
+  });
+});

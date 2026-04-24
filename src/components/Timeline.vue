@@ -36,7 +36,7 @@
 
         <div
           v-for="(item) in visibleMarkers.filter((item) => item.group === '_timestamps')"
-          :key="item.id ?? `${item.start}${item.type}`"
+          :key="item.id"
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
@@ -45,7 +45,7 @@
 
         <div
           v-for="(item) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
-          :key="item.id ?? `${item.start}${item.type}`"
+          :key="item.id"
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
@@ -75,8 +75,8 @@
               :viewportEnd="viewportEnd"
             >
               <div
-                v-for="(item, index) in visibleItems.filter((item) => item.group === group.id && item.type !== 'background')"
-                :key="item.id ?? index"
+                v-for="item in visibleItems.filter((item) => item.group === group.id && item.type !== 'background')"
+                :key="item.id"
                 :style="getStyle(item)"
                 :class="['item', item.type, item.className, {active: activeItems.includes(item.id)}]"
                 @click.stop="onClick($event, item)"
@@ -91,7 +91,7 @@
           </div>
           <div
             v-for="(item) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
-            :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
+            :key="item.id"
             :style="getStyle(item)"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -103,7 +103,7 @@
           </div>
           <div
             v-for="(item) in visibleMarkers.filter((item) => item.group === group.id)"
-            :key="item.id ?? `${item.start}${item.type}`"
+            :key="item.id"
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
@@ -114,7 +114,7 @@
         <div v-if="visibleBackgroundsWithoutGroup.length > 0" class="backgrounds">
           <div
             v-for="(item) in visibleBackgroundsWithoutGroup"
-            :key="item.id ?? `${item.start}${item.type}${item.end || ''}`"
+            :key="item.id"
             :style="getStyle(item)"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -129,7 +129,7 @@
         <div v-if="visibleMarkersWithoutGroup.length > 0" class="markers">
           <div
             v-for="(item) in visibleMarkersWithoutGroup"
-            :key="item.id ?? `${item.start}${item.type}`"
+            :key="item.id"
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
@@ -142,7 +142,7 @@
 </template>
 
 <script lang="ts" setup generic="GTimelineItem extends TimelineItem, GTimelineGroup extends TimelineGroup, GTimelineMarker extends TimelineMarker">
-  import { computed, type CSSProperties, nextTick, onMounted, ref, watch, watchEffect } from 'vue';
+  import { computed, type CSSProperties, nextTick, onMounted, shallowRef, useTemplateRef, watch, watchEffect } from 'vue';
   import { useElementSize } from '../composables/useElementSize.ts';
   import { leadingZero } from '../helpers/leadingZero.ts';
   import { useScale } from '../composables/useScale.ts';
@@ -232,11 +232,11 @@
     clearCache,
   });
 
-  const timelineEl = ref<HTMLElement | null>(null);
+  const timelineEl = useTemplateRef('timelineEl');
   const { width: containerWidth } = useElementSize(timelineEl);
 
-  const viewportStart = ref<number>(0);
-  const viewportEnd = ref<number>(10000);
+  const viewportStart = shallowRef<number>(0);
+  const viewportEnd = shallowRef<number>(10000);
   const viewportDuration = computed(() => viewportEnd.value - viewportStart.value);
 
   /** The number of screen pixels per timeline ms */
@@ -248,12 +248,12 @@
 
   watch(() => props.items, (value) => {
     if (value.some((item) => item.id === undefined)) {
-      console.warn(`[vue-timeline-chart] Deprecation warning: some items are missing an \`id\` property. This will be required in the next major version.`);
+      console.error(`[vue-timeline-chart] Some items are missing an \`id\` property. Please provide a unique ID for each item.`);
     }
   }, { immediate: true });
   watch(() => props.markers, (value) => {
     if (value.some((marker) => marker.id === undefined)) {
-      console.warn(`[vue-timeline-chart] Deprecation warning: some markers are missing an \`id\` property. This will be required in the next major version.`);
+      console.error(`[vue-timeline-chart] Some markers are missing an \`id\` property. Please provide a unique ID for each marker.`);
     }
   }, { immediate: true });
 
@@ -268,7 +268,7 @@
 
   const { left: containerLeft } = useElementBounding(timelineEl);
 
-  function getFirstItemOccurence () {
+  function getFirstItemOccurrence () {
     return props.items?.reduce((min, item) => {
       if (item.start < min) {
         return item.start;
@@ -277,7 +277,7 @@
     }, Infinity);
   }
 
-  function getLastItemOccurence () {
+  function getLastItemOccurrence () {
     return props.items?.reduce((max, item) => {
       if ((item.end !== undefined && item.end > max) || item.start > max) {
         return item.end ?? item.start;
@@ -288,8 +288,8 @@
 
   function setInitialViewportValues () {
     setViewport(
-      props.initialViewportStart ?? props.viewportMin ?? getFirstItemOccurence() ?? 0,
-      props.initialViewportEnd ?? props.viewportMax ?? getLastItemOccurence() ?? 10000
+      props.initialViewportStart ?? props.viewportMin ?? getFirstItemOccurrence() ?? 0,
+      props.initialViewportEnd ?? props.viewportMax ?? getLastItemOccurrence() ?? 10000
     );
   }
 
@@ -343,12 +343,12 @@
 
   function getStyle (item: TimelineItem | TimelineMarker, markers = false) {
     const cache = markers ? styleCacheMarkers : styleCache;
-    const cachedValue = cache.get(item.id ?? `${item.start}${item.type}${item.end || ''}`);
+    const cachedValue = cache.get(item.id);
     if (cachedValue) {
       return cachedValue;
     }
     const value = styleObject(item);
-    cache.set(item.id ?? `${item.start}${item.type}${item.end || ''}`, value);
+    cache.set(item.id, value);
     return value;
   }
 
@@ -364,12 +364,15 @@
   }, { immediate: true });
 
   function timestampClassNames (timestamp: number) {
-    return {
-      'is-second': timestamp % 1000 === 0,
-      'is-minute': timestamp % 60000 === 0,
-      'is-hour': timestamp % 3600000 === 0,
-      'is-day': timestamp % 86400000 === 0,
-    };
+    const d = new Date(timestamp);
+    const isSecond = d.getMilliseconds() === 0;
+    const isMinute = isSecond && d.getSeconds() === 0;
+    const isHour = isMinute && d.getMinutes() === 0;
+    const isDay = isHour && d.getHours() === 0;
+    const isWeek = isDay && d.getDay() === props.weekStartsOn;
+    const isMonth = isDay && d.getDate() === 1;
+    const isYear = isMonth && d.getMonth() === 0;
+    return { 'is-second': isSecond, 'is-minute': isMinute, 'is-hour': isHour, 'is-day': isDay, 'is-week': isWeek, 'is-month': isMonth, 'is-year': isYear };
   }
 
   const clampOffsetForPerformanceInMs = computed(() => (props.maxOffsetOutsideViewport / containerWidth.value) * viewportDuration.value);
@@ -630,7 +633,7 @@
   }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
   * {
     box-sizing: border-box;
   }
@@ -760,6 +763,6 @@
   }
 
   .background {
-    background: var(--item-background, rgba(0, 0, 0, 10%));
+    background: var(--item-background, rgb(0 0 0 / 10%));
   }
 </style>

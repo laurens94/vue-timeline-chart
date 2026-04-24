@@ -16,7 +16,7 @@ export default defineConfig({
       transformerTwoslash()
     ],
     // Explicitly load these languages for types highlighting
-    languages: ['js', 'ts', 'tsx', 'vue', 'scss', 'css'],
+    languages: ['js', 'ts', 'tsx', 'vue', 'css'],
     theme: 'one-dark-pro',
   },
   themeConfig: {

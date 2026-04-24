@@ -61,7 +61,7 @@
   });
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
   .root {
     width: 100%;
     height: 100%;

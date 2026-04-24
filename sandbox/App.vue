@@ -112,7 +112,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { watch, computed, ref, reactive } from 'vue';
+  import { watch, computed, ref, reactive, useTemplateRef, shallowRef } from 'vue';
   import Timeline from '../src/components/Timeline.vue';
   import type { TimelineGroup, TimelineItem, TimelineMarker, TimelineScale } from '../src/types/timeline.ts';
 
@@ -127,12 +127,12 @@
 
   const viewportSize = computed(() => debug.viewport.end - debug.viewport.start);
 
-  const timeline = ref();
+  const timeline = useTemplateRef('timeline');
 
   const maxRange = ref([-500000000000000, 100000000000000]);
   const initialViewportRange = ref([1691089357146, 1691101020000]);
-  const minViewportDuration = ref(10000);
-  const maxViewportDuration = ref(10000000000000);
+  const minViewportDuration = shallowRef(10000);
+  const maxViewportDuration = shallowRef(10000000000000);
 
   const groups = computed((): TimelineGroup[] => {
     return [
@@ -168,7 +168,7 @@
     { id: 'range-3', group: 'group2', type: 'range', start: 1691097441000, end: 1691097514000 },
     { id: 'range-4', group: 'group2', type: 'range', start: 1691090985000, end: 1691091085000 },
     { id: 'range-5', group: 'group2', type: 'range', start: 1691093875000, end: 1691094107000 },
-    { id: 'range-6', group: 'group2', type: 'range', start: 1691094747000, end: 1691094873000 },
+    { id: 'range-6', group: 'group2', type: 'range', start: 1691091720000, end: 1691091805000 },
     { id: 'range-7', group: 'group2', type: 'range', start: 1691096492000, end: 1691096604000 },
     { id: 'range-8', group: 'group2', type: 'range', start: 1691093445000, end: 1691093515000 },
     { id: 'range-9', group: 'group2', type: 'range', start: 1691092246000, end: 1691092430000 },
@@ -179,7 +179,7 @@
     { id: 'range-14', group: 'group2', type: 'range', start: 1691090867000, end: 1691090970000 },
   ] satisfies TimelineItem[]));
 
-  const currentTime = ref(new Date().valueOf());
+  const currentTime = shallowRef(new Date().valueOf());
   const markers = computed((): TimelineMarker[] => {
     return [{
       start: currentTime.value,
@@ -202,7 +202,7 @@
     debug.firedEvents.push(`${event.type} (${time ?? '-'}) ${item || ''}`);
   }
 
-  const mouseHoverPosition = ref<number | null>(null);
+  const mouseHoverPosition = shallowRef<number | null>(null);
   function onMousemoveTimeline ({ time }: { time: number }) {
     mouseHoverPosition.value = time;
     debug.firedEvents.push(`mousemoveTimeline (${time})`);
@@ -243,14 +243,14 @@
   }
 </style>
 
-<style lang="scss" scoped>
+<style scoped>
   .timeline {
     --font-family: system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
     border: 1px solid color-mix(in srgb, currentcolor 10%, transparent);
     touch-action: none;
 
-    // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
+    /* // --gridline-border-left: 1px dashed rgba(255, 255, 255, 10%);
     // --group-border-top: 1px solid rgba(255, 255, 255, 10%);
     // --group-padding-top: 0.5em;
     // --group-padding-bottom: 0.5em;
@@ -270,17 +270,17 @@
     // --timestamps-color: rgb(255, 112, 255);
     // --timestamp-line-height: 1.5em;
     // --timestamp-padding-block: 0.2em;
-    // --timestamp-padding-inline: 0.4em;
+    // --timestamp-padding-inline: 0.4em; */
 
     border-radius: 0.5rem;
 
-    :deep(.group-label) {
+    &:deep(.group-label) {
       opacity: 0.5;
     }
 
-    :deep(.group) {
+    &:deep(.group) {
       &:hover {
-        background-color:  color-mix(in srgb, white 15%, transparent);
+        background-color: color-mix(in srgb, white 15%, transparent);
 
         .group-label {
           opacity: 1;
@@ -288,7 +288,7 @@
       }
     }
 
-    :deep(.item) {
+    &:deep(.item) {
       opacity: 0.7;
 
       &.range {
@@ -302,11 +302,11 @@
       }
     }
 
-    :deep(.background) {
+    &:deep(.background) {
       --item-background: color-mix(in srgb, black 10%, transparent);
     }
 
-    :deep(.marker) {
+    &:deep(.marker) {
       --item-marker-width: 2px;
 
       &.red {
@@ -315,14 +315,14 @@
       }
 
       &.gray {
-        --item-background: rgba(150, 150, 150, 20%);
+        --item-background: rgb(150 150 150 / 20%);
         --item-marker-width: 2px;
       }
     }
   }
 
   details {
-    background-color: rgba(0, 0, 0, 50%);
+    background-color: rgb(0 0 0 / 50%);
     color: white;
     padding: 0.5rem;
     font-family: monospace;
@@ -331,7 +331,7 @@
 
     .flex {
       display: flex;
-      gap: 1rem .5rem;
+      gap: 1rem 0.5rem;
       margin: 1rem;
       flex-wrap: wrap;
     }
