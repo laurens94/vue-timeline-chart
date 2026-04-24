@@ -64,9 +64,6 @@
   "engines": {
     "node": ">=20.19.0"
   },
-  "dependencies": {
-    "vue": "^3.5.30"
-  },
   "peerDependencies": {
     "vue": "^3.5.0"
   },
@@ -84,6 +81,7 @@
     "typescript": "^5.9.3",
     "vite": "^8.0.0",
     "vitepress": "^2.0.0-alpha.17",
+    "vue": "^3.5.30",
     "vue-tsc": "^3.2.5"
   },
   "optionalDependencies": {

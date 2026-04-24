@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      vue:
-        specifier: ^3.5.30
-        version: 3.5.30(typescript@5.9.3)
     devDependencies:
       '@shikijs/vitepress-twoslash':
         specifier: ^4.0.2
@@ -51,6 +47,9 @@ importers:
       vitepress:
         specifier: ^2.0.0-alpha.17
         version: 2.0.0-alpha.17(@types/node@20.16.2)(lightningcss@1.32.0)(postcss@8.5.8)(sass-embedded@1.97.3)(sass@1.97.3)(typescript@5.9.3)
+      vue:
+        specifier: ^3.5.30
+        version: 3.5.30(typescript@5.9.3)
       vue-tsc:
         specifier: ^3.2.5
         version: 3.2.5(typescript@5.9.3)
