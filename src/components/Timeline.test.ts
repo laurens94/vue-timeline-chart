@@ -682,6 +682,51 @@ describe('Timeline interactions', () => {
       const after = emitted[emitted.length - 1][0] as { start: number; end: number };
       expect(after.start).toBeGreaterThan(before.start);
     });
+
+    it('preserves viewport duration when pan overshoots viewportMax', async () => {
+      const wrapper = mountTimeline({
+        viewportMin: 0,
+        viewportMax: 429563.625,
+        initialViewportStart: 200000,
+        initialViewportEnd: 400000,
+      });
+      await nextTick();
+
+      const timeline = wrapper.find('.timeline');
+      const emitted = wrapper.emitted('changeViewport')!;
+      const initialDuration = 400000 - 200000;
+
+      const pan = async (deltaX: number) => {
+        await timeline.trigger('wheel', {
+          deltaX,
+          deltaY: 0,
+          deltaMode: 0,
+          shiftKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          clientX: 500,
+        });
+        await nextTick();
+      };
+
+      // Small pan: still away from the boundary, duration unchanged.
+      await pan(50);
+      const afterFirst = emitted[emitted.length - 1][0] as { start: number; end: number };
+      expect(afterFirst.end - afterFirst.start).toBe(initialDuration);
+      expect(afterFirst.end).toBeLessThan(429563.625);
+
+      // Large pan: overshoots through scrollHorizontal/setViewport, duration preserved.
+      const countBeforeSecond = emitted.length;
+      await pan(200);
+      expect(emitted.length).toBeGreaterThan(countBeforeSecond);
+      const afterSecond = emitted[emitted.length - 1][0] as { start: number; end: number };
+      expect(afterSecond.end - afterSecond.start).toBe(initialDuration);
+
+      // Parked at boundary: further pans early-return without re-emitting.
+      const countBeforeThird = emitted.length;
+      await pan(200);
+      expect(emitted.length).toBe(countBeforeThird);
+    });
   });
 
   describe('zoom via Ctrl/Meta+wheel', () => {

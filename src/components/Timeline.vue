@@ -408,14 +408,30 @@
 
   function scrollHorizontal (delta: number, event: WheelEvent | TouchEvent) {
     const deltaMs = (delta / containerWidth.value) * viewportDuration.value;
-    if (delta > 0 && viewportEnd.value === props.viewportMax) {
+    if (delta > 0 && props.viewportMax !== undefined && viewportEnd.value >= props.viewportMax) {
       return;
     }
-    if (delta < 0 && viewportStart.value === props.viewportMin) {
+    if (delta < 0 && props.viewportMin !== undefined && viewportStart.value <= props.viewportMin) {
       return;
     }
 
-    setViewport(viewportStart.value + deltaMs, viewportEnd.value + deltaMs);
+    let proposedStart = viewportStart.value + deltaMs;
+    let proposedEnd = viewportEnd.value + deltaMs;
+
+    // Preserve duration when a pan overshoots a boundary; otherwise only the
+    // clamped edge stops and the viewport shrinks (zoom in).
+    if (props.viewportMax !== undefined && proposedEnd > props.viewportMax) {
+      const overflow = proposedEnd - props.viewportMax;
+      proposedStart -= overflow;
+      proposedEnd = props.viewportMax;
+    }
+    if (props.viewportMin !== undefined && proposedStart < props.viewportMin) {
+      const overflow = props.viewportMin - proposedStart;
+      proposedEnd += overflow;
+      proposedStart = props.viewportMin;
+    }
+
+    setViewport(proposedStart, proposedEnd);
 
     if (event.type === 'wheel') {
       onMouseMove(event as WheelEvent);
