@@ -1,11 +1,14 @@
 // @noErrors
 <script setup>
-  import { onMounted } from 'vue';
+  import { nextTick, onMounted } from 'vue';
   // import tippy from 'tippy.js'; (disabled for vitepress, but should be enabled)
 
   let tippyInstances = [];
 
-  function resetTooltips () {
+  async function resetTooltips () {
+    // Wait for the Timeline to render its items into the DOM
+    await nextTick();
+
     if (!window.tippy) {
       // ensure tippy is loaded (due to import within vitepress)
       setTimeout(() => resetTooltips(), 100);
@@ -43,7 +46,7 @@
   >
     <template #item="{ item }">
       <div
-        style="inset: 0; position: absolute; padding: .2em 1em; color: white; font-weight: bold;"
+        style="inset: 0; position: absolute; padding: 0.2em 1em; color: white; font-weight: bold;"
         :data-tippy-content="item.tooltip"
       >
         ⚑ {{ item.name }}
