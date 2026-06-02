@@ -148,7 +148,7 @@
   import { useScale } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
-  import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales } from '../types/timeline.ts';
+  import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales, TimelineStackingOptions } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
 
@@ -170,6 +170,7 @@
     maxOffsetOutsideViewport?: number;
     scales?: TimelineScales[];
     weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    stacking?: TimelineStackingOptions;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -208,23 +209,41 @@
     activeItems: () => [],
     maxOffsetOutsideViewport: 50,
     weekStartsOn: 0,
+    stacking: undefined,
   });
 
+  // #region Events
   const emit = defineEmits<{
-    (e: 'pointermove', value: { time: number; event: PointerEvent, item: GTimelineItem | GTimelineMarker | null }): void;
-    (e: 'pointerdown', value: { time: number; event: PointerEvent, item: GTimelineItem | GTimelineMarker | null }): void;
-    (e: 'pointerup', value: { time: number; event: PointerEvent, item: GTimelineItem | GTimelineMarker | null }): void;
-    (e: 'wheel', value: WheelEvent): void;
-    (e: 'click', value: { time: number; event: MouseEvent, item: GTimelineItem | GTimelineMarker | null }): void;
-    (e: 'contextmenu', value: { time: number; event: MouseEvent, item: GTimelineItem | GTimelineMarker | null }): void;
-    (e: 'touchmove', value: { time: number; event: TouchEvent}): void;
-    (e: 'touchstart', value: { time: number; event: TouchEvent}): void;
-    (e: 'touchend', value: { event: TouchEvent}): void;
-    (e: 'mousemoveTimeline', value: { time: number; event: MouseEvent }): void;
-    (e: 'mouseleaveTimeline', value: { event: MouseEvent }): void;
-    (e: 'changeViewport', value: { start: number; end: number }): void;
-    (e: 'changeScale', value: TimelineScale): void;
+    /** Pointermove event on the timeline */
+    pointermove: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    /** Pointerdown event on the timeline */
+    pointerdown: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    /** Pointerup event on the timeline */
+    pointerup: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    /** Wheel event on the timeline */
+    wheel: [event: WheelEvent];
+    /** Click event on the timeline */
+    click: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null }];
+    /** Right-click event on the timeline */
+    contextmenu: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null }];
+    /** Touchmove event on the timeline */
+    touchmove: [value: { time: number; event: TouchEvent }];
+    /** Touchstart event on the timeline */
+    touchstart: [value: { time: number; event: TouchEvent }];
+    /** Touchend event on the timeline */
+    touchend: [value: { event: TouchEvent }];
+    /** Mousemove event on the timeline */
+    mousemoveTimeline: [value: { time: number; event: MouseEvent }];
+    /** Mouseleave event on the timeline */
+    mouseleaveTimeline: [value: { event: MouseEvent }];
+    /** Visible range has changed */
+    changeViewport: [value: { start: number; end: number }];
+    /** Visible scale (minutes/hours/days/etc.) has changed */
+    changeScale: [value: TimelineScale];
+    /** A group's lane count changed. Returns the lane count for each stacking-enabled group. */
+    changeStacking: [value: Record<TimelineGroup['id'], { laneCount: number }>];
   }>();
+  // #endregion Events
 
   defineExpose({
     setViewport,

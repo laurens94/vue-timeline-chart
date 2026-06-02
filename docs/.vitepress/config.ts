@@ -55,6 +55,7 @@ export default defineConfig({
           { text: 'Slots', link: '/reference/slots' },
           { text: 'Types', link: '/reference/types', items: [
             { text: 'TimelineGroup', link: '/reference/types#timelinegroup' },
+            { text: 'TimelineStackingOptions', link: '/reference/types#timelinestackingoptions' },
             { text: 'TimelineItem', link: '/reference/types#timelineitem' },
             { text: 'TimelineMarker', link: '/reference/types#timelinemarker' },
             { text: 'TimelineScales', link: '/reference/types#timelinescales' },
@@ -70,6 +71,7 @@ export default defineConfig({
           { text: 'Custom timestamp labels', link: '/examples/custom-timestamp-labels' },
           { text: 'Custom timestamp intervals', link: '/examples/custom-timestamp-intervals' },
           { text: 'Draggable Items', link: '/examples/draggable-items' },
+          { text: 'Stacking items', link: '/examples/stacking-items' },
           { text: 'Custom Charts or Canvas Rendering', link: '/examples/custom-charts-or-canvas-rendering' },
           { text: 'Synced timelines', link: '/examples/synced-timelines' },
           { text: 'Tooltips', link: '/examples/tooltips' },
