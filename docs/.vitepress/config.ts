@@ -53,6 +53,7 @@ export default defineConfig({
           { text: 'Events', link: '/reference/events' },
           { text: 'Methods', link: '/reference/methods' },
           { text: 'Slots', link: '/reference/slots' },
+          { text: 'CSS variables', link: '/reference/css-variables' },
           { text: 'Types', link: '/reference/types', items: [
             { text: 'TimelineGroup', link: '/reference/types#timelinegroup' },
             { text: 'TimelineStackingOptions', link: '/reference/types#timelinestackingoptions' },
