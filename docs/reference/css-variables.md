@@ -10,7 +10,7 @@ The timeline is styled almost entirely with CSS custom properties, so you can th
 - **A single group** — through that group's [`cssVariables`](/reference/types#timelinegroup).
 - **A single item** — through that item's [`cssVariables`](/reference/types#timelineitem).
 
-Values cascade as expected (in order of `timeline-component` → `group` → `item`), so a variable set on a group or item overrides the same variable set on the timeline.
+Variables cascade as expected (`timeline-component` → `group` → `item`).
 
 ## Timeline
 
