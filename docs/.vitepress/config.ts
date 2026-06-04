@@ -1,7 +1,7 @@
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash';
 import { defineConfig } from 'vitepress'
 
-const base = '/vue-timeline-chart/';
+const base = process.env.DOCS_BASE ?? '/vue-timeline-chart/';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Vue Timeline Chart",
