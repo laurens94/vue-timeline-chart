@@ -71,7 +71,7 @@
     "@shikijs/vitepress-twoslash": "^4.0.2",
     "@vitejs/plugin-vue": "^6.0.4",
     "@vitest/coverage-v8": "4.0.18",
-    "@vue/eslint-config-typescript": "^14.7.0",
+    "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.6",
     "@vueuse/core": "^14.2.1",
     "date-fns": "^4.1.0",
