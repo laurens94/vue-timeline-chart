@@ -1,5 +1,5 @@
 <h1 align="center">
-  Vue 3 Timeline Chart
+  <img src="https://laurens94.github.io/vue-timeline-chart/favicon.svg" alt="Vue Timeline Chart logo" width="32"> vue-timeline-chart
 </h1>
 
 <p align="center">
@@ -31,9 +31,11 @@
 - **Zooming** — zoom in and out with scroll or pinch gestures
 - **Infinite scrolling** — native horizontal scroll events *(shift+scroll to convert vertical to horizontal)*
 - **Flexible data** — plot ranges, points, markers and backgrounds
+- **Stacking** — overlapping items can be dynamically stacked
 - **Touch support** — smooth pinch-to-zoom and up to 2-finger panning
 - **Adjustable labels** — timestamp labels adapt per scale
 - **Minimal styling** — easy to customize to your needs
+- **Customizable** — use events, slots, methods and CSS variables to adapt to your needs
 
 ## Getting started
 
