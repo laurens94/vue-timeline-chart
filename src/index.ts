@@ -12,4 +12,5 @@ export type {
   TimelineBaseUnits,
   TimelineScale,
   TimelineScales,
+  TimelineStackingOptions,
 } from './types/timeline.ts';

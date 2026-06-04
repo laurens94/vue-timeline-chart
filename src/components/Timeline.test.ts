@@ -81,13 +81,13 @@ describe('Timeline rendering', () => {
     it('applies cssVariables on groups as inline styles', () => {
       const wrapper = mountTimeline({
         groups: [
-          { id: 'g1', label: 'G1', cssVariables: { '--height': '50%' } },
+          { id: 'g1', label: 'G1', cssVariables: { '--item-background': 'rebeccapurple' } },
         ],
         items: [],
         markers: [],
       });
       const group = wrapper.find('.group');
-      expect(group.attributes('style')).toContain('--height: 50%');
+      expect(group.attributes('style')).toContain('--item-background: rebeccapurple');
     });
   });
 
@@ -657,6 +657,30 @@ describe('Timeline interactions', () => {
       expect(after.start).toBeGreaterThan(before.start);
     });
 
+    it('preserves viewport duration across a mid-range pan (keeps pxPerMs stable)', async () => {
+      // A fractional viewport duration makes each pan's delta fractional too.
+      const wrapper = mountTimeline({
+        initialViewportStart: now,
+        initialViewportEnd: now + hour * 3 + 333,
+      });
+      await nextTick();
+
+      const emitted = wrapper.emitted('changeViewport')!;
+      const initial = emitted[emitted.length - 1][0] as { start: number; end: number };
+      const duration = initial.end - initial.start;
+
+      // Because both bounds are integers and shift by the same delta before
+      // rounding, the duration (and therefore pxPerMs) is preserved on each pan.
+      const timeline = wrapper.find('.timeline');
+      for (let i = 0; i < 5; i++) {
+        await timeline.trigger('wheel', { deltaX: 7, deltaY: 0, deltaMode: 0, clientX: 500 });
+        await nextTick();
+        const latest = emitted[emitted.length - 1][0] as { start: number; end: number };
+        expect(latest.end - latest.start).toBe(duration);
+        expect(latest.start).toBeGreaterThan(initial.start);
+      }
+    });
+
     it('scrolls horizontally on native horizontal wheel (deltaX)', async () => {
       const wrapper = mountTimeline({
         initialViewportStart: now,
@@ -681,6 +705,51 @@ describe('Timeline interactions', () => {
 
       const after = emitted[emitted.length - 1][0] as { start: number; end: number };
       expect(after.start).toBeGreaterThan(before.start);
+    });
+
+    it('preserves viewport duration when pan overshoots viewportMax', async () => {
+      const wrapper = mountTimeline({
+        viewportMin: 0,
+        viewportMax: 429563.625,
+        initialViewportStart: 200000,
+        initialViewportEnd: 400000,
+      });
+      await nextTick();
+
+      const timeline = wrapper.find('.timeline');
+      const emitted = wrapper.emitted('changeViewport')!;
+      const initialDuration = 400000 - 200000;
+
+      const pan = async (deltaX: number) => {
+        await timeline.trigger('wheel', {
+          deltaX,
+          deltaY: 0,
+          deltaMode: 0,
+          shiftKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          clientX: 500,
+        });
+        await nextTick();
+      };
+
+      // Small pan: still away from the boundary, duration unchanged.
+      await pan(50);
+      const afterFirst = emitted[emitted.length - 1][0] as { start: number; end: number };
+      expect(afterFirst.end - afterFirst.start).toBe(initialDuration);
+      expect(afterFirst.end).toBeLessThan(429563.625);
+
+      // Large pan: overshoots through scrollHorizontal/setViewport, duration preserved.
+      const countBeforeSecond = emitted.length;
+      await pan(200);
+      expect(emitted.length).toBeGreaterThan(countBeforeSecond);
+      const afterSecond = emitted[emitted.length - 1][0] as { start: number; end: number };
+      expect(afterSecond.end - afterSecond.start).toBe(initialDuration);
+
+      // Parked at boundary: further pans early-return without re-emitting.
+      const countBeforeThird = emitted.length;
+      await pan(200);
+      expect(emitted.length).toBe(countBeforeThird);
     });
   });
 
@@ -1289,5 +1358,417 @@ describe('Timeline slots', () => {
     expect(receivedProps).toHaveProperty('itemsInViewport');
     expect(receivedProps).toHaveProperty('viewportStart');
     expect(receivedProps).toHaveProperty('viewportEnd');
+  });
+});
+
+// ─── Stacking ─────────────────────────────────────────────────────────────────
+
+describe('stacking', () => {
+  // Three items in group-1: a and b overlap in time; `lone` is far away and
+  // never overlaps anything.
+  const overlappingItems: TimelineItem[] = [
+    { id: 'a', type: 'range', start: now, end: now + hour * 2, group: 'group-1' },
+    { id: 'b', type: 'range', start: now + hour, end: now + hour * 3, group: 'group-1' },
+    { id: 'lone', type: 'range', start: now + hour * 10, end: now + hour * 11, group: 'group-1' },
+  ];
+
+  // An `item` slot that mirrors the lane slot props onto data-* attributes so
+  // tests can locate a specific item and read its assigned lane without adding
+  // test-only attributes to production code.
+  const laneSlot = {
+    item: (slotProps: { item: TimelineItem; lane: number; stackSize: number; isStacked: boolean }) =>
+      h('span', {
+        class: 'slot-content',
+        'data-id': slotProps.item.id,
+        'data-lane': String(slotProps.lane),
+        'data-stacksize': String(slotProps.stackSize),
+        'data-isstacked': String(slotProps.isStacked),
+      }),
+  };
+
+  /** The --_lane CSS variable on the .item element that wraps the slot span for `id`. */
+  function laneVarFor (wrapper: ReturnType<typeof mountTimeline>, id: string): string {
+    const span = wrapper.find(`.slot-content[data-id="${id}"]`);
+    expect(span.exists()).toBe(true);
+    const itemEl = span.element.closest('.item') as HTMLElement;
+    return itemEl.style.getPropertyValue('--_lane');
+  }
+
+  it('does not add stacked layout when stacking is disabled', async () => {
+    const wrapper = mountTimeline({ items: overlappingItems });
+    await nextTick();
+    expect(wrapper.find('.item.stacked').exists()).toBe(false);
+  });
+
+  it('assigns distinct lanes to overlapping items when enabled', async () => {
+    const wrapper = mountTimeline({
+      items: overlappingItems,
+      stacking: { enabled: true },
+    });
+    await nextTick();
+
+    const stacked = wrapper.findAll('.item.stacked');
+    expect(stacked.length).toBeGreaterThanOrEqual(2);
+
+    // The two overlapping items must land on different lanes.
+    const lanes = stacked.map((el) => (el.element as HTMLElement).style.getPropertyValue('--_lane'));
+    expect(new Set(lanes).size).toBeGreaterThan(1);
+
+    // Each item also exposes its cluster depth as --_stack-count (2 here).
+    const stackCounts = stacked.map((el) => (el.element as HTMLElement).style.getPropertyValue('--_stack-count'));
+    expect(stackCounts.every((count) => count === '2')).toBe(true);
+  });
+
+  it('keeps a non-overlapping item at lane 0 (full lane height, not squished)', async () => {
+    const wrapper = mountTimeline({
+      items: overlappingItems,
+      stacking: { enabled: true },
+      // Widen the viewport (and its bounds) so the lone item is also in view.
+      viewportMin: now - hour,
+      viewportMax: now + hour * 12,
+      initialViewportStart: now - hour,
+      initialViewportEnd: now + hour * 12,
+    }, laneSlot);
+    await nextTick();
+
+    // The group overall uses 2 lanes (because a and b overlap)...
+    const groupEl = wrapper.findAll('.group')[0].element as HTMLElement;
+    expect(groupEl.style.getPropertyValue('--_lane-count')).toBe('2');
+
+    // ...yet the non-overlapping item is still placed on lane 0 (and therefore
+    // keeps a full lane height, NOT 1/laneCount). This is the key contrast with PR #43.
+    expect(laneVarFor(wrapper, 'lone')).toBe('0');
+
+    // a and b occupy lanes 0 and 1.
+    expect(new Set([laneVarFor(wrapper, 'a'), laneVarFor(wrapper, 'b')])).toEqual(new Set(['0', '1']));
+  });
+
+  it('viewport strategy does not grow height when a non-overlapping item scrolls in', async () => {
+    // Regression for PR #43: there the height grew as soon as any new item
+    // appeared, even when it did not overlap. With true max-simultaneous-overlap
+    // a non-overlapping arrival must NOT increase the lane count.
+    const items: TimelineItem[] = [
+      { id: 'x', type: 'range', start: now, end: now + hour, group: 'group-1' },
+      { id: 'y', type: 'range', start: now + hour * 5, end: now + hour * 6, group: 'group-1' },
+    ];
+    const wrapper = mountTimeline({
+      items,
+      stacking: { enabled: true, strategy: 'viewport' },
+      viewportMin: now - hour,
+      viewportMax: now + hour * 8,
+      initialViewportStart: now - hour * 0.5,
+      initialViewportEnd: now + hour * 2, // only x is visible
+    });
+    await nextTick();
+
+    const groupEl = wrapper.findAll('.group')[0].element as HTMLElement;
+    // Single visible non-overlapping item -> one lane.
+    expect(groupEl.style.getPropertyValue('--_lane-count')).toBe('1');
+
+    // Bring y into view as well via the exposed viewport API.
+    const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
+    vm.setViewport(now - hour * 0.5, now + hour * 7);
+    await nextTick();
+
+    // Both x and y are now visible but they don't overlap: lane count stays 1.
+    expect(groupEl.style.getPropertyValue('--_lane-count')).toBe('1');
+    // And no stacked item exceeds lane 0.
+    const lanes = wrapper.findAll('.item.stacked').map((el) => (el.element as HTMLElement).style.getPropertyValue('--_lane'));
+    expect(lanes.every((l) => l === '0' || l === '')).toBe(true);
+  });
+
+  it('lets a group opt out via group.stacking.enabled = false', async () => {
+    const groups: TimelineGroup[] = [
+      { id: 'group-1', label: 'G1' },
+      { id: 'group-2', label: 'G2', stacking: { enabled: false } },
+    ];
+    const wrapper = mountTimeline({
+      groups,
+      items: [
+        { id: 'a', type: 'range', start: now, end: now + hour * 2, group: 'group-1' },
+        { id: 'b', type: 'range', start: now + hour, end: now + hour * 3, group: 'group-1' },
+        { id: 'c', type: 'range', start: now, end: now + hour * 2, group: 'group-2' },
+        { id: 'd', type: 'range', start: now + hour, end: now + hour * 3, group: 'group-2' },
+      ],
+      markers: [],
+      stacking: { enabled: true },
+    }, laneSlot);
+    await nextTick();
+
+    const [group1El, group2El] = wrapper.findAll('.group').map((g) => g.element as HTMLElement);
+
+    // group-1 stacks (component-level enabled).
+    expect(group1El.style.getPropertyValue('--_lane-count')).toBe('2');
+    expect(wrapper.find('.slot-content[data-id="a"]').element.closest('.item')!.classList.contains('stacked')).toBe(true);
+
+    // group-2 opted out: no lane count, no stacked items.
+    expect(group2El.style.getPropertyValue('--_lane-count')).toBe('');
+    expect(wrapper.find('.slot-content[data-id="c"]').element.closest('.item')!.classList.contains('stacked')).toBe(false);
+    expect(group2El.querySelectorAll('.item.stacked').length).toBe(0);
+  });
+
+  it('exposes lane/stackSize/isStacked slot props for stacked items', async () => {
+    const wrapper = mountTimeline({
+      items: overlappingItems,
+      stacking: { enabled: true },
+      viewportMin: now - hour,
+      viewportMax: now + hour * 12,
+      initialViewportStart: now - hour,
+      initialViewportEnd: now + hour * 12,
+    }, laneSlot);
+    await nextTick();
+
+    const read = (id: string) => {
+      const span = wrapper.find(`.slot-content[data-id="${id}"]`).element as HTMLElement;
+      return {
+        lane: span.getAttribute('data-lane'),
+        stackSize: span.getAttribute('data-stacksize'),
+        isStacked: span.getAttribute('data-isstacked'),
+      };
+    };
+
+    // a and b overlap: stackSize 2, isStacked true, distinct lanes 0 and 1.
+    const a = read('a');
+    const b = read('b');
+    expect(a.stackSize).toBe('2');
+    expect(b.stackSize).toBe('2');
+    expect(a.isStacked).toBe('true');
+    expect(b.isStacked).toBe('true');
+    expect(new Set([a.lane, b.lane])).toEqual(new Set(['0', '1']));
+
+    // The lone item: its own cluster, stackSize 1, not stacked, lane 0.
+    const lone = read('lone');
+    expect(lone.lane).toBe('0');
+    expect(lone.stackSize).toBe('1');
+    expect(lone.isStacked).toBe('false');
+  });
+
+  it('emits changeStacking with each group lane count', async () => {
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'Group 1' }],
+      items: overlappingItems,
+      stacking: { enabled: true },
+    });
+    await nextTick();
+
+    const emitted = wrapper.emitted('changeStacking');
+    expect(emitted).toBeTruthy();
+    // a and b overlap -> group-1 needs 2 lanes.
+    expect(emitted!.at(-1)![0]).toEqual({ 'group-1': { laneCount: 2 } });
+  });
+
+  it('does not re-emit changeStacking when panning a dataset-stacked timeline', async () => {
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'Group 1' }],
+      items: overlappingItems,
+      stacking: { enabled: true, collisionWidth: 16 },
+    });
+    await nextTick();
+
+    const countAfterMount = wrapper.emitted('changeStacking')!.length;
+
+    // Pan right via native horizontal wheel, staying clear of the bounds.
+    const timeline = wrapper.find('.timeline');
+    for (let i = 0; i < 5; i++) {
+      await timeline.trigger('wheel', { deltaX: 30, deltaY: 0, deltaMode: 0, clientX: 500 });
+      await nextTick();
+    }
+
+    // Dataset strategy stacks over all items, so the lane count is unaffected by
+    // panning. changeStacking must not fire again.
+    expect(wrapper.emitted('changeStacking')!.length).toBe(countAfterMount);
+  });
+
+  it('does not re-emit changeStacking when panning a viewport group with unchanged overlap', async () => {
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'Group 1' }],
+      items: overlappingItems,
+      stacking: { enabled: true, strategy: 'viewport' },
+      viewportMin: now - hour,
+      viewportMax: now + hour * 12,
+      initialViewportStart: now - hour * 0.5,
+      initialViewportEnd: now + hour * 5, // a and b (overlapping) stay in view across the pan
+    });
+    await nextTick();
+
+    const countAfterMount = wrapper.emitted('changeStacking')!.length;
+
+    // The visible-items array is rebuilt on every pan (so the stacking recomputes),
+    // but a and b stay visible and overlapping, so the lane count never changes.
+    const timeline = wrapper.find('.timeline');
+    for (let i = 0; i < 5; i++) {
+      await timeline.trigger('wheel', { deltaX: 10, deltaY: 0, deltaMode: 0, clientX: 500 });
+      await nextTick();
+    }
+
+    expect(wrapper.emitted('changeStacking')!.length).toBe(countAfterMount);
+  });
+
+  it('re-emits changeStacking for a viewport group when the visible overlap changes', async () => {
+    const items: TimelineItem[] = [
+      { id: 'x', type: 'range', start: now, end: now + hour, group: 'group-1' },
+      { id: 'a', type: 'range', start: now + hour * 5, end: now + hour * 7, group: 'group-1' },
+      { id: 'b', type: 'range', start: now + hour * 6, end: now + hour * 8, group: 'group-1' },
+    ];
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'Group 1' }],
+      items,
+      stacking: { enabled: true, strategy: 'viewport' },
+      viewportMin: now - hour,
+      viewportMax: now + hour * 10,
+      initialViewportStart: now - hour * 0.5,
+      initialViewportEnd: now + hour * 2, // only the lone x is visible -> 1 lane
+    });
+    await nextTick();
+
+    const emitted = wrapper.emitted('changeStacking')!;
+    expect(emitted.at(-1)![0]).toEqual({ 'group-1': { laneCount: 1 } });
+    const countBefore = emitted.length;
+
+    // Scroll the overlapping a/b pair into view -> the lane count grows to 2,
+    // which the dedup must let through.
+    const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
+    vm.setViewport(now + hour * 4, now + hour * 9);
+    await nextTick();
+
+    expect(wrapper.emitted('changeStacking')!.length).toBeGreaterThan(countBefore);
+    expect(wrapper.emitted('changeStacking')!.at(-1)![0]).toEqual({ 'group-1': { laneCount: 2 } });
+  });
+
+  it('emits changeStacking for viewport-strategy groups too', async () => {
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'Group 1' }],
+      items: overlappingItems,
+      stacking: { enabled: true, strategy: 'viewport' },
+      viewportMin: now - hour,
+      viewportMax: now + hour * 12,
+      initialViewportStart: now - hour,
+      initialViewportEnd: now + hour * 12,
+    });
+    await nextTick();
+
+    const emitted = wrapper.emitted('changeStacking');
+    expect(emitted).toBeTruthy();
+    expect(emitted!.at(-1)![0]).toEqual({ 'group-1': { laneCount: 2 } });
+  });
+
+  it('grows the lane count for a collisionWidth group when zooming out', async () => {
+    // Two points 5000ms apart. Their collision footprint is collisionWidth (16px)
+    // converted to ms via pxPerMs, so zooming out widens it until they collide.
+    const points: TimelineItem[] = [
+      { id: 'p1', type: 'point', start: now, group: 'group-1' },
+      { id: 'p2', type: 'point', start: now + 5000, group: 'group-1' },
+    ];
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'Group 1' }],
+      items: points,
+      markers: [],
+      stacking: { enabled: true, collisionWidth: 16 },
+      viewportMin: now - 2_000_000,
+      viewportMax: now + 2_000_000,
+      initialViewportStart: now - 50_000,
+      initialViewportEnd: now + 50_000, // duration 100k -> ~1600ms footprint < 5000 -> no collision
+    });
+    await nextTick();
+
+    expect(wrapper.emitted('changeStacking')!.at(-1)![0]).toEqual({ 'group-1': { laneCount: 1 } });
+
+    // Zoom out 10x: the 16px footprint now maps to ~16000ms > 5000, so they collide.
+    const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
+    vm.setViewport(now - 500_000, now + 500_000);
+    await nextTick();
+
+    expect(wrapper.emitted('changeStacking')!.at(-1)![0]).toEqual({ 'group-1': { laneCount: 2 } });
+  });
+
+  it('applies stacked layout to a point overlapping a range', async () => {
+    const items: TimelineItem[] = [
+      { id: 'r', type: 'range', start: now, end: now + hour * 2, group: 'group-1' },
+      { id: 'p', type: 'point', start: now + hour, group: 'group-1' },
+    ];
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'Group 1' }],
+      items,
+      markers: [],
+      stacking: { enabled: true },
+      initialViewportStart: now - hour,
+      initialViewportEnd: now + hour * 3,
+    });
+    await nextTick();
+
+    // The point sits inside the range, so it takes its own lane and the
+    // point-specific stacked layout branch.
+    const pointEl = wrapper.find('.item.point.stacked');
+    expect(pointEl.exists()).toBe(true);
+    expect((pointEl.element as HTMLElement).style.getPropertyValue('--_lane')).toBe('1');
+  });
+
+  it('re-emits changeStacking when only one of several groups changes', async () => {
+    const items: TimelineItem[] = [
+      // group-1: a lone item left of centre, an overlapping pair to the right.
+      { id: 'g1-x', type: 'range', start: now, end: now + hour, group: 'group-1' },
+      { id: 'g1-a', type: 'range', start: now + hour * 5, end: now + hour * 7, group: 'group-1' },
+      { id: 'g1-b', type: 'range', start: now + hour * 6, end: now + hour * 8, group: 'group-1' },
+      // group-2: one lone item on each side, so its count stays 1 across the move.
+      { id: 'g2-x', type: 'range', start: now, end: now + hour, group: 'group-2' },
+      { id: 'g2-y', type: 'range', start: now + hour * 5, end: now + hour * 6, group: 'group-2' },
+    ];
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'G1' }, { id: 'group-2', label: 'G2' }],
+      items,
+      markers: [],
+      stacking: { enabled: true, strategy: 'viewport' },
+      viewportMin: now - hour,
+      viewportMax: now + hour * 10,
+      initialViewportStart: now - hour * 0.5,
+      initialViewportEnd: now + hour * 2, // only the lone items visible: both groups 1 lane
+    });
+    await nextTick();
+
+    expect(wrapper.emitted('changeStacking')!.at(-1)![0]).toEqual({
+      'group-1': { laneCount: 1 },
+      'group-2': { laneCount: 1 },
+    });
+    const countBefore = wrapper.emitted('changeStacking')!.length;
+
+    // Move the viewport to group-1's overlapping pair; group-2 still shows one lone item.
+    const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
+    vm.setViewport(now + hour * 4, now + hour * 9);
+    await nextTick();
+
+    expect(wrapper.emitted('changeStacking')!.length).toBeGreaterThan(countBefore);
+    expect(wrapper.emitted('changeStacking')!.at(-1)![0]).toEqual({
+      'group-1': { laneCount: 2 },
+      'group-2': { laneCount: 1 },
+    });
+  });
+
+  it('re-emits changeStacking when a stacking group is added', async () => {
+    const items: TimelineItem[] = [
+      { id: 'a', type: 'range', start: now, end: now + hour * 2, group: 'group-1' },
+      { id: 'b', type: 'range', start: now + hour, end: now + hour * 3, group: 'group-1' },
+      { id: 'c', type: 'range', start: now, end: now + hour * 2, group: 'group-2' },
+      { id: 'd', type: 'range', start: now + hour, end: now + hour * 3, group: 'group-2' },
+    ];
+    const wrapper = mountTimeline({
+      groups: [{ id: 'group-1', label: 'G1' }],
+      items,
+      markers: [],
+      stacking: { enabled: true },
+    });
+    await nextTick();
+
+    expect(wrapper.emitted('changeStacking')!.at(-1)![0]).toEqual({ 'group-1': { laneCount: 2 } });
+    const countBefore = wrapper.emitted('changeStacking')!.length;
+
+    // Adding group-2 changes the key set, which the dedup must let through.
+    await wrapper.setProps({ groups: [{ id: 'group-1', label: 'G1' }, { id: 'group-2', label: 'G2' }] });
+    await nextTick();
+
+    expect(wrapper.emitted('changeStacking')!.length).toBeGreaterThan(countBefore);
+    expect(wrapper.emitted('changeStacking')!.at(-1)![0]).toEqual({
+      'group-1': { laneCount: 2 },
+      'group-2': { laneCount: 2 },
+    });
   });
 });
