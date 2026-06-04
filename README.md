@@ -34,7 +34,7 @@
 - **Stacking** — overlapping items can be dynamically stacked
 - **Touch support** — smooth pinch-to-zoom and up to 2-finger panning
 - **Adjustable labels** — timestamp labels adapt per scale
-- **Minimal styling** — easy to customize to your needs
+- **Minimal styling** — staying out of your way
 - **Customizable** — use events, slots, methods and CSS variables to adapt to your needs
 
 ## Getting started
