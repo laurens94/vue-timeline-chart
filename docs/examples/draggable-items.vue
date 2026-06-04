@@ -1,40 +1,46 @@
 // @noErrors
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { computed, ref } from 'vue';
 
   const items = ref([
-    { id: '1', group: '1', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 1000000, end: 4500000 },
-    { id: '2', group: '2', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 4500000, end: 6000000 },
-    { id: '3', group: '3', type: 'range', start: 6000000, end: 8000000 },
+    { id: 'a', group: 'g', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 2000000, end: 5000000 },
+    { id: 'b', group: 'g', type: 'range', cssVariables: { '--item-background': 'var(--color-4)' }, start: 3000000, end: 6000000 },
   ]);
 
   let previousDragTimePos = 0;
   let currentDragAction: 'resize-start' | 'resize-both' | 'resize-end' | undefined;
-  let currentDragItemId = null;
+  const draggingId = ref<string | null>(null);
+  // Item starts captured at grab time, used to freeze the lane order while dragging.
+  let frozenStartById = new Map<string, number>();
+
+  // While dragging, sort by the grab-time order so the dragged item keeps its lane
+  // instead of swapping when it crosses the other item.
+  const stacking = computed(() => ({
+    enabled: true,
+    compare: draggingId.value
+      ? (a, b) => frozenStartById.get(a.id) - frozenStartById.get(b.id)
+      : undefined,
+  }));
 
   function handleItemDrag ({ time, event, item }) {
     if (event.type === 'pointerdown') {
       if (!event.target.dataset.action) {
         return;
       }
-
-      currentDragAction = event.target.dataset.action as typeof currentDragAction;
-      currentDragItemId = item.id;
+      currentDragAction = event.target.dataset.action;
       previousDragTimePos = time;
+      frozenStartById = new Map(items.value.map(i => [i.id, i.start]));
+      draggingId.value = item.id;
     }
-    else if (event.type === 'pointermove') {
-      if (!currentDragAction) {
-        return;
-      }
-
-      const foundItem = items.value.find(i => i.id === currentDragItemId)!;
+    else if (event.type === 'pointermove' && draggingId.value) {
+      const draggedItem = items.value.find(i => i.id === draggingId.value)!;
       const delta = time - previousDragTimePos;
 
       if (currentDragAction === 'resize-start' || currentDragAction === 'resize-both') {
-        foundItem.start += delta;
+        draggedItem.start += delta;
       }
       if (currentDragAction === 'resize-end' || currentDragAction === 'resize-both') {
-        foundItem.end += delta;
+        draggedItem.end += delta;
       }
 
       previousDragTimePos = time;
@@ -42,17 +48,17 @@
   }
 
   window.addEventListener('pointerup', () => {
-    currentDragAction = undefined;
+    draggingId.value = null;
   }, { capture: true });
-
 </script>
 
 <template>
   <Timeline
     :items="items"
-    :groups="[{id: '1'}, {id: '2'}, {id: '3'}]"
+    :groups="[{ id: 'g' }]"
     :viewportMin="0"
     :viewportMax="8000000"
+    :stacking="stacking"
     @pointermove="handleItemDrag"
     @pointerdown="handleItemDrag"
   >
@@ -74,25 +80,12 @@
     cursor: move;
 
     .draggable-handle {
-      position: relative;
-      width: 1.2rem;
-      height: 100%;
+      width: 1rem;
       cursor: ew-resize;
-      opacity: 0.6;
-
-      &::before {
-        content: "";
-        border-inline: 1px solid white;
-        width: 4px;
-        height: 40%;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        position: absolute;
-      }
+      background: rgba(255, 255, 255, 0.4);
 
       &:hover {
-        opacity: 1;
+        background: rgba(255, 255, 255, 0.7);
       }
     }
   }
