@@ -6,10 +6,43 @@ export interface TimelineGroup {
   label?: string;
   /** CSS class for the group */
   className?: string;
-  /** CSS declarations to apply to the group (e.g. `{ '--height': '20%' }`) */
+  /** CSS declarations to apply to the group (e.g. `{ '--label-background': 'rebeccapurple' }`) */
   cssVariables?: Record<string, string>;
+  /** Per-group stacking options; merged over the component-level `stacking` prop. */
+  stacking?: TimelineStackingOptions;
 }
 // #endregion TimelineGroup
+
+// #region TimelineStacking
+/** Options controlling vertical stacking of time-overlapping items. */
+export interface TimelineStackingOptions {
+  /** Enable vertical stacking of time-overlapping items. */
+  enabled?: boolean;
+  /**
+   * `'dataset'` (default): lanes computed over all items in the group, so the
+   * height is stable and only recomputes on zoom/resize/data change.
+   * `'viewport'`: lanes computed over visible items only — more compact, but
+   * recomputes (and may change height) on pan.
+   */
+  strategy?: 'dataset' | 'viewport';
+  /** Custom processing order. Overrides the default start-time sort. */
+  compare?: (a: TimelineItem, b: TimelineItem) => number;
+  /**
+   * Minimum horizontal footprint (in px) an item claims for collision
+   * detection. Allows items to stack earlier than they would otherwise,
+   * avoiding visual clashes. `0` = pure time-interval collision.
+   */
+  collisionWidth?: number;
+  /**
+   * Maximum number of lanes a group may grow to. Once the cap is reached,
+   * items will overlap with other items in the existing lanes. This limits the
+   * group height, which matters when using `collisionWidth`, since all items
+   * will stack when the timeline is zoomed far out. Defaults to `5`; set
+   * `Infinity` to disable the cap.
+   */
+  maxLanes?: number;
+}
+// #endregion TimelineStacking
 
 // #region TimelineItem
 export interface TimelineItemBase {
@@ -23,7 +56,7 @@ export interface TimelineItemBase {
   end?: number;
   /** CSS class for the item */
   className?: string;
-  /** CSS declarations to apply to the item (e.g. `{ '--height': '20%' }`) */
+  /** CSS declarations to apply to the item (e.g. `{ '--item-background': 'rebeccapurple' }`) */
   cssVariables?: Record<string, string>;
   /** Group ID to assign the item to */
   group?: TimelineGroup['id'];

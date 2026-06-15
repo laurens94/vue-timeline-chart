@@ -19,6 +19,7 @@ outline: deep
 | `fixedLabels` | `boolean` | `false` | Whether to display group labels on top of the timeline |
 | `minTimestampWidth` | `number` | `100` | Minimum width a timestamp label should have in px (determines how many timestamps should be displayed) |
 | `maxZoomSpeed` | `number` | `60` | Limits the wheel event's deltaY value to prevent zooming too fast |
+| `stacking` | [TimelineStackingOptions](/reference/types#timelinestackingoptions) | `undefined` | Enable and configure vertical stacking of time-overlapping items. Overridable per group via `group.stacking`. |
 | `activeItems` | `TimelineItem['id'][]` | `[]` | IDs of items that should have an `active` class |
 | `maxOffsetOutsideViewport` | `number` | `50` (px) | Items are clamped 50px outside the viewport, [so that they cannot become too large](https://github.com/laurens94/vue-timeline-chart/issues/8) |
 | `scales` | `Scale[]` | `[]` | Overwrite the default time unit snapping options (see [Timestamps and scale](/guide/timestamps-and-scale)) |

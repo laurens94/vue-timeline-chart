@@ -24,6 +24,9 @@ export default {
       files: [
         "**/*.vue"
       ],
+      rules: {
+        "@stylistic/indentation": [2, { baseIndentLevel: 1 }],
+      },
       customSyntax: "postcss-html"
     }
   ]

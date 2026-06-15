@@ -1,12 +1,15 @@
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash';
 import { defineConfig } from 'vitepress'
 
+const base = process.env.DOCS_BASE ?? '/vue-timeline-chart/';
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Vue Timeline Chart",
   description: "Documentation",
-  base: '/vue-timeline-chart/',
+  base,
   head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }],
     ['script', { src: 'https://unpkg.com/d3@7.9.0/dist/d3.min.js', integrity: 'sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i', crossorigin: 'anonymous', defer: 'true' }],
     ['script', { src: 'https://unpkg.com/@popperjs/core@2.11.8/dist/umd/popper.min.js', integrity: 'sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r', crossorigin: 'anonymous', defer: 'true' }],
     ['script', { src: 'https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js', integrity: 'sha384-AiTRpehQ7zqeua0Ypfa6Q4ki/ddhczZxrKtiQbTQUlJIhBkTeyoZP9/W/5ulFt29', crossorigin: 'anonymous', defer: 'true' }],
@@ -53,8 +56,10 @@ export default defineConfig({
           { text: 'Events', link: '/reference/events' },
           { text: 'Methods', link: '/reference/methods' },
           { text: 'Slots', link: '/reference/slots' },
+          { text: 'CSS variables', link: '/reference/css-variables' },
           { text: 'Types', link: '/reference/types', items: [
             { text: 'TimelineGroup', link: '/reference/types#timelinegroup' },
+            { text: 'TimelineStackingOptions', link: '/reference/types#timelinestackingoptions' },
             { text: 'TimelineItem', link: '/reference/types#timelineitem' },
             { text: 'TimelineMarker', link: '/reference/types#timelinemarker' },
             { text: 'TimelineScales', link: '/reference/types#timelinescales' },
@@ -70,6 +75,7 @@ export default defineConfig({
           { text: 'Custom timestamp labels', link: '/examples/custom-timestamp-labels' },
           { text: 'Custom timestamp intervals', link: '/examples/custom-timestamp-intervals' },
           { text: 'Draggable Items', link: '/examples/draggable-items' },
+          { text: 'Stacking items', link: '/examples/stacking-items' },
           { text: 'Custom Charts or Canvas Rendering', link: '/examples/custom-charts-or-canvas-rendering' },
           { text: 'Synced timelines', link: '/examples/synced-timelines' },
           { text: 'Tooltips', link: '/examples/tooltips' },
