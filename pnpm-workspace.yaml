@@ -1,0 +1,12 @@
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+
+# Delay newly published packages by 3 days (4320 minutes)
+minimumReleaseAge: 4320
+# Block exotic subdependencies (git repos, tarballs)
+blockExoticSubdeps: true
+# Prevent trust level downgrades
+trustPolicy: no-downgrade
+# Ignore trust downgrades after 90 days (129600 minutes)
+trustPolicyIgnoreAfter: 129600
