@@ -469,7 +469,8 @@
     return Math.min(actualItemWidth, maxItemWidth.value);
   }
 
-  function scrollHorizontal (delta: number, event?: WheelEvent | TouchEvent) {
+  /** Returns true if the viewport was scrolled, false if it was not. */
+  function scrollHorizontal (delta: number, event?: WheelEvent | TouchEvent): boolean {
     const deltaMs = (delta / containerWidth.value) * viewportDuration.value;
     if (delta > 0 && props.viewportMax !== undefined && viewportEnd.value >= props.viewportMax) {
       return false;
