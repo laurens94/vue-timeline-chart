@@ -6,20 +6,21 @@ import Timeline from './Timeline.vue';
 import type { TimelineGroup, TimelineItem, TimelineMarker } from '../types/timeline.ts';
 
 vi.stubGlobal('ResizeObserver', class {
-  constructor(private cb: (entries: ResizeObserverEntry[]) => void) {}
-  observe() {
+  constructor (private cb: (entries: ResizeObserverEntry[]) => void) {}
+  observe () {
     this.cb([{
       contentRect: { width: 1000, height: 400, x: 0, y: 0, top: 0, right: 1000, bottom: 400, left: 0, toJSON: () => ({}) },
     } as unknown as ResizeObserverEntry]);
   }
-  disconnect() {}
-  unobserve() {}
+
+  disconnect () {}
+  unobserve () {}
 });
 
 const hour = 3_600_000;
 const now = Date.now();
 
-function generateItems(count: number): TimelineItem[] {
+function generateItems (count: number): TimelineItem[] {
   const items: TimelineItem[] = [];
   const groups = ['g1', 'g2', 'g3', 'g4', 'g5'];
   for (let i = 0; i < count; i++) {
@@ -49,7 +50,7 @@ const items100 = generateItems(100);
 const items1k = generateItems(1_000);
 const items10k = generateItems(10_000);
 
-function mountWith(items: TimelineItem[]) {
+function mountWith (items: TimelineItem[]) {
   const vpEnd = now + hour * Math.max(4, items.length * 0.01);
   return mount(Timeline as any, {
     props: {

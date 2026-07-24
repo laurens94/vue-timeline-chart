@@ -10,16 +10,18 @@ let resizeCallback: ((entries: ResizeObserverEntry[]) => void) | null = null;
 beforeEach(() => {
   resizeCallback = null;
   vi.stubGlobal('ResizeObserver', class {
-    constructor(callback: (entries: ResizeObserverEntry[]) => void) {
+    constructor (callback: (entries: ResizeObserverEntry[]) => void) {
       resizeCallback = callback;
     }
-    observe() {
+
+    observe () {
       resizeCallback?.([{
         contentRect: { width: 1000, height: 400, x: 0, y: 0, top: 0, right: 1000, bottom: 400, left: 0, toJSON: () => ({}) },
       } as unknown as ResizeObserverEntry]);
     }
-    disconnect() {}
-    unobserve() {}
+
+    disconnect () {}
+    unobserve () {}
   });
 });
 
@@ -44,7 +46,7 @@ const baseMarkers: TimelineMarker[] = [
   { id: 'marker-ts', type: 'marker', start: now + hour, group: '_timestamps' },
 ];
 
-function mountTimeline(props: Record<string, unknown> = {}, slots?: Record<string, unknown>) {
+function mountTimeline (props: Record<string, unknown> = {}, slots?: Record<string, unknown>) {
   return mount(Timeline as any, {
     props: {
       groups: baseGroups,
@@ -254,7 +256,7 @@ describe('Timeline rendering', () => {
         },
       });
       await nextTick();
-      expect(receivedItems.map((i) => i.id)).toEqual(['early', 'mid', 'late']);
+      expect(receivedItems.map(i => i.id)).toEqual(['early', 'mid', 'late']);
     });
 
     it('applies custom className on items', async () => {
@@ -843,7 +845,7 @@ describe('Timeline interactions', () => {
 
 // ─── Touch Events ───────────────────────────────────────────────────────────────
 
-function makeTouchInit(touches: Array<{ clientX: number; clientY: number; identifier?: number; screenX?: number; screenY?: number }>): Record<string, unknown> {
+function makeTouchInit (touches: Array<{ clientX: number; clientY: number; identifier?: number; screenX?: number; screenY?: number }>): Record<string, unknown> {
   const touchList = touches.map((t, i) => ({
     clientX: t.clientX,
     clientY: t.clientY,
@@ -968,14 +970,14 @@ describe('Timeline momentum wiring', () => {
   });
 
   /** Runs the frame the fling loop currently has scheduled, at time `t`. */
-  function frame(t: number) {
+  function frame (t: number) {
     const callbacks = [...pending.values()];
     pending.clear();
-    callbacks.forEach((cb) => cb(t));
+    callbacks.forEach(cb => cb(t));
   }
 
   /** Dispatches a touch event with a controlled timestamp. */
-  function dispatchTouch(el: Element, type: string, touches: Array<{ clientX: number; clientY: number; identifier?: number }>, timeStamp: number) {
+  function dispatchTouch (el: Element, type: string, touches: Array<{ clientX: number; clientY: number; identifier?: number }>, timeStamp: number) {
     const event = new Event(type, { bubbles: true, cancelable: true });
     Object.assign(event, makeTouchInit(touches));
     Object.defineProperty(event, 'timeStamp', { value: timeStamp });
@@ -983,7 +985,7 @@ describe('Timeline momentum wiring', () => {
   }
 
   /** A fast leftward single-finger pan, lifted at t=1050 while still moving. */
-  function flick(el: Element) {
+  function flick (el: Element) {
     dispatchTouch(el, 'touchstart', [{ clientX: 500, clientY: 200 }], 1000);
     dispatchTouch(el, 'touchmove', [{ clientX: 450, clientY: 200 }], 1016);
     dispatchTouch(el, 'touchmove', [{ clientX: 400, clientY: 200 }], 1032);
@@ -1521,7 +1523,7 @@ describe('stacking', () => {
   const laneSlot = {
     item: (slotProps: { item: TimelineItem; lane: number; stackSize: number; isStacked: boolean }) =>
       h('span', {
-        class: 'slot-content',
+        'class': 'slot-content',
         'data-id': slotProps.item.id,
         'data-lane': String(slotProps.lane),
         'data-stacksize': String(slotProps.stackSize),
@@ -1554,12 +1556,12 @@ describe('stacking', () => {
     expect(stacked.length).toBeGreaterThanOrEqual(2);
 
     // The two overlapping items must land on different lanes.
-    const lanes = stacked.map((el) => (el.element as HTMLElement).style.getPropertyValue('--_lane'));
+    const lanes = stacked.map(el => (el.element as HTMLElement).style.getPropertyValue('--_lane'));
     expect(new Set(lanes).size).toBeGreaterThan(1);
 
     // Each item also exposes its cluster depth as --_stack-count (2 here).
-    const stackCounts = stacked.map((el) => (el.element as HTMLElement).style.getPropertyValue('--_stack-count'));
-    expect(stackCounts.every((count) => count === '2')).toBe(true);
+    const stackCounts = stacked.map(el => (el.element as HTMLElement).style.getPropertyValue('--_stack-count'));
+    expect(stackCounts.every(count => count === '2')).toBe(true);
   });
 
   it('keeps a non-overlapping item at lane 0 (full lane height, not squished)', async () => {
@@ -1616,8 +1618,8 @@ describe('stacking', () => {
     // Both x and y are now visible but they don't overlap: lane count stays 1.
     expect(groupEl.style.getPropertyValue('--_lane-count')).toBe('1');
     // And no stacked item exceeds lane 0.
-    const lanes = wrapper.findAll('.item.stacked').map((el) => (el.element as HTMLElement).style.getPropertyValue('--_lane'));
-    expect(lanes.every((l) => l === '0' || l === '')).toBe(true);
+    const lanes = wrapper.findAll('.item.stacked').map(el => (el.element as HTMLElement).style.getPropertyValue('--_lane'));
+    expect(lanes.every(l => l === '0' || l === '')).toBe(true);
   });
 
   it('lets a group opt out via group.stacking.enabled = false', async () => {
@@ -1638,7 +1640,7 @@ describe('stacking', () => {
     }, laneSlot);
     await nextTick();
 
-    const [group1El, group2El] = wrapper.findAll('.group').map((g) => g.element as HTMLElement);
+    const [group1El, group2El] = wrapper.findAll('.group').map(g => g.element as HTMLElement);
 
     // group-1 stacks (component-level enabled).
     expect(group1El.style.getPropertyValue('--_lane-count')).toBe('2');

@@ -177,7 +177,7 @@
     maxViewportDuration?: number;
     initialViewportStart?: number;
     initialViewportEnd?: number;
-    renderTimestampLabel?: (timestamp: number, scale: { unit: string, step: number}) => string;
+    renderTimestampLabel?: (timestamp: number, scale: { unit: string; step: number }) => string;
     fixedLabels?: boolean;
     minTimestampWidth?: number;
     maxZoomSpeed?: number;
@@ -187,7 +187,7 @@
     scales?: TimelineScales[];
     weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
     stacking?: TimelineStackingOptions;
-  }
+  };
 
   const props = withDefaults(defineProps<Props>(), {
     groups: () => [],
@@ -200,13 +200,13 @@
     maxViewportDuration: undefined,
     initialViewportStart: undefined,
     initialViewportEnd: undefined,
-    renderTimestampLabel: (timestamp: number, scale: { unit: string, step: number}) => {
+    renderTimestampLabel: (timestamp: number, scale: { unit: string; step: number }) => {
       const date = new Date(timestamp);
       let returnValue = '';
 
       if (!['hours', 'minutes', 'seconds', 'ms'].includes(scale.unit) || startOfDay(date).valueOf() === timestamp) {
         returnValue += `${date.toLocaleString('default', {
-          month: scale.unit !== 'years' && (startOfMonth(date).valueOf() === timestamp || scale.unit === 'days' || (startOfDay(date).valueOf() === timestamp) && !(scale.unit === 'months' && scale.step === 0.25)) ? 'short' : undefined,
+          month: scale.unit !== 'years' && (startOfMonth(date).valueOf() === timestamp || scale.unit === 'days' || ((startOfDay(date).valueOf() === timestamp) && !(scale.unit === 'months' && scale.step === 0.25))) ? 'short' : undefined,
           year: startOfYear(date).valueOf() === timestamp ? 'numeric' : undefined,
           era: startOfYear(date).valueOf() === timestamp && startOfYear(date).getFullYear() <= 0 ? 'short' : undefined,
           day: scale.unit !== 'years' && !(scale.unit === 'months' && scale.step >= 1) && startOfDay(date).valueOf() === timestamp ? 'numeric' : undefined,
@@ -283,12 +283,12 @@
   });
 
   watch(() => props.items, (value) => {
-    if (value.some((item) => item.id === undefined)) {
+    if (value.some(item => item.id === undefined)) {
       console.error(`[vue-timeline-chart] Some items are missing an \`id\` property. Please provide a unique ID for each item.`);
     }
   }, { immediate: true });
   watch(() => props.markers, (value) => {
-    if (value.some((marker) => marker.id === undefined)) {
+    if (value.some(marker => marker.id === undefined)) {
       console.error(`[vue-timeline-chart] Some markers are missing an \`id\` property. Please provide a unique ID for each marker.`);
     }
   }, { immediate: true });
@@ -337,10 +337,10 @@
     setViewport(props.initialViewportStart, props.initialViewportEnd);
   });
 
-  const visibleItems = computed(() => props.items.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start) || []);
-  const visibleMarkers = computed(() => props.markers.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
-  const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter((item) => !item.group));
-  const visibleBackgroundsWithoutGroup = computed(() => visibleItems.value.filter((item) => item.type === 'background' && !item.group));
+  const visibleItems = computed(() => props.items.filter(item => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start) || []);
+  const visibleMarkers = computed(() => props.markers.filter(item => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
+  const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter(item => !item.group));
+  const visibleBackgroundsWithoutGroup = computed(() => visibleItems.value.filter(item => item.type === 'background' && !item.group));
 
   const {
     groupStyles,
@@ -354,15 +354,15 @@
     pxPerMs,
   });
 
-  watch(laneCountsByGroup, (counts) => emit('changeStacking', counts), { immediate: true });
+  watch(laneCountsByGroup, counts => emit('changeStacking', counts), { immediate: true });
 
   /** Visible non-background items per group, each paired with its resolved stacking (looked up once). */
   const itemsByGroup = computed(() => {
     const map = new Map<TimelineGroup['id'], { item: GTimelineItem; stacking: LaneAssignment | undefined }[]>();
     for (const group of props.groups) {
       const stacking = stackingByGroup.value.get(group.id);
-      const filteredItems = visibleItems.value.filter((item) => item.group === group.id && item.type !== 'background');
-      map.set(group.id, filteredItems.map((item) => ({ item, stacking: stacking?.laneAssignmentsByItem.get(item.id) })));
+      const filteredItems = visibleItems.value.filter(item => item.group === group.id && item.type !== 'background');
+      map.set(group.id, filteredItems.map(item => ({ item, stacking: stacking?.laneAssignmentsByItem.get(item.id) })));
     }
     return map;
   });
@@ -417,7 +417,7 @@
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
   const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView, computed(() => props.scales), computed(() => props.weekStartsOn));
-  const timestampLeftPositions = computed(() => visibleTimestamps.value.map((timestamp) => getLeftPos(timestamp)));
+  const timestampLeftPositions = computed(() => visibleTimestamps.value.map(timestamp => getLeftPos(timestamp)));
 
   watch(scale, (newVal, oldVal) => {
     if (newVal.step === oldVal?.step && newVal.unit === oldVal?.unit) {
@@ -577,7 +577,7 @@
     zoom(zoomDelta, mousePosXPercentage, e);
   }
 
-  function zoom (zoomDeltaInMs: number, mousePosXPercentage = .5, event: WheelEvent) {
+  function zoom (zoomDeltaInMs: number, mousePosXPercentage = 0.5, event: WheelEvent) {
     // limit zoomDelta so that it can never zoom with more ms than the viewportDuration:
     if (zoomDeltaInMs > 0) {
       // zooming in

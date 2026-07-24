@@ -12,17 +12,21 @@ beforeEach(() => {
 
   vi.stubGlobal('ResizeObserver', class {
     callback: (entries: ResizeObserverEntry[]) => void;
-    constructor(callback: (entries: ResizeObserverEntry[]) => void) {
+    constructor (callback: (entries: ResizeObserverEntry[]) => void) {
       this.callback = callback;
       observeCallbacks.push(callback);
     }
-    observe() {}
-    disconnect() { disconnectFn(); }
-    unobserve() {}
+
+    observe () {}
+    disconnect () {
+      disconnectFn();
+    }
+
+    unobserve () {}
   });
 });
 
-function fireResize(width: number, height: number) {
+function fireResize (width: number, height: number) {
   const entry = {
     contentRect: { width, height, x: 0, y: 0, top: 0, right: width, bottom: height, left: 0, toJSON: () => ({}) },
   } as unknown as ResizeObserverEntry;
@@ -99,23 +103,28 @@ describe('useElementSize', () => {
   it('updates width before component re-renders (pre-flush)', async () => {
     vi.stubGlobal('ResizeObserver', class {
       callback: (entries: ResizeObserverEntry[]) => void;
-      constructor(cb: (entries: ResizeObserverEntry[]) => void) {
+      constructor (cb: (entries: ResizeObserverEntry[]) => void) {
         this.callback = cb;
         observeCallbacks.push(cb);
       }
-      observe() {
+
+      observe () {
         this.callback([{
           contentRect: { width: 1000, height: 400, x: 0, y: 0, top: 0, right: 1000, bottom: 400, left: 0, toJSON: () => ({}) },
         } as unknown as ResizeObserverEntry]);
       }
-      disconnect() { disconnectFn(); }
-      unobserve() {}
+
+      disconnect () {
+        disconnectFn();
+      }
+
+      unobserve () {}
     });
 
     const widthAtRender: number[] = [];
 
     const Comp = defineComponent({
-      setup() {
+      setup () {
         const el = ref<HTMLElement | null>(null);
         const { width } = useElementSize(el);
         const dummy = ref(0);

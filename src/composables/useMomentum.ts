@@ -80,7 +80,7 @@ export function useMomentum ({ onFling, config }: UseMomentumOptions) {
 
   /** Releases the gesture; call on touchend. Starts a fling if fast enough. */
   function release (t: number) {
-    const recent = samples.filter((sample) => t - sample.t <= VELOCITY_WINDOW);
+    const recent = samples.filter(sample => t - sample.t <= VELOCITY_WINDOW);
     samples = [];
 
     const { enabled = true, timeConstant: configured = DEFAULT_TIME_CONSTANT } = config();

@@ -30,6 +30,7 @@ export default defineConfigWithVueTs([
 
   {
     rules: {
+      'vue/block-lang': ['error', { script: { lang: ['ts', 'js'] } }],
       'vue/attribute-hyphenation': ['error', 'never'],
       'vue/html-self-closing': [
         'error',
@@ -40,12 +41,6 @@ export default defineConfigWithVueTs([
             component: 'always',
           },
           svg: 'any',
-        },
-      ],
-      'vue/html-closing-bracket-spacing': [
-        'error',
-        {
-          selfClosingTag: 'never',
         },
       ],
       'vue/singleline-html-element-content-newline': ['off'],
@@ -76,6 +71,18 @@ export default defineConfigWithVueTs([
           destructuredArrayIgnorePattern: '^_',
           varsIgnorePattern: '^_',
           ignoreRestSiblings: true,
+        },
+      ],
+      '@stylistic/multiline-ternary': 'off',
+      '@stylistic/space-before-function-paren': ['error', 'always'],
+      '@stylistic/comma-dangle': [
+        'error',
+        {
+          arrays: 'always-multiline',
+          objects: 'always-multiline',
+          imports: 'always-multiline',
+          exports: 'always-multiline',
+          functions: 'never',
         },
       ],
       'array-callback-return': 'error',

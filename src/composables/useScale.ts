@@ -8,8 +8,8 @@ import {
   getWeek,
 } from 'date-fns';
 
-import {  ComputedRef, Ref, computed, shallowRef, watch } from 'vue';
-import {  TimelineBaseUnits,  TimelineScale,  TimelineScales } from '../types/timeline.ts';
+import { ComputedRef, Ref, computed, shallowRef, watch } from 'vue';
+import { TimelineBaseUnits, TimelineScale, TimelineScales } from '../types/timeline.ts';
 
 /** note: order of units is important for sorting */
 const baseDividers = {
@@ -35,24 +35,24 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
   const _viewportDuration = shallowRef(viewportDuration.value);
   const _maxLabelsInView = shallowRef(maxLabelsInView.value);
 
-  const possibleScales = computed(() => (scales.value?.length ? scales.value : [
+  const defaultScales = [
     // #region default-scales
     {
       // every 100ms, 1 second, 2 seconds, 5 seconds or 10 seconds
       // NOTE: .1 seconds is used here instead of 100ms, so the first ms that would align with the gridline
       // (that provides the label) is shown when only the next occuring ms are within the viewport
       unit: 'seconds',
-      steps: [.1, 1, 2, 5, 10],
+      steps: [0.1, 1, 2, 5, 10],
     },
     {
       // every 15 seconds, 30 seconds, 1 minute, 2 minutes, etc.
       unit: 'minutes',
-      steps: [.25, .5, 1, 2, 5, 10],
+      steps: [0.25, 0.5, 1, 2, 5, 10],
     },
     {
       // every 15 minutes, 30 minutes, 1 hour, 2 hours, etc.
       unit: 'hours',
-      steps: [.25, .5, 1, 2, 4, 6, 12],
+      steps: [0.25, 0.5, 1, 2, 4, 6, 12],
     },
     {
       // every day
@@ -75,9 +75,12 @@ export const useScale = (viewportStart: Ref<number>, viewportEnd: Ref<number>, v
       steps: [1, 5, 10, 25, 50, 100, 250, 500, 1000],
     },
     // #endregion default-scales
-  ] as const).toSorted((a, b) => getUnitIndex(a.unit) - getUnitIndex(b.unit)).flatMap((scale) => {
-    return scale.steps.toSorted((a, b) => a - b).map((step) => ({ unit: scale.unit, step: step }));
-  }) satisfies TimelineScale[]);
+  ] as const;
+
+  const possibleScales = computed(() => (scales.value?.length ? scales.value : defaultScales)
+    .toSorted((a, b) => getUnitIndex(a.unit) - getUnitIndex(b.unit)).flatMap((scale) => {
+      return scale.steps.toSorted((a, b) => a - b).map(step => ({ unit: scale.unit, step: step }));
+    }) satisfies TimelineScale[]);
 
   watch (viewportDuration, () => {
     _viewportDuration.value = viewportDuration.value;

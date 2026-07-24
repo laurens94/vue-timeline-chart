@@ -11,7 +11,7 @@ let nextId: number;
 function frame (t: number) {
   const callbacks = [...pending.values()];
   pending.clear();
-  callbacks.forEach((cb) => cb(t));
+  callbacks.forEach(cb => cb(t));
 }
 
 /** Drives frames (16ms apart) until the fling stops or the cap is reached. */
@@ -88,7 +88,7 @@ describe('useMomentum', () => {
     const frames = runToStop(50);
     expect(frames).toBeGreaterThan(1);
     expect(pending.size).toBe(0); // no frame left scheduled
-    const steps = onFling.mock.calls.map((c) => Math.abs(c[0]));
+    const steps = onFling.mock.calls.map(c => Math.abs(c[0]));
     expect(steps.at(-1)).toBeLessThan(steps[0]); // slowing down
   });
 

@@ -56,12 +56,16 @@
               <div
                 :title="'title' in item ? item.title : undefined"
                 class="item-hit"
-              />
+              ></div>
             </template>
           </Timeline>
         </section>
 
-        <details v-if="logEvents" class="event-log" open>
+        <details
+          v-if="logEvents"
+          class="event-log"
+          open
+        >
           <summary>Event log ({{ debug.firedEvents.length }})</summary>
           <ol class="event-list">
             <li v-for="(entry, index) in debug.firedEvents.toReversed()" :key="index">
@@ -230,7 +234,9 @@
   const weekStartsOn = shallowRef<0 | 1>(0);
 
   const stackingOptions = computed((): TimelineStackingOptions | undefined => {
-    if (!stackingEnabled.value) return undefined;
+    if (!stackingEnabled.value) {
+      return undefined;
+    }
     return {
       enabled: true,
       strategy: stackingStrategy.value,
@@ -238,9 +244,7 @@
     };
   });
 
-  const activeItemIds = computed(() =>
-    highlightActive.value ? ['range-1'] : [],
-  );
+  const activeItemIds = computed(() => highlightActive.value ? ['range-1'] : []);
 
   const groups = computed((): TimelineGroup[] => [
     { label: 'Points', id: 'group1' },
@@ -274,7 +278,9 @@
 
   /** Extra ranges that overlap range-4 to demo stacking. */
   const overlapItems = computed((): TimelineItem[] => {
-    if (!overlapDemo.value) return [];
+    if (!overlapDemo.value) {
+      return [];
+    }
     const base = 1_691_090_985_000;
     const span = 1_691_091_085_000 - base;
     return [
@@ -285,7 +291,9 @@
   });
 
   const stressItems = computed((): TimelineItem[] => {
-    if (!heavyLoad.value) return [];
+    if (!heavyLoad.value) {
+      return [];
+    }
     const [start, end] = initialViewportRange.value;
     const items: TimelineItem[] = [];
     for (let i = 0; i < 4000; i++) {
@@ -333,73 +341,81 @@
     currentTime.value = Date.now();
   }, 40);
 
-  function formatTs(ts: number) {
-    if (!ts) return '—';
+  function formatTs (ts: number) {
+    if (!ts) {
+      return '—';
+    }
     return new Date(ts).toLocaleString();
   }
 
-  function logEvent(message: string) {
-    if (!logEvents.value) return;
+  function logEvent (message: string) {
+    if (!logEvents.value) {
+      return;
+    }
     debug.firedEvents.push(message);
   }
 
-  function onTimelineEvent({ time, event, item }: { time?: number; event: MouseEvent | TouchEvent; item?: TimelineItem | null }) {
+  function onTimelineEvent ({ time, event, item }: { time?: number; event: MouseEvent | TouchEvent; item?: TimelineItem | null }) {
     logEvent(`${event.type} (${time ?? '—'}) ${item?.id ?? ''}`);
   }
 
-  function onWheel(event: WheelEvent) {
+  function onWheel (event: WheelEvent) {
     logEvent(`wheel (Δy: ${event.deltaY}, Δx: ${event.deltaX})`);
   }
 
-  function onMousemoveTimeline({ time }: { time: number }) {
+  function onMousemoveTimeline ({ time }: { time: number }) {
     mouseHoverPosition.value = time;
     logEvent(`mousemoveTimeline (${time})`);
     document.body.classList.add('disable-overscroll-behavior-x');
   }
 
-  function onMouseleaveTimeline() {
+  function onMouseleaveTimeline () {
     mouseHoverPosition.value = null;
     logEvent('mouseleaveTimeline');
     document.body.classList.remove('disable-overscroll-behavior-x');
   }
 
-  function onChangeScale(scale: TimelineScale) {
+  function onChangeScale (scale: TimelineScale) {
     debug.scale = scale;
     logEvent('changeScale');
   }
 
-  function onChangeViewport(viewport: { start: number; end: number }) {
+  function onChangeViewport (viewport: { start: number; end: number }) {
     debug.viewport = viewport;
     logEvent('changeViewport');
   }
 
-  function onChangeStacking(value: Record<string, { laneCount: number }>) {
+  function onChangeStacking (value: Record<string, { laneCount: number }>) {
     const counts = Object.entries(value).map(([id, { laneCount }]) => `${id}: ${laneCount}`).join(', ');
     logEvent(`changeStacking (${counts})`);
   }
 
   const viewportSize = computed(() => debug.viewport.end - debug.viewport.start);
 
-  function panViewport(fraction: number) {
+  function panViewport (fraction: number) {
     const el = timeline.value;
-    if (!el || !viewportSize.value) return;
+    if (!el || !viewportSize.value) {
+      return;
+    }
     const delta = viewportSize.value * fraction;
     el.setViewport(debug.viewport.start + delta, debug.viewport.end + delta);
   }
 
-  function zoomViewport(factor: number) {
+  function zoomViewport (factor: number) {
     const el = timeline.value;
-    if (!el || !viewportSize.value) return;
+    if (!el || !viewportSize.value) {
+      return;
+    }
     const center = (debug.viewport.start + debug.viewport.end) / 2;
     const half = (viewportSize.value / 2) * factor;
     el.setViewport(center - half, center + half);
   }
 
-  function resetViewport() {
+  function resetViewport () {
     timeline.value?.setViewport(initialViewportRange.value[0], initialViewportRange.value[1]);
   }
 
-  function fitMaxRange() {
+  function fitMaxRange () {
     timeline.value?.setViewport(maxRange.value[0], maxRange.value[1]);
   }
 

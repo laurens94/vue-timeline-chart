@@ -111,7 +111,7 @@ export type TimelineBaseUnits = 'ms' | 'seconds' | 'minutes' | 'hours' | 'days' 
 export type TimelineScale = {
   unit: TimelineBaseUnits;
   step: number;
-}
+};
 // #endregion TimelineScale
 
 // #region TimelineScales
@@ -119,5 +119,5 @@ export type TimelineScale = {
 export type TimelineScales = {
   unit: TimelineBaseUnits;
   steps: number[];
-}
+};
 // #endregion TimelineScales

@@ -15,7 +15,7 @@
       return;
     }
 
-    tippyInstances.forEach((instance) => instance.destroy());
+    tippyInstances.forEach(instance => instance.destroy());
     tippyInstances = [];
     tippy('[data-tippy-content]', {
       followCursor: 'horizontal',

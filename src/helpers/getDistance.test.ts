@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getDistance } from './getDistance.ts';
 
-function touch(clientX: number, clientY: number): Touch {
+function touch (clientX: number, clientY: number): Touch {
   return { clientX, clientY } as Touch;
 }
 

@@ -96,7 +96,7 @@ describe('assignLanes', () => {
       const priority: Record<string, number> = { late: 0, early: 1 };
       const result = assignLanes(
         [range('late', 10, 30), range('early', 0, 20)],
-        { compare: (a, b) => priority[a.id] - priority[b.id] },
+        { compare: (a, b) => priority[a.id] - priority[b.id] }
       );
       expect(result.laneAssignmentsByItem.get('late')!.lane).toBe(0);
       expect(result.laneAssignmentsByItem.get('early')!.lane).toBe(1);
@@ -123,7 +123,7 @@ describe('assignLanes', () => {
       // cap of 2 reached it joins lane 0, which frees sooner than lane 1.
       const result = assignLanes(
         [range('a', 0, 10), range('b', 1, 20), range('c', 2, 5)],
-        { maxLanes: 2 },
+        { maxLanes: 2 }
       );
       expect(result.laneAssignmentsByItem.get('a')!.lane).toBe(0);
       expect(result.laneAssignmentsByItem.get('b')!.lane).toBe(1);
@@ -185,10 +185,10 @@ describe('mergeStackingOptions', () => {
   it('lets a group override a single knob while inheriting the rest', () => {
     const resolved = mergeStackingOptions(
       { enabled: true, collisionWidth: 16 },
-      { strategy: 'viewport' },
+      { strategy: 'viewport' }
     );
-    expect(resolved.enabled).toBe(true);       // inherited
-    expect(resolved.collisionWidth).toBe(16);  // inherited
+    expect(resolved.enabled).toBe(true); // inherited
+    expect(resolved.collisionWidth).toBe(16); // inherited
     expect(resolved.strategy).toBe('viewport'); // overridden
   });
 

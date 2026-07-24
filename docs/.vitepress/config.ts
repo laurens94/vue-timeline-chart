@@ -1,12 +1,12 @@
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash';
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
 
 const base = process.env.DOCS_BASE ?? '/vue-timeline-chart/';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Vue Timeline Chart",
-  description: "Documentation",
+  title: 'Vue Timeline Chart',
+  description: 'Documentation',
   base,
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}favicon.svg` }],
@@ -16,7 +16,7 @@ export default defineConfig({
   ],
   markdown: {
     codeTransformers: [
-      transformerTwoslash()
+      transformerTwoslash(),
     ],
     // Explicitly load these languages for types highlighting
     languages: ['js', 'ts', 'tsx', 'vue', 'css'],
@@ -30,7 +30,7 @@ export default defineConfig({
       provider: 'local',
       options: {
         detailedView: true,
-      }
+      },
     },
     nav: [
       { text: 'Guide', link: '/guide/getting-started', activeMatch: '/guide/' },
@@ -46,7 +46,7 @@ export default defineConfig({
           { text: 'Performance', link: '/guide/performance' },
           { text: 'Timestamps and Scale', link: '/guide/timestamps-and-scale' },
           { text: 'Touch input', link: '/guide/touch-input' },
-        ]
+        ],
       },
       {
         text: 'API Reference',
@@ -65,7 +65,7 @@ export default defineConfig({
             { text: 'TimelineMarker', link: '/reference/types#timelinemarker' },
             { text: 'TimelineScales', link: '/reference/types#timelinescales' },
           ] },
-        ]
+        ],
       },
       {
         text: 'Examples',
@@ -81,12 +81,12 @@ export default defineConfig({
           { text: 'Synced timelines', link: '/examples/synced-timelines' },
           { text: 'Tooltips', link: '/examples/tooltips' },
           { text: 'Set viewport', link: '/examples/set-viewport' },
-        ]
-      }
+        ],
+      },
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/laurens94/vue-timeline-chart' }
-    ]
-  }
-})
+      { icon: 'github', link: 'https://github.com/laurens94/vue-timeline-chart' },
+    ],
+  },
+});
