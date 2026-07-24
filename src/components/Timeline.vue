@@ -77,13 +77,13 @@
               :stacking="stackingByGroup.get(group.id)"
             >
               <div
-                v-for="{ item, stacking } in itemsByGroup.get(group.id) ?? []"
+                v-for="{ item, laneAssignment } in itemsByGroup.get(group.id) ?? []"
                 :key="item.id"
                 :style="getStyle(item)"
                 :class="['item', item.type, item.className, {
                   active: activeItems.includes(item.id),
-                  stacked: !!stacking,
-                  overlapping: !!stacking?.isStacked,
+                  stacked: !!laneAssignment,
+                  overlapping: !!laneAssignment?.isStacked,
                 }]"
                 @click.stop="onClick($event, item)"
                 @pointermove.stop="onPointerMove($event, item)"
@@ -94,9 +94,9 @@
                 <slot
                   name="item"
                   :item="item"
-                  :lane="stacking?.lane ?? 0"
-                  :stackSize="stacking?.stackSize ?? 1"
-                  :isStacked="!!stacking?.isStacked"
+                  :lane="laneAssignment?.lane ?? 0"
+                  :stackSize="laneAssignment?.stackSize ?? 1"
+                  :isStacked="!!laneAssignment?.isStacked"
                 ></slot>
               </div>
             </slot>
@@ -358,11 +358,11 @@
 
   /** Visible non-background items per group, each paired with its resolved stacking (looked up once). */
   const itemsByGroup = computed(() => {
-    const map = new Map<TimelineGroup['id'], { item: GTimelineItem; stacking: LaneAssignment | undefined }[]>();
+    const map = new Map<TimelineGroup['id'], { item: GTimelineItem; laneAssignment: LaneAssignment | undefined }[]>();
     for (const group of props.groups) {
-      const stacking = stackingByGroup.value.get(group.id);
+      const groupStackingResult = stackingByGroup.value.get(group.id);
       const filteredItems = visibleItems.value.filter(item => item.group === group.id && item.type !== 'background');
-      map.set(group.id, filteredItems.map(item => ({ item, stacking: stacking?.laneAssignmentsByItem.get(item.id) })));
+      map.set(group.id, filteredItems.map(item => ({ item, laneAssignment: groupStackingResult?.laneAssignmentsByItem.get(item.id) })));
     }
     return map;
   });
@@ -395,11 +395,11 @@
   });
 
   function styleObject (item: TimelineItem) {
-    const stacking = item.group ? stackingByGroup.value.get(item.group)?.laneAssignmentsByItem.get(item.id) : undefined;
+    const laneAssignment = item.group ? stackingByGroup.value.get(item.group)?.laneAssignmentsByItem.get(item.id) : undefined;
     return {
       '--_left': `${getLeftPos(item.start, item.end)}px`,
       '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : undefined,
-      ...(stacking ? { '--_lane': stacking.lane, '--_stack-count': stacking.stackSize } : {}),
+      ...(laneAssignment ? { '--_lane': laneAssignment.lane, '--_stack-count': laneAssignment.stackSize } : {}),
       ...item.cssVariables,
     } satisfies CSSProperties;
   }

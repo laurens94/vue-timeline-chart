@@ -52,7 +52,7 @@ const items10k = generateItems(10_000);
 
 function mountWith (items: TimelineItem[]) {
   const vpEnd = now + hour * Math.max(4, items.length * 0.01);
-  return mount(Timeline as any, {
+  return mount(Timeline, {
     props: {
       groups: groups5,
       items,

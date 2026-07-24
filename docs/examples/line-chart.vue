@@ -34,7 +34,7 @@
     :viewportMin="0"
     :viewportMax="8000000"
   >
-    <template #items-linechart="{ viewportStart, viewportEnd, group }">
+    <template #items-linechart="{ viewportStart, viewportEnd }">
       <LineChart
         :viewportStart="viewportStart"
         :viewportEnd="viewportEnd"

@@ -61,6 +61,7 @@ export default defineConfigWithVueTs([
       ],
       'vue/v-on-event-hyphenation': 'off',
       'vue/multi-word-component-names': 'off',
+      'vue/no-template-shadow': 'error',
       '@typescript-eslint/no-unused-vars': [
         'warn',
         {
@@ -105,6 +106,14 @@ export default defineConfigWithVueTs([
     files: ['**/*.vue'],
     rules: {
       '@stylistic/indent': 'off',
+    },
+  },
+
+  {
+    // Benchmarks read computed `.value` as bare expressions to force evaluation — that is the measured work.
+    files: ['**/*.bench.ts'],
+    rules: {
+      '@typescript-eslint/no-unused-expressions': 'off',
     },
   },
 ]);

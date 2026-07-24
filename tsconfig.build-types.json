@@ -14,6 +14,8 @@
     "node_modules",
     "**/*.cy.ts",
     "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.bench.ts",
     "**/__tests__/**/*"
   ]
 }
