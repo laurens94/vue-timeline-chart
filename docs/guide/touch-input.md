@@ -17,4 +17,4 @@ For an even smoother experience, set `touch-action: none` on the wrapper element
 A single-finger pan keeps gliding after you lift your finger, decelerating to a
 stop, mimicking native scroll behavior.
 
-Momentum is enabled by default and configurable via the [`momentum`](/reference/props) prop.
+Momentum is enabled by default and configurable via the [`momentum`](/reference/props#momentum) prop.

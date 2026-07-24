@@ -45,7 +45,6 @@ export interface TimelineStackingOptions {
 // #endregion TimelineStacking
 
 // #region TimelineMomentum
-/** Options controlling the momentum (fling) of a released single-finger pan. */
 export interface TimelineMomentumOptions {
   /** Whether a released single-finger pan keeps gliding. Defaults to `true`. */
   enabled?: boolean;
