@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { nextTick, h } from 'vue';
 import Timeline from './Timeline.vue';
@@ -843,30 +843,30 @@ describe('Timeline interactions', () => {
 
 // ─── Touch Events ───────────────────────────────────────────────────────────────
 
-describe('Timeline touch events', () => {
-  function makeTouchInit(touches: Array<{ clientX: number; clientY: number; identifier?: number; screenX?: number; screenY?: number }>): Record<string, unknown> {
-    const touchList = touches.map((t, i) => ({
-      clientX: t.clientX,
-      clientY: t.clientY,
-      screenX: t.screenX ?? t.clientX,
-      screenY: t.screenY ?? t.clientY,
-      identifier: t.identifier ?? i,
-      target: null,
-      pageX: t.clientX,
-      pageY: t.clientY,
-      radiusX: 0,
-      radiusY: 0,
-      rotationAngle: 0,
-      force: 1,
-    }));
-    const list = Object.assign([...touchList], {
-      length: touchList.length,
-      item: (i: number) => touchList[i] ?? null,
-      [Symbol.iterator]: touchList[Symbol.iterator].bind(touchList),
-    });
-    return { touches: list };
-  }
+function makeTouchInit(touches: Array<{ clientX: number; clientY: number; identifier?: number; screenX?: number; screenY?: number }>): Record<string, unknown> {
+  const touchList = touches.map((t, i) => ({
+    clientX: t.clientX,
+    clientY: t.clientY,
+    screenX: t.screenX ?? t.clientX,
+    screenY: t.screenY ?? t.clientY,
+    identifier: t.identifier ?? i,
+    target: null,
+    pageX: t.clientX,
+    pageY: t.clientY,
+    radiusX: 0,
+    radiusY: 0,
+    rotationAngle: 0,
+    force: 1,
+  }));
+  const list = Object.assign([...touchList], {
+    length: touchList.length,
+    item: (i: number) => touchList[i] ?? null,
+    [Symbol.iterator]: touchList[Symbol.iterator].bind(touchList),
+  });
+  return { touches: list };
+}
 
+describe('Timeline touch events', () => {
   it('emits touchstart', async () => {
     const wrapper = mountTimeline();
     const timeline = wrapper.find('.timeline');
@@ -941,6 +941,149 @@ describe('Timeline touch events', () => {
 
     const after = emitted[emitted.length - 1][0] as { start: number; end: number };
     expect(after.start).toBeGreaterThan(before.start);
+  });
+});
+
+// ─── Momentum wiring ────────────────────────────────────────────────────────────
+
+describe('Timeline momentum wiring', () => {
+  let pending: Map<number, FrameRequestCallback>;
+  let nextRafId: number;
+
+  beforeEach(() => {
+    pending = new Map();
+    nextRafId = 1;
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      const id = nextRafId++;
+      pending.set(id, cb);
+      return id;
+    });
+    vi.stubGlobal('cancelAnimationFrame', (id: number) => {
+      pending.delete(id);
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  /** Runs the frame the fling loop currently has scheduled, at time `t`. */
+  function frame(t: number) {
+    const callbacks = [...pending.values()];
+    pending.clear();
+    callbacks.forEach((cb) => cb(t));
+  }
+
+  /** Dispatches a touch event with a controlled timestamp. */
+  function dispatchTouch(el: Element, type: string, touches: Array<{ clientX: number; clientY: number; identifier?: number }>, timeStamp: number) {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, makeTouchInit(touches));
+    Object.defineProperty(event, 'timeStamp', { value: timeStamp });
+    el.dispatchEvent(event);
+  }
+
+  /** A fast leftward single-finger pan, lifted at t=1050 while still moving. */
+  function flick(el: Element) {
+    dispatchTouch(el, 'touchstart', [{ clientX: 500, clientY: 200 }], 1000);
+    dispatchTouch(el, 'touchmove', [{ clientX: 450, clientY: 200 }], 1016);
+    dispatchTouch(el, 'touchmove', [{ clientX: 400, clientY: 200 }], 1032);
+    dispatchTouch(el, 'touchmove', [{ clientX: 350, clientY: 200 }], 1048);
+    dispatchTouch(el, 'touchend', [], 1050);
+  }
+
+  it('keeps panning the viewport after the finger lifts', async () => {
+    const wrapper = mountTimeline({
+      initialViewportStart: now,
+      initialViewportEnd: now + hour * 3,
+      viewportMin: now - hour * 50,
+      viewportMax: now + hour * 50,
+    });
+    await nextTick();
+
+    const timeline = wrapper.find('.timeline');
+    flick(timeline.element);
+    await nextTick();
+
+    const emitted = wrapper.emitted('changeViewport')!;
+    const beforeFling = emitted[emitted.length - 1][0] as { start: number };
+
+    frame(1066);
+    frame(1082);
+    await nextTick();
+
+    const afterFling = emitted[emitted.length - 1][0] as { start: number };
+    expect(afterFling.start).toBeGreaterThan(beforeFling.start);
+  });
+
+  it('stops the fling on a wheel event', async () => {
+    const wrapper = mountTimeline();
+    await nextTick();
+
+    const timeline = wrapper.find('.timeline');
+    flick(timeline.element);
+    expect(pending.size).toBe(1);
+
+    await timeline.trigger('wheel', { deltaX: 0, deltaY: 10, deltaMode: 0 });
+    expect(pending.size).toBe(0);
+  });
+
+  it('does not fling when the gesture is cancelled', async () => {
+    const wrapper = mountTimeline();
+    await nextTick();
+
+    const timeline = wrapper.find('.timeline');
+    dispatchTouch(timeline.element, 'touchstart', [{ clientX: 500, clientY: 200 }], 1000);
+    dispatchTouch(timeline.element, 'touchmove', [{ clientX: 400, clientY: 200 }], 1016);
+    dispatchTouch(timeline.element, 'touchmove', [{ clientX: 300, clientY: 200 }], 1032);
+    dispatchTouch(timeline.element, 'touchcancel', [], 1034);
+
+    expect(pending.size).toBe(0);
+  });
+
+  it('does not fling when a pinch drops to one finger that lifts without moving', async () => {
+    const wrapper = mountTimeline();
+    await nextTick();
+
+    const timeline = wrapper.find('.timeline');
+    dispatchTouch(timeline.element, 'touchstart', [
+      { clientX: 300, clientY: 200, identifier: 0 },
+      { clientX: 700, clientY: 200, identifier: 1 },
+    ], 1000);
+    dispatchTouch(timeline.element, 'touchmove', [
+      { clientX: 200, clientY: 200, identifier: 0 },
+      { clientX: 800, clientY: 200, identifier: 1 },
+    ], 1016);
+    dispatchTouch(timeline.element, 'touchend', [{ clientX: 800, clientY: 200, identifier: 1 }], 1020);
+    dispatchTouch(timeline.element, 'touchend', [], 1030);
+
+    expect(pending.size).toBe(0);
+  });
+
+  it('stops the fling at the viewportMax boundary', async () => {
+    const wrapper = mountTimeline({
+      initialViewportStart: now,
+      initialViewportEnd: now + hour * 3,
+      viewportMin: now - hour,
+      viewportMax: now + hour * 4,
+    });
+    await nextTick();
+
+    const timeline = wrapper.find('.timeline');
+    flick(timeline.element);
+
+    let t = 1050;
+    let frames = 0;
+    while (pending.size > 0 && frames < 200) {
+      t += 16;
+      frame(t);
+      frames++;
+    }
+    await nextTick();
+
+    expect(frames).toBeLessThan(200); // the boundary ended the fling
+    const emitted = wrapper.emitted('changeViewport')!;
+    const last = emitted[emitted.length - 1][0] as { start: number; end: number };
+    expect(last.end).toBe(now + hour * 4);
   });
 });
 

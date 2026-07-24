@@ -32,7 +32,7 @@
 - **Infinite scrolling** — native horizontal scroll events *(shift+scroll to convert vertical to horizontal)*
 - **Flexible data** — plot ranges, points, markers and backgrounds
 - **Stacking** — overlapping items can be dynamically stacked
-- **Touch support** — smooth pinch-to-zoom and up to 2-finger panning
+- **Touch support** — smooth pinch-to-zoom and up to 2-finger panning (with momentum)
 - **Adjustable labels** — timestamp labels adapt per scale
 - **Minimal styling** — staying out of your way
 - **Customizable** — use events, slots, methods and CSS variables to adapt to your needs

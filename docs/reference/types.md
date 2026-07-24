@@ -17,6 +17,14 @@ The lane height and gap are controlled using the [`--item-stack-height`](/refere
 
 
 
+## TimelineMomentumOptions
+
+Options controlling the momentum (fling) of a released single-finger pan. Pass them to the [`momentum`](/reference/props) prop.
+
+<<< ../../src/types/timeline.ts#TimelineMomentum
+
+
+
 ## TimelineItem
 
 TimelineItems can be points, ranges, backgrounds or markers. They are assigned to a group's `id` by their `group` property.

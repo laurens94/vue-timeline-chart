@@ -60,6 +60,7 @@ export default defineConfig({
           { text: 'Types', link: '/reference/types', items: [
             { text: 'TimelineGroup', link: '/reference/types#timelinegroup' },
             { text: 'TimelineStackingOptions', link: '/reference/types#timelinestackingoptions' },
+            { text: 'TimelineMomentumOptions', link: '/reference/types#timelinemomentumoptions' },
             { text: 'TimelineItem', link: '/reference/types#timelineitem' },
             { text: 'TimelineMarker', link: '/reference/types#timelinemarker' },
             { text: 'TimelineScales', link: '/reference/types#timelinescales' },

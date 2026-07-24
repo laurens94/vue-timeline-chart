@@ -8,6 +8,7 @@
       @touchmove="onTouchMove"
       @touchstart="onTouchStart"
       @touchend="onTouchEnd"
+      @touchcancel="onTouchCancel"
       @pointermove="onPointerMove"
       @pointerdown="onPointerDown"
       @pointerup="onPointerUp"
@@ -159,9 +160,10 @@
   import { useScale } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
-  import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales, TimelineStackingOptions } from '../types/timeline.ts';
+  import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales, TimelineStackingOptions, TimelineMomentumOptions } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
+  import { useMomentum } from '../composables/useMomentum.ts';
   import { useStacking } from '../composables/useStacking.ts';
   import type { LaneAssignment } from '../helpers/stacking.ts';
 
@@ -179,6 +181,7 @@
     fixedLabels?: boolean;
     minTimestampWidth?: number;
     maxZoomSpeed?: number;
+    momentum?: TimelineMomentumOptions;
     activeItems?: TimelineItem['id'][];
     maxOffsetOutsideViewport?: number;
     scales?: TimelineScales[];
@@ -219,6 +222,7 @@
     fixedLabels: false,
     minTimestampWidth: 100,
     maxZoomSpeed: 60,
+    momentum: () => ({}),
     activeItems: () => [],
     maxOffsetOutsideViewport: 50,
     weekStartsOn: 0,
@@ -465,13 +469,13 @@
     return Math.min(actualItemWidth, maxItemWidth.value);
   }
 
-  function scrollHorizontal (delta: number, event: WheelEvent | TouchEvent) {
+  function scrollHorizontal (delta: number, event?: WheelEvent | TouchEvent) {
     const deltaMs = (delta / containerWidth.value) * viewportDuration.value;
     if (delta > 0 && props.viewportMax !== undefined && viewportEnd.value >= props.viewportMax) {
-      return;
+      return false;
     }
     if (delta < 0 && props.viewportMin !== undefined && viewportStart.value <= props.viewportMin) {
-      return;
+      return false;
     }
 
     let proposedStart = viewportStart.value + deltaMs;
@@ -492,9 +496,10 @@
 
     setViewport(proposedStart, proposedEnd);
 
-    if (event.type === 'wheel') {
+    if (event?.type === 'wheel') {
       onMouseMove(event as WheelEvent);
     }
+    return true;
   }
 
   function checkValidityOfProps () {
@@ -541,6 +546,7 @@
 
   function onWheel (e: WheelEvent) {
     checkValidityOfProps();
+    momentum.stop();
     emit('wheel', e);
 
     if (e.deltaY === 0) {
@@ -622,6 +628,11 @@
 
   const { state: touchState, setLastTouchX, setInitialTouchList } = useTouchEvents({ viewportStart, viewportEnd });
 
+  const momentum = useMomentum({
+    onFling: scrollHorizontal,
+    config: () => props.momentum,
+  });
+
   function onTouchMove (event: TouchEvent) {
     if (event.touches.length === 2 && touchState.initialPinchDistance !== null && touchState.initialTouchViewportStart !== null && touchState.initialTouchViewportEnd !== null) {
       const [touch1, touch2] = [...event.touches].sort((a, b) => a.clientX - b.clientX);
@@ -660,12 +671,20 @@
         scrollHorizontal(deltaX, event);
         setLastTouchX(event);
       }
+      momentum.track(touch.clientX, event.timeStamp);
     }
 
     emit('touchmove', { time: getPositionInMsOfUIEvent(event), event });
   }
 
   function onTouchStart (event: TouchEvent) {
+    // A new touch catches an ongoing fling; a single finger also seeds sampling.
+    if (event.touches.length === 1) {
+      momentum.reset(event.touches[0].clientX, event.timeStamp);
+    }
+    else {
+      momentum.stop();
+    }
     setInitialTouchList(event);
     setLastTouchX(event);
 
@@ -673,10 +692,28 @@
   }
 
   function onTouchEnd (event: TouchEvent) {
-    setLastTouchX(event);
-    setInitialTouchList(event);
+    if (event.touches.length === 0) {
+      momentum.release(event.timeStamp);
+    }
+    reseedTouchState(event);
 
     emit('touchend', { event });
+  }
+
+  // A cancelled gesture resets like touchend, but never flings.
+  function onTouchCancel (event: TouchEvent) {
+    momentum.stop();
+    reseedTouchState(event);
+  }
+
+  function reseedTouchState (event: TouchEvent) {
+    // Dropping from a pinch to one finger: reseed so the remaining finger's
+    // position doesn't register as a velocity spike.
+    if (event.touches.length === 1) {
+      momentum.reset(event.touches[0].clientX, event.timeStamp);
+    }
+    setLastTouchX(event);
+    setInitialTouchList(event);
   }
 
   function onPointerDown (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
