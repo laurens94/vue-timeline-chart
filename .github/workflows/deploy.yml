@@ -43,6 +43,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Build with VitePress
+        env:
+          VITE_DOCS_TRACKING_PIXEL_URL: ${{ vars.VITE_DOCS_TRACKING_PIXEL_URL }}
         run: |
           pnpm docs:build
           touch docs/.vitepress/dist/.nojekyll
