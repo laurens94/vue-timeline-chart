@@ -3,8 +3,8 @@
   import { computed, ref } from 'vue';
 
   const groups = [
-    { id: 'group1' },
-    { id: 'group2' },
+    { id: 'group1', label: 'Group 1' },
+    { id: 'group2', label: 'Group 2' },
   ];
   const markers = computed(() => {
     return [mouseHoverPosition.value ? {
@@ -15,11 +15,14 @@
   });
 
   const mouseHoverPosition = ref(null);
-  function onMousemoveTimeline ({ time }) {
+  const mouseHoverGroup = ref(null);
+  function onMousemoveTimeline ({ time, group }) {
     mouseHoverPosition.value = time;
+    mouseHoverGroup.value = group;
   }
   function onMouseleaveTimeline () {
     mouseHoverPosition.value = null;
+    mouseHoverGroup.value = null;
   }
 </script>
 
@@ -41,6 +44,7 @@
   </Timeline>
 
   {{ mouseHoverPosition ? new Date(mouseHoverPosition).toLocaleString() : 'Hover over the timeline to see the hover time' }}
+  {{ mouseHoverGroup ? `(${mouseHoverGroup.label})` : '' }}
 </template>
 
 <style scoped>

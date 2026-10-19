@@ -60,6 +60,7 @@
           :key="group.id"
           :class="['group', group.className]"
           :style="groupStyles.get(group.id)"
+          :data-group-id="group.id"
         >
           <div :class="['group-label', { fixed: fixedLabels }]">
             <slot name="group-label" :group="group">
@@ -232,17 +233,17 @@
   // #region Events
   const emit = defineEmits<{
     /** Pointermove event on the timeline */
-    pointermove: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    pointermove: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Pointerdown event on the timeline */
-    pointerdown: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    pointerdown: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Pointerup event on the timeline */
-    pointerup: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    pointerup: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Wheel event on the timeline */
     wheel: [event: WheelEvent];
     /** Click event on the timeline */
-    click: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null }];
+    click: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Right-click event on the timeline */
-    contextmenu: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null }];
+    contextmenu: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Touchmove event on the timeline */
     touchmove: [value: { time: number; event: TouchEvent }];
     /** Touchstart event on the timeline */
@@ -250,7 +251,7 @@
     /** Touchend event on the timeline */
     touchend: [value: { event: TouchEvent }];
     /** Mousemove event on the timeline */
-    mousemoveTimeline: [value: { time: number; event: MouseEvent }];
+    mousemoveTimeline: [value: { time: number; event: MouseEvent; group: GTimelineGroup | null }];
     /** Mouseleave event on the timeline */
     mouseleaveTimeline: [value: { event: MouseEvent }];
     /** Visible range has changed */
@@ -627,6 +628,15 @@
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
+  /** Returns the group that contains the target of the event, or null if the target is not in a group. */
+  function getGroupOfUIEvent (event: MouseEvent | PointerEvent) {
+    const groupEl = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-group-id]') : null;
+    if (!groupEl || !timelineEl.value?.contains(groupEl)) {
+      return null;
+    }
+    return props.groups.find(group => String(group.id) === groupEl.dataset.groupId) ?? null;
+  }
+
   const { state: touchState, setLastTouchX, setInitialTouchList } = useTouchEvents({ viewportStart, viewportEnd });
 
   const momentum = useMomentum({
@@ -718,27 +728,27 @@
   }
 
   function onPointerDown (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointerdown', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('pointerdown', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onPointerMove (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointermove', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('pointermove', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onPointerUp (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointerup', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('pointerup', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onClick (event: MouseEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('click', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('click', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onContextMenu (event: MouseEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('contextmenu', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('contextmenu', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onMouseMove (event: MouseEvent) {
-    emit('mousemoveTimeline', { time: getPositionInMsOfUIEvent(event), event });
+    emit('mousemoveTimeline', { time: getPositionInMsOfUIEvent(event), event, group: getGroupOfUIEvent(event) });
   }
 
   function onMouseLeave (event: MouseEvent) {

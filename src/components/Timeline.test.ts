@@ -428,6 +428,58 @@ describe('Timeline events', () => {
     expect(wrapper.emitted('mousemoveTimeline')).toBeTruthy();
   });
 
+  describe('group in event payload', () => {
+    it('is null when the event target is outside of a group', async () => {
+      const wrapper = mountTimeline();
+      await wrapper.find('.timestamps').trigger('mousemove');
+      await wrapper.find('.timestamps').trigger('click');
+
+      expect(wrapper.emitted('mousemoveTimeline')![0][0]).toHaveProperty('group', null);
+      expect(wrapper.emitted('click')![0][0]).toHaveProperty('group', null);
+    });
+
+    it('is the hovered group on mousemoveTimeline', async () => {
+      const wrapper = mountTimeline();
+      const groups = wrapper.findAll('.group');
+      await groups[1].trigger('mousemove');
+
+      expect(wrapper.emitted('mousemoveTimeline')![0][0]).toHaveProperty('group', baseGroups[1]);
+    });
+
+    it('is the group of the target on pointer, click and contextmenu events', async () => {
+      const wrapper = mountTimeline();
+      const label = wrapper.findAll('.group-label')[1];
+      for (const name of ['pointermove', 'pointerdown', 'pointerup', 'click', 'contextmenu'] as const) {
+        await label.trigger(name);
+        expect(wrapper.emitted(name)![0][0]).toMatchObject({ item: null, group: baseGroups[1] });
+      }
+    });
+
+    it('is the group of the item when the event target is an item', async () => {
+      const wrapper = mountTimeline();
+      await nextTick();
+      const item = wrapper.find('.item');
+      await item.trigger('click');
+      await item.trigger('pointermove');
+
+      for (const name of ['click', 'pointermove'] as const) {
+        const payload = wrapper.emitted(name)![0][0] as { item: TimelineItem; group: TimelineGroup };
+        expect(payload.item.group).toBe('group-1');
+        expect(payload.group).toEqual(baseGroups[0]);
+      }
+    });
+
+    it('is the group of the item when the event target is custom item slot content', async () => {
+      const wrapper = mountTimeline({}, {
+        item: () => h('span', { class: 'custom-content' }),
+      });
+      await nextTick();
+      await wrapper.find('.custom-content').trigger('click');
+
+      expect(wrapper.emitted('click')![0][0]).toHaveProperty('group', baseGroups[0]);
+    });
+  });
+
   it('emits mouseleaveTimeline on mouse leave', async () => {
     const wrapper = mountTimeline();
     const timeline = wrapper.find('.timeline');
