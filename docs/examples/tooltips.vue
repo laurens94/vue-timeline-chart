@@ -46,7 +46,7 @@
   >
     <template #item="{ item }">
       <div
-        style="inset: 0; position: absolute; padding: 0.2em 1em; color: white; font-weight: bold;"
+        class="title"
         :data-tippy-content="item.tooltip"
       >
         ⚑ {{ item.name }}
@@ -54,3 +54,15 @@
     </template>
   </Timeline>
 </template>
+
+<style scoped>
+  .title {
+    translate: clamp(0px, -1 * var(--_left), var(--_width) - 100%);
+    width: fit-content;
+    inset: 0;
+    position: absolute;
+    padding: 0.2em 1em;
+    color: white;
+    font-weight: bold;
+  }
+</style>
