@@ -654,7 +654,7 @@
     else {
       point = event;
     }
-    // The parent check skips groups of a timeline that is nested in a slot of this timeline.
+    // Only direct children of groupsEl are group rows of this timeline.
     for (const el of document.elementsFromPoint(point.clientX, point.clientY)) {
       if (el.parentElement === groupsEl.value && el instanceof HTMLElement && el.dataset.groupId !== undefined) {
         return groupsById.value.get(el.dataset.groupId) ?? null;
