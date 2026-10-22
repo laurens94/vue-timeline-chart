@@ -14,7 +14,7 @@ outline: deep
 > Because `group` comes from the position, it is also correct while you drag an item to a different group, with mouse and touch input. Touch events only give a `group` when there is one touch point. Use the pointer events to get the group of each touch point.
 
 > [!TIP]
-> Groups have a `data-group-id` attribute, and items and markers carry a `data-item-id` attribute. You can use them to find the group or item of an element, e.g. `event.target.closest('[data-item-id]')`.
+> The `onWheel` event handler is exposed as a method on the timeline component. This is useful when [syncing multiple timelines](/examples/synced-timelines.html).
 
 > [!TIP]
-> The `onWheel` event handler is exposed as a method on the timeline component. This is useful when [syncing multiple timelines](/examples/synced-timelines.html).
+> Groups have a `data-group-id` attribute, and items and markers carry a `data-item-id` attribute.
