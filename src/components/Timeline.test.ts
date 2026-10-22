@@ -8,6 +8,7 @@ import type { TimelineGroup, TimelineItem, TimelineMarker } from '../types/timel
 let resizeCallback: ((entries: ResizeObserverEntry[]) => void) | null = null;
 
 beforeEach(() => {
+  document.elementsFromPoint = () => [];
   resizeCallback = null;
   vi.stubGlobal('ResizeObserver', class {
     constructor (callback: (entries: ResizeObserverEntry[]) => void) {
@@ -443,54 +444,96 @@ describe('Timeline events', () => {
   });
 
   describe('group in event payload', () => {
-    it('is null when the event target is outside of a group', async () => {
+    function stubElementsFromPoint (el: Element) {
+      const stack: Element[] = [];
+      for (let current: Element | null = el; current; current = current.parentElement) {
+        stack.push(current);
+      }
+      const spy = vi.fn(() => stack);
+      document.elementsFromPoint = spy;
+      return spy;
+    }
+
+    it('is null when there is no group at the position', async () => {
       const wrapper = mountTimeline();
-      await wrapper.find('.timestamps').trigger('mousemove');
-      await wrapper.find('.timestamps').trigger('click');
+      stubElementsFromPoint(wrapper.find('.timestamps').element);
+      await wrapper.find('.timeline').trigger('mousemove');
+      await wrapper.find('.timeline').trigger('click');
 
       expect(wrapper.emitted('mousemoveTimeline')![0][0]).toHaveProperty('group', null);
       expect(wrapper.emitted('click')![0][0]).toHaveProperty('group', null);
     });
 
-    it('is the hovered group on mousemoveTimeline', async () => {
+    it('is the group at the position on mouse and pointer events', async () => {
       const wrapper = mountTimeline();
-      const groups = wrapper.findAll('.group');
-      await groups[1].trigger('mousemove');
-
-      expect(wrapper.emitted('mousemoveTimeline')![0][0]).toHaveProperty('group', baseGroups[1]);
-    });
-
-    it('is the group of the target on pointer, click and contextmenu events', async () => {
-      const wrapper = mountTimeline();
-      const label = wrapper.findAll('.group-label')[1];
-      for (const name of ['pointermove', 'pointerdown', 'pointerup', 'click', 'contextmenu'] as const) {
-        await label.trigger(name);
-        expect(wrapper.emitted(name)![0][0]).toMatchObject({ item: null, group: baseGroups[1] });
+      const spy = stubElementsFromPoint(wrapper.findAll('.group-label')[1].element);
+      const names = ['mousemove', 'pointermove', 'pointerdown', 'pointerup', 'click', 'contextmenu'] as const;
+      for (const name of names) {
+        await wrapper.find('.timeline').trigger(name, { clientX: 300, clientY: 80 });
+        expect(wrapper.emitted(name === 'mousemove' ? 'mousemoveTimeline' : name)![0][0]).toHaveProperty('group', baseGroups[1]);
       }
+      expect(spy).toHaveBeenCalledWith(300, 80);
     });
 
-    it('is the group of the item when the event target is an item', async () => {
+    it('uses the position and not the event target, so it works while the pointer is captured', async () => {
       const wrapper = mountTimeline();
       await nextTick();
-      const item = wrapper.find('.item');
-      await item.trigger('click');
-      await item.trigger('pointermove');
+      stubElementsFromPoint(wrapper.findAll('.group')[1].element);
+      // The item is in group-1, but the pointer is over group-2.
+      await wrapper.find('.item').trigger('pointermove');
 
-      for (const name of ['click', 'pointermove'] as const) {
-        const payload = wrapper.emitted(name)![0][0] as { item: TimelineItem; group: TimelineGroup };
-        expect(payload.item.group).toBe('group-1');
-        expect(payload.group).toEqual(baseGroups[0]);
-      }
+      const payload = wrapper.emitted('pointermove')![0][0] as { item: TimelineItem; group: TimelineGroup };
+      expect(payload.item.group).toBe('group-1');
+      expect(payload.group).toEqual(baseGroups[1]);
     });
 
-    it('is the group of the item when the event target is custom item slot content', async () => {
-      const wrapper = mountTimeline({}, {
-        item: () => h('span', { class: 'custom-content' }),
+    it('is the group at the touch position on touchstart and touchmove', async () => {
+      const wrapper = mountTimeline();
+      const spy = stubElementsFromPoint(wrapper.findAll('.group')[0].element);
+      const touches = makeTouchInit([{ clientX: 100, clientY: 50 }]);
+      await wrapper.find('.timeline').trigger('touchstart', touches);
+      await wrapper.find('.timeline').trigger('touchmove', touches);
+
+      expect(spy).toHaveBeenCalledWith(100, 50);
+      expect(wrapper.emitted('touchstart')![0][0]).toHaveProperty('group', baseGroups[0]);
+      expect(wrapper.emitted('touchmove')![0][0]).toHaveProperty('group', baseGroups[0]);
+    });
+
+    it('is null for multiple touch points', async () => {
+      const wrapper = mountTimeline();
+      const spy = stubElementsFromPoint(wrapper.findAll('.group')[0].element);
+      const touches = makeTouchInit([{ clientX: 100, clientY: 50 }, { clientX: 300, clientY: 70 }]);
+      await wrapper.find('.timeline').trigger('touchstart', touches);
+      await wrapper.find('.timeline').trigger('touchmove', touches);
+      await wrapper.find('.timeline').trigger('touchend', touches);
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(wrapper.emitted('touchstart')![0][0]).toHaveProperty('group', null);
+      expect(wrapper.emitted('touchmove')![0][0]).toHaveProperty('group', null);
+      expect(wrapper.emitted('touchend')![0][0]).toHaveProperty('group', null);
+    });
+
+    it('is the group at the position of the removed touch point on touchend', async () => {
+      const wrapper = mountTimeline();
+      const spy = stubElementsFromPoint(wrapper.findAll('.group')[1].element);
+      await wrapper.find('.timeline').trigger('touchend', {
+        ...makeTouchInit([{ clientX: 500, clientY: 10 }]),
+        changedTouches: makeTouchInit([{ clientX: 100, clientY: 90 }]).touches,
       });
-      await nextTick();
-      await wrapper.find('.custom-content').trigger('click');
 
-      expect(wrapper.emitted('click')![0][0]).toHaveProperty('group', baseGroups[0]);
+      expect(spy).toHaveBeenCalledWith(100, 90);
+      expect(wrapper.emitted('touchend')![0][0]).toHaveProperty('group', baseGroups[1]);
+    });
+
+    it('ignores elements with data-group-id that are not groups of this timeline', async () => {
+      const wrapper = mountTimeline();
+      const nestedGroup = document.createElement('div');
+      nestedGroup.dataset.groupId = 'group-1';
+      wrapper.find('.group-items').element.append(nestedGroup);
+      document.elementsFromPoint = () => [nestedGroup];
+      await wrapper.find('.timeline').trigger('mousemove');
+
+      expect(wrapper.emitted('mousemoveTimeline')![0][0]).toHaveProperty('group', null);
     });
   });
 
@@ -931,7 +974,7 @@ function makeTouchInit (touches: Array<{ clientX: number; clientY: number; ident
     item: (i: number) => touchList[i] ?? null,
     [Symbol.iterator]: touchList[Symbol.iterator].bind(touchList),
   });
-  return { touches: list };
+  return { touches: list, changedTouches: list };
 }
 
 describe('Timeline touch events', () => {

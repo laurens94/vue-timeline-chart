@@ -56,7 +56,7 @@
         </div>
       </div>
 
-      <div class="groups">
+      <div ref="groupsEl" class="groups">
         <div
           v-for="group in groups"
           :key="group.id"
@@ -252,11 +252,11 @@
     /** Right-click event on the timeline */
     contextmenu: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Touchmove event on the timeline */
-    touchmove: [value: { time: number; event: TouchEvent }];
+    touchmove: [value: { time: number; event: TouchEvent; group: GTimelineGroup | null }];
     /** Touchstart event on the timeline */
-    touchstart: [value: { time: number; event: TouchEvent }];
+    touchstart: [value: { time: number; event: TouchEvent; group: GTimelineGroup | null }];
     /** Touchend event on the timeline */
-    touchend: [value: { event: TouchEvent }];
+    touchend: [value: { event: TouchEvent; group: GTimelineGroup | null }];
     /** Mousemove event on the timeline */
     mousemoveTimeline: [value: { time: number; event: MouseEvent; group: GTimelineGroup | null }];
     /** Mouseleave event on the timeline */
@@ -277,6 +277,7 @@
   });
 
   const timelineEl = useTemplateRef('timelineEl');
+  const groupsEl = useTemplateRef('groupsEl');
   const { width: containerWidth } = useElementSize(timelineEl);
 
   const viewportStart = shallowRef<number>(0);
@@ -635,13 +636,31 @@
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
-  /** Returns the group that contains the target of the event, or null if the target is not in a group. */
-  function getGroupOfUIEvent (event: MouseEvent | PointerEvent) {
-    const groupEl = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-group-id]') : null;
-    if (!groupEl || !timelineEl.value?.contains(groupEl)) {
-      return null;
+  const groupsById = computed(() => new Map(props.groups.map(group => [String(group.id), group])));
+
+  /**
+   * Returns the group at the position where the mouse, pointer or touch event occurred, or null if there is no group at that position.
+   * Touch events only return a group for a single touch point. For touchend, the removed touch point is used.
+   */
+  function getGroupOfUIEvent (event: MouseEvent | PointerEvent | TouchEvent) {
+    let point: { clientX: number; clientY: number };
+    if ('touches' in event) {
+      const touches = event.type === 'touchend' ? event.changedTouches : event.touches;
+      if (touches.length !== 1) {
+        return null;
+      }
+      point = touches[0];
     }
-    return props.groups.find(group => String(group.id) === groupEl.dataset.groupId) ?? null;
+    else {
+      point = event;
+    }
+    // The parent check skips groups of a timeline that is nested in a slot of this timeline.
+    for (const el of document.elementsFromPoint(point.clientX, point.clientY)) {
+      if (el.parentElement === groupsEl.value && el instanceof HTMLElement && el.dataset.groupId !== undefined) {
+        return groupsById.value.get(el.dataset.groupId) ?? null;
+      }
+    }
+    return null;
   }
 
   const { state: touchState, setLastTouchX, setInitialTouchList } = useTouchEvents({ viewportStart, viewportEnd });
@@ -692,7 +711,7 @@
       momentum.track(touch.clientX, event.timeStamp);
     }
 
-    emit('touchmove', { time: getPositionInMsOfUIEvent(event), event });
+    emit('touchmove', { time: getPositionInMsOfUIEvent(event), event, group: getGroupOfUIEvent(event) });
   }
 
   function onTouchStart (event: TouchEvent) {
@@ -706,7 +725,7 @@
     setInitialTouchList(event);
     setLastTouchX(event);
 
-    emit('touchstart', { time: getPositionInMsOfUIEvent(event), event });
+    emit('touchstart', { time: getPositionInMsOfUIEvent(event), event, group: getGroupOfUIEvent(event) });
   }
 
   function onTouchEnd (event: TouchEvent) {
@@ -715,7 +734,7 @@
     }
     reseedTouchState(event);
 
-    emit('touchend', { event });
+    emit('touchend', { event, group: getGroupOfUIEvent(event) });
   }
 
   // A cancelled gesture resets like touchend, but never flings.
