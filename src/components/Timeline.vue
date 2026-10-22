@@ -38,6 +38,7 @@
         <div
           v-for="(item) in visibleMarkers.filter((item) => item.group === '_timestamps')"
           :key="item.id"
+          :data-item-id="item.id"
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
@@ -47,6 +48,7 @@
         <div
           v-for="(item) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
           :key="item.id"
+          :data-item-id="item.id"
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
@@ -54,12 +56,13 @@
         </div>
       </div>
 
-      <div class="groups">
+      <div ref="groupsEl" class="groups">
         <div
           v-for="group in groups"
           :key="group.id"
           :class="['group', group.className]"
           :style="groupStyles.get(group.id)"
+          :data-group-id="group.id"
         >
           <div :class="['group-label', { fixed: fixedLabels }]">
             <slot name="group-label" :group="group">
@@ -79,6 +82,7 @@
               <div
                 v-for="{ item, laneAssignment } in itemsByGroup.get(group.id) ?? []"
                 :key="item.id"
+                :data-item-id="item.id"
                 :style="getStyle(item)"
                 :class="['item', item.type, item.className, {
                   active: activeItems.includes(item.id),
@@ -104,6 +108,7 @@
           <div
             v-for="(item) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
             :key="item.id"
+            :data-item-id="item.id"
             :style="getStyle(item)"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -116,6 +121,7 @@
           <div
             v-for="(item) in visibleMarkers.filter((item) => item.group === group.id)"
             :key="item.id"
+            :data-item-id="item.id"
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
@@ -127,6 +133,7 @@
           <div
             v-for="(item) in visibleBackgroundsWithoutGroup"
             :key="item.id"
+            :data-item-id="item.id"
             :style="getStyle(item)"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -142,6 +149,7 @@
           <div
             v-for="(item) in visibleMarkersWithoutGroup"
             :key="item.id"
+            :data-item-id="item.id"
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
@@ -162,6 +170,7 @@
   import { useElementBounding } from '@vueuse/core';
   import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales, TimelineStackingOptions, TimelineMomentumOptions } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
+  import { findRowIndexAtPoint } from '../helpers/findRowIndexAtPoint.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
   import { useMomentum } from '../composables/useMomentum.ts';
   import { useStacking } from '../composables/useStacking.ts';
@@ -232,25 +241,25 @@
   // #region Events
   const emit = defineEmits<{
     /** Pointermove event on the timeline */
-    pointermove: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    pointermove: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Pointerdown event on the timeline */
-    pointerdown: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    pointerdown: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Pointerup event on the timeline */
-    pointerup: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null }];
+    pointerup: [value: { time: number; event: PointerEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Wheel event on the timeline */
     wheel: [event: WheelEvent];
     /** Click event on the timeline */
-    click: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null }];
+    click: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Right-click event on the timeline */
-    contextmenu: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null }];
+    contextmenu: [value: { time: number; event: MouseEvent; item: GTimelineItem | GTimelineMarker | null; group: GTimelineGroup | null }];
     /** Touchmove event on the timeline */
-    touchmove: [value: { time: number; event: TouchEvent }];
+    touchmove: [value: { time: number; event: TouchEvent; group: GTimelineGroup | null }];
     /** Touchstart event on the timeline */
-    touchstart: [value: { time: number; event: TouchEvent }];
+    touchstart: [value: { time: number; event: TouchEvent; group: GTimelineGroup | null }];
     /** Touchend event on the timeline */
-    touchend: [value: { event: TouchEvent }];
+    touchend: [value: { event: TouchEvent; group: GTimelineGroup | null }];
     /** Mousemove event on the timeline */
-    mousemoveTimeline: [value: { time: number; event: MouseEvent }];
+    mousemoveTimeline: [value: { time: number; event: MouseEvent; group: GTimelineGroup | null }];
     /** Mouseleave event on the timeline */
     mouseleaveTimeline: [value: { event: MouseEvent }];
     /** Visible range has changed */
@@ -269,6 +278,7 @@
   });
 
   const timelineEl = useTemplateRef('timelineEl');
+  const groupsEl = useTemplateRef('groupsEl');
   const { width: containerWidth } = useElementSize(timelineEl);
 
   const viewportStart = shallowRef<number>(0);
@@ -627,6 +637,30 @@
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
+  /**
+   * Returns the group at the position where the mouse, pointer or touch event occurred, or null if there is no group at that position.
+   * Touch events only return a group for a single touch point. For touchend, the removed touch point is used when no other touch point remains.
+   */
+  function getGroupOfUIEvent (event: MouseEvent | PointerEvent | TouchEvent) {
+    let point: { clientX: number; clientY: number };
+    if ('touches' in event) {
+      const isTouchEnd = event.type === 'touchend';
+      const touches = isTouchEnd ? event.changedTouches : event.touches;
+      if (touches.length !== 1 || (isTouchEnd && event.touches.length > 0)) {
+        return null;
+      }
+      point = touches[0];
+    }
+    else {
+      point = event;
+    }
+    if (!groupsEl.value) {
+      return null;
+    }
+    const index = findRowIndexAtPoint(groupsEl.value.children, props.groups.length, point);
+    return props.groups[index] ?? null;
+  }
+
   const { state: touchState, setLastTouchX, setInitialTouchList } = useTouchEvents({ viewportStart, viewportEnd });
 
   const momentum = useMomentum({
@@ -675,7 +709,7 @@
       momentum.track(touch.clientX, event.timeStamp);
     }
 
-    emit('touchmove', { time: getPositionInMsOfUIEvent(event), event });
+    emit('touchmove', { time: getPositionInMsOfUIEvent(event), event, group: getGroupOfUIEvent(event) });
   }
 
   function onTouchStart (event: TouchEvent) {
@@ -689,7 +723,7 @@
     setInitialTouchList(event);
     setLastTouchX(event);
 
-    emit('touchstart', { time: getPositionInMsOfUIEvent(event), event });
+    emit('touchstart', { time: getPositionInMsOfUIEvent(event), event, group: getGroupOfUIEvent(event) });
   }
 
   function onTouchEnd (event: TouchEvent) {
@@ -698,7 +732,7 @@
     }
     reseedTouchState(event);
 
-    emit('touchend', { event });
+    emit('touchend', { event, group: getGroupOfUIEvent(event) });
   }
 
   // A cancelled gesture resets like touchend, but never flings.
@@ -718,27 +752,27 @@
   }
 
   function onPointerDown (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointerdown', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('pointerdown', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onPointerMove (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointermove', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('pointermove', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onPointerUp (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('pointerup', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('pointerup', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onClick (event: MouseEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('click', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('click', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onContextMenu (event: MouseEvent, item: GTimelineItem | GTimelineMarker | null = null) {
-    emit('contextmenu', { time: getPositionInMsOfUIEvent(event), event, item });
+    emit('contextmenu', { time: getPositionInMsOfUIEvent(event), event, item, group: getGroupOfUIEvent(event) });
   }
 
   function onMouseMove (event: MouseEvent) {
-    emit('mousemoveTimeline', { time: getPositionInMsOfUIEvent(event), event });
+    emit('mousemoveTimeline', { time: getPositionInMsOfUIEvent(event), event, group: getGroupOfUIEvent(event) });
   }
 
   function onMouseLeave (event: MouseEvent) {
