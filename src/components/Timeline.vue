@@ -636,8 +636,6 @@
     return viewportStart.value + viewportDuration.value * mousePosXPercentage;
   }
 
-  const groupsById = computed(() => new Map(props.groups.map(group => [String(group.id), group])));
-
   /**
    * Returns the group at the position where the mouse, pointer or touch event occurred, or null if there is no group at that position.
    * Touch events only return a group for a single touch point. For touchend, the removed touch point is used.
@@ -654,10 +652,24 @@
     else {
       point = event;
     }
-    // Only direct children of groupsEl are group rows of this timeline.
-    for (const el of document.elementsFromPoint(point.clientX, point.clientY)) {
-      if (el.parentElement === groupsEl.value && el instanceof HTMLElement && el.dataset.groupId !== undefined) {
-        return groupsById.value.get(el.dataset.groupId) ?? null;
+    // binary search to find the group at the given point
+    const rows = groupsEl.value?.children;
+    if (!rows) {
+      return null;
+    }
+    let low = 0;
+    let high = props.groups.length - 1;
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2);
+      const rect = rows[middle].getBoundingClientRect();
+      if (point.clientY < rect.top) {
+        high = middle - 1;
+      }
+      else if (point.clientY >= rect.bottom) {
+        low = middle + 1;
+      }
+      else {
+        return point.clientX >= rect.left && point.clientX < rect.right ? props.groups[middle] : null;
       }
     }
     return null;
