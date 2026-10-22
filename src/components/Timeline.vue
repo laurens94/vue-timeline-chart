@@ -38,6 +38,7 @@
         <div
           v-for="(item) in visibleMarkers.filter((item) => item.group === '_timestamps')"
           :key="item.id"
+          :data-item-id="item.id"
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
@@ -47,6 +48,7 @@
         <div
           v-for="(item) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
           :key="item.id"
+          :data-item-id="item.id"
           :style="getStyle(item)"
           :class="[item.type, item.className]"
         >
@@ -80,6 +82,7 @@
               <div
                 v-for="{ item, laneAssignment } in itemsByGroup.get(group.id) ?? []"
                 :key="item.id"
+                :data-item-id="item.id"
                 :style="getStyle(item)"
                 :class="['item', item.type, item.className, {
                   active: activeItems.includes(item.id),
@@ -105,6 +108,7 @@
           <div
             v-for="(item) in visibleItems.filter((item) => item.group === group.id && item.type === 'background')"
             :key="item.id"
+            :data-item-id="item.id"
             :style="getStyle(item)"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -117,6 +121,7 @@
           <div
             v-for="(item) in visibleMarkers.filter((item) => item.group === group.id)"
             :key="item.id"
+            :data-item-id="item.id"
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >
@@ -128,6 +133,7 @@
           <div
             v-for="(item) in visibleBackgroundsWithoutGroup"
             :key="item.id"
+            :data-item-id="item.id"
             :style="getStyle(item)"
             :class="[item.type, item.className]"
             @click.stop="onClick($event, item)"
@@ -143,6 +149,7 @@
           <div
             v-for="(item) in visibleMarkersWithoutGroup"
             :key="item.id"
+            :data-item-id="item.id"
             :style="getStyle(item, true)"
             :class="[item.type, item.className]"
           >

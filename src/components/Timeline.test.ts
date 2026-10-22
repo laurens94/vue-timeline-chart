@@ -359,6 +359,20 @@ describe('Timeline rendering', () => {
       expect(bgContainer.findAll('.background').length).toBeGreaterThanOrEqual(1);
     });
   });
+
+  describe('data attributes', () => {
+    it('sets data-group-id on each group', () => {
+      const wrapper = mountTimeline();
+      expect(wrapper.findAll('.group').map(group => group.attributes('data-group-id'))).toEqual(['group-1', 'group-2']);
+    });
+
+    it('sets data-item-id on each item, background and marker', async () => {
+      const wrapper = mountTimeline();
+      await nextTick();
+      const ids = wrapper.findAll('[data-item-id]').map(el => el.attributes('data-item-id'));
+      expect(ids.sort()).toEqual([...baseItems, ...baseMarkers].map(item => item.id).sort());
+    });
+  });
 });
 
 // ─── Events ─────────────────────────────────────────────────────────────────────
