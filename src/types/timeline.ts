@@ -44,6 +44,18 @@ export interface TimelineStackingOptions {
 }
 // #endregion TimelineStacking
 
+// #region TimelineMomentum
+export interface TimelineMomentumOptions {
+  /** Whether a released single-finger pan keeps gliding. Defaults to `true`. */
+  enabled?: boolean;
+  /**
+   * Time constant of the glide's exponential decay, in ms: the time for its
+   * speed to drop to ~37%. Defaults to `200`.
+   */
+  timeConstant?: number;
+}
+// #endregion TimelineMomentum
+
 // #region TimelineItem
 export interface TimelineItemBase {
   /** Unique ID for the item, required for stability and performance */
@@ -99,7 +111,7 @@ export type TimelineBaseUnits = 'ms' | 'seconds' | 'minutes' | 'hours' | 'days' 
 export type TimelineScale = {
   unit: TimelineBaseUnits;
   step: number;
-}
+};
 // #endregion TimelineScale
 
 // #region TimelineScales
@@ -107,5 +119,5 @@ export type TimelineScale = {
 export type TimelineScales = {
   unit: TimelineBaseUnits;
   steps: number[];
-}
+};
 // #endregion TimelineScales

@@ -3,16 +3,32 @@ import { ref, computed, nextTick } from 'vue';
 import { useScale } from './useScale.ts';
 import type { TimelineScales } from '../types/timeline.ts';
 
-function ms(value: number) { return value; }
-function seconds(value: number) { return value * 1000; }
-function minutes(value: number) { return value * 60_000; }
-function hours(value: number) { return value * 3_600_000; }
-function days(value: number) { return value * 86_400_000; }
-function weeks(value: number) { return value * 7 * 86_400_000; }
-function months(value: number) { return value * 4 * 7 * 86_400_000; }
-function years(value: number) { return value * 12 * 4 * 7 * 86_400_000; }
+function ms (value: number) {
+  return value;
+}
+function seconds (value: number) {
+  return value * 1000;
+}
+function minutes (value: number) {
+  return value * 60_000;
+}
+function hours (value: number) {
+  return value * 3_600_000;
+}
+function days (value: number) {
+  return value * 86_400_000;
+}
+function weeks (value: number) {
+  return value * 7 * 86_400_000;
+}
+function months (value: number) {
+  return value * 4 * 7 * 86_400_000;
+}
+function years (value: number) {
+  return value * 12 * 4 * 7 * 86_400_000;
+}
 
-function createScale(opts: {
+function createScale (opts: {
   start: number;
   end: number;
   maxLabels?: number;
@@ -156,7 +172,7 @@ describe('useScale', () => {
       const { visibleTimestamps } = createScale({ start, end, scales: customScales });
 
       const halfMinuteTimestamps = visibleTimestamps.value.filter(
-        (ts) => new Date(ts).getSeconds() === 30,
+        ts => new Date(ts).getSeconds() === 30
       );
       expect(halfMinuteTimestamps.length).toBeGreaterThan(0);
     });
@@ -259,7 +275,7 @@ describe('useScale', () => {
 
       expect(scale.value.unit).toBe('ms');
       expect(visibleTimestamps.value).toEqual([1002, 1004, 1006, 1008]);
-      expect(visibleTimestamps.value.every((ts) => ts >= start && ts < end)).toBe(true);
+      expect(visibleTimestamps.value.every(ts => ts >= start && ts < end)).toBe(true);
     });
   });
 

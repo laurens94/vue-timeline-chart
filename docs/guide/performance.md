@@ -7,7 +7,7 @@ The biggest performance bottleneck occurs when zooming in/out, as the width of a
 
 Some measures are implemented to improve performance:
 
-- To prevent items from becoming too large, they are clamped to a maximum width (the viewportwidth + an offset). This offset can be adjusted using the `maxOffsetOutsideViewport` prop.
+- To prevent items from becoming too large, they are clamped to a maximum width (the viewportwidth + an offset). This offset can be adjusted using the [`maxOffsetOutsideViewport`](/reference/props#maxoffsetoutsideviewport) prop.
 
 - Scrolling or panning horizontally repositions the items using CSS transforms.
 

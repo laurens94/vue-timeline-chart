@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ref } from 'vue';
 import { useTouchEvents } from './useTouchEvents.ts';
 
-function makeTouchEvent(touches: Array<{ clientX: number; clientY: number; identifier?: number; screenX?: number; screenY?: number }>): TouchEvent {
+function makeTouchEvent (touches: Array<{ clientX: number; clientY: number; identifier?: number; screenX?: number; screenY?: number }>): TouchEvent {
   const touchList = touches.map((t, i) => ({
     clientX: t.clientX,
     clientY: t.clientY,
@@ -28,7 +28,7 @@ function makeTouchEvent(touches: Array<{ clientX: number; clientY: number; ident
 }
 
 describe('useTouchEvents', () => {
-  function create(start = 0, end = 10000) {
+  function create (start = 0, end = 10000) {
     const viewportStart = ref(start);
     const viewportEnd = ref(end);
     return useTouchEvents({ viewportStart, viewportEnd });

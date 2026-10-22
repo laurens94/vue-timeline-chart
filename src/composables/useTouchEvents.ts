@@ -4,7 +4,7 @@ import { getDistance } from '../helpers/getDistance.ts';
 /**
  * Helpers for touch events.
  */
-export function useTouchEvents ({ viewportStart, viewportEnd }: { viewportStart: Ref<number>, viewportEnd: Ref<number> }) {
+export function useTouchEvents ({ viewportStart, viewportEnd }: { viewportStart: Ref<number>; viewportEnd: Ref<number> }) {
   /** The last touch x position when there is only a single touch point */
   let lastTouchX: number | null = null;
 

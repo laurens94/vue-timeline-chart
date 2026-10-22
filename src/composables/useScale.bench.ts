@@ -5,7 +5,7 @@ import type { TimelineScales } from '../types/timeline.ts';
 
 const hour = 3_600_000;
 
-function createScale(start: number, end: number, maxLabels = 10) {
+function createScale (start: number, end: number, maxLabels = 10) {
   const viewportStart = ref(start);
   const viewportEnd = ref(end);
   const viewportDuration = computed(() => viewportEnd.value - viewportStart.value);
@@ -68,7 +68,7 @@ describe('useScale performance', () => {
       viewportDuration,
       maxLabelsInView,
       scales,
-      weekStartsOn,
+      weekStartsOn
     );
     visibleTimestamps.value;
   }, benchOpts);

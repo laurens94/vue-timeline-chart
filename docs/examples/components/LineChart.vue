@@ -10,7 +10,7 @@
   const props = defineProps<{
     viewportStart: number;
     viewportEnd: number;
-    data: { start: number; value: number; }[];
+    data: { start: number; value: number }[];
   }>();
 
   function initChart (start: number, end: number, data: typeof props.data) {
@@ -52,8 +52,9 @@
   }
 
   // Re-render chart when viewport changes:
-  watch(() => [props.viewportStart, props.viewportEnd],
-        () => initChart(props.viewportStart, props.viewportEnd, props.data)
+  watch(
+    () => [props.viewportStart, props.viewportEnd],
+    () => initChart(props.viewportStart, props.viewportEnd, props.data)
   );
 
   onMounted(() => {

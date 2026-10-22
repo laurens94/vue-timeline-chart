@@ -37,7 +37,9 @@
   const stackGapRem = shallowRef(0.25);
 
   const stacking = computed(() => {
-    if (!stackingEnabled.value) return undefined;
+    if (!stackingEnabled.value) {
+      return undefined;
+    }
     return {
       enabled: true,
       strategy: stackingStrategy.value,
@@ -114,13 +116,13 @@
 </template>
 
 <style scoped>
-:deep(.dynamic-stacking-height) {
-  /* Set the item-stack-height on the group, so that all item heights are based on the maximum lane count. */
-  --item-stack-height: calc((var(--group-items-height, 2em) - (var(--_lane-count, 1) - 1) * var(--item-stack-gap, 0.125em)) / var(--_lane-count, 1));
+  :deep(.dynamic-stacking-height) {
+    /* Set the item-stack-height on the group, so that all item heights are based on the maximum lane count. */
+    --item-stack-height: calc((var(--group-items-height, 2em) - (var(--_lane-count, 1) - 1) * var(--item-stack-gap, 0.125em)) / var(--_lane-count, 1));
 
-  .item.stacked {
-    /* Set the item-stack-height on the item-level, so that it is calculated based on the number of lanes in the stack. */
-    --item-stack-height: calc((var(--group-items-height, 2em) - (var(--_stack-count, 1) - 1) * var(--item-stack-gap, 0.125em)) / var(--_stack-count, 1));
+    .item.stacked {
+      /* Set the item-stack-height on the item-level, so that it is calculated based on the number of lanes in the stack. */
+      --item-stack-height: calc((var(--group-items-height, 2em) - (var(--_stack-count, 1) - 1) * var(--item-stack-gap, 0.125em)) / var(--_stack-count, 1));
+    }
   }
-}
 </style>

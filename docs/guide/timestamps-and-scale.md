@@ -10,7 +10,7 @@
 
 The timestamps that are displayed on the top of the timeline will snap to a certain unit of time, depending on the zoom level and some other factors.
 
-The `minTimestampWidth` prop sets a minimum width to prevent overlapping timestamps.
+The [`minTimestampWidth`](/reference/props#mintimestampwidth) prop sets a minimum width to prevent overlapping timestamps.
 
 `minTimestampWidth`: 
 <input type="range" v-model="minTimestampWidth" id="minTimestampWidth" min="10" max="150" /> (`{{ minTimestampWidth }}`)
@@ -37,7 +37,7 @@ The interval between the timestamps and which unit of time is being used, is int
 
 By default, the timestamps will snap to the scales below.
 
-The `scales` prop allows you to overwrite them.
+The [`scales`](/reference/props#scales) prop allows you to overwrite them.
 
 <<< ../../src/composables/useScale.ts#default-scales
 

@@ -7,7 +7,7 @@ type LaneCounts = Record<TimelineGroup['id'], { laneCount: number }>;
 /** Whether two lane-count summaries hold the same count for the same groups. */
 function sameLaneCounts (a: LaneCounts, b: LaneCounts) {
   const ids = Object.keys(a);
-  return ids.length === Object.keys(b).length && ids.every((id) => a[id]?.laneCount === b[id]?.laneCount);
+  return ids.length === Object.keys(b).length && ids.every(id => a[id]?.laneCount === b[id]?.laneCount);
 }
 
 export function useStacking (sources: {
@@ -28,7 +28,7 @@ export function useStacking (sources: {
         continue;
       }
       const items = toValue(options.strategy === 'viewport' ? sources.visibleItems : sources.items);
-      const stackableItemsInGroup = items.filter((item) => item.group === group.id && isStackable(item));
+      const stackableItemsInGroup = items.filter(item => item.group === group.id && isStackable(item));
       let minSpanMs = 0;
       if (options.collisionWidth > 0) {
         const pxPerMs = toValue(sources.pxPerMs);

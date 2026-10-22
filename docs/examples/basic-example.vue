@@ -11,7 +11,6 @@
   ];
 </script>
 
-
 <template>
   <!-- Add the component to your template, passing the items and groups as props: -->
   <Timeline

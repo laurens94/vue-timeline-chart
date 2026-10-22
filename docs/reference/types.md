@@ -8,12 +8,20 @@ TimelineGroups are the rows in the timeline with items.
 
 ## TimelineStackingOptions
 
-Options controlling vertical stacking of time-overlapping items. Pass them to the `stacking` prop, or to a group's `stacking` field to override the component-level options for that group.
+Options controlling vertical stacking of time-overlapping items. Pass them to the [`stacking`](/reference/props#stacking) prop, or to a group's `stacking` field to override the component-level options for that group.
 
 <<< ../../src/types/timeline.ts#TimelineStacking
 
 >[!NOTE]
 The lane height and gap are controlled using the [`--item-stack-height`](/reference/css-variables#stacking) and [`--item-stack-gap`](/reference/css-variables#stacking) CSS variables. The component also exposes `--_lane-count` and `--_stack-count`, allowing more control over the group and lane heights. See the [stacking items example](/examples/stacking-items) for details.
+
+
+
+## TimelineMomentumOptions
+
+Options controlling the momentum (fling) of a released single-finger pan. Pass them to the [`momentum`](/reference/props#momentum) prop.
+
+<<< ../../src/types/timeline.ts#TimelineMomentum
 
 
 
@@ -23,7 +31,7 @@ TimelineItems can be points, ranges, backgrounds or markers. They are assigned t
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | <Badge type="info" text="required" /> | Unique ID, to match with `activeItems` prop |
+| `id` | `string` | <Badge type="info" text="required" /> | Unique ID, to match with [`activeItems`](/reference/props#activeitems) prop |
 | `start` | `number` | <Badge type="info" text="required" /> | Timestamp |
 | `group` | `string` | `undefined` | `id` of the [TimelineGroup](#timelinegroup) to assign the item to |
 | `end` | `number` | <Badge type="info" text="required for range and background" /> | Timestamp, only used for type `range` and `background` |
@@ -39,7 +47,7 @@ To improve performance, you can add markers as an individual prop, instead of to
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `id` | `string` | `undefined` | Unique ID, to match with `activeItems` prop |
+| `id` | `string` | `undefined` | Unique ID, to match with [`activeItems`](/reference/props#activeitems) prop |
 | `type` | `string` | <Badge type="info" text="required" /> | `marker` |
 | `start` | `number` | <Badge type="info" text="required" /> | Timestamp |
 | `className` | `string` | `''` | CSS class(es) |

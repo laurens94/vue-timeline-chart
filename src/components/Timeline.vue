@@ -8,6 +8,7 @@
       @touchmove="onTouchMove"
       @touchstart="onTouchStart"
       @touchend="onTouchEnd"
+      @touchcancel="onTouchCancel"
       @pointermove="onPointerMove"
       @pointerdown="onPointerDown"
       @pointerup="onPointerUp"
@@ -76,13 +77,13 @@
               :stacking="stackingByGroup.get(group.id)"
             >
               <div
-                v-for="{ item, stacking } in itemsByGroup.get(group.id) ?? []"
+                v-for="{ item, laneAssignment } in itemsByGroup.get(group.id) ?? []"
                 :key="item.id"
                 :style="getStyle(item)"
                 :class="['item', item.type, item.className, {
                   active: activeItems.includes(item.id),
-                  stacked: !!stacking,
-                  overlapping: !!stacking?.isStacked,
+                  stacked: !!laneAssignment,
+                  overlapping: !!laneAssignment?.isStacked,
                 }]"
                 @click.stop="onClick($event, item)"
                 @pointermove.stop="onPointerMove($event, item)"
@@ -93,9 +94,9 @@
                 <slot
                   name="item"
                   :item="item"
-                  :lane="stacking?.lane ?? 0"
-                  :stackSize="stacking?.stackSize ?? 1"
-                  :isStacked="!!stacking?.isStacked"
+                  :lane="laneAssignment?.lane ?? 0"
+                  :stackSize="laneAssignment?.stackSize ?? 1"
+                  :isStacked="!!laneAssignment?.isStacked"
                 ></slot>
               </div>
             </slot>
@@ -159,9 +160,10 @@
   import { useScale } from '../composables/useScale.ts';
   import { startOfDay, startOfMonth, startOfYear } from 'date-fns';
   import { useElementBounding } from '@vueuse/core';
-  import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales, TimelineStackingOptions } from '../types/timeline.ts';
+  import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales, TimelineStackingOptions, TimelineMomentumOptions } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
+  import { useMomentum } from '../composables/useMomentum.ts';
   import { useStacking } from '../composables/useStacking.ts';
   import type { LaneAssignment } from '../helpers/stacking.ts';
 
@@ -175,16 +177,17 @@
     maxViewportDuration?: number;
     initialViewportStart?: number;
     initialViewportEnd?: number;
-    renderTimestampLabel?: (timestamp: number, scale: { unit: string, step: number}) => string;
+    renderTimestampLabel?: (timestamp: number, scale: { unit: string; step: number }) => string;
     fixedLabels?: boolean;
     minTimestampWidth?: number;
     maxZoomSpeed?: number;
+    momentum?: TimelineMomentumOptions;
     activeItems?: TimelineItem['id'][];
     maxOffsetOutsideViewport?: number;
     scales?: TimelineScales[];
     weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
     stacking?: TimelineStackingOptions;
-  }
+  };
 
   const props = withDefaults(defineProps<Props>(), {
     groups: () => [],
@@ -197,13 +200,13 @@
     maxViewportDuration: undefined,
     initialViewportStart: undefined,
     initialViewportEnd: undefined,
-    renderTimestampLabel: (timestamp: number, scale: { unit: string, step: number}) => {
+    renderTimestampLabel: (timestamp: number, scale: { unit: string; step: number }) => {
       const date = new Date(timestamp);
       let returnValue = '';
 
       if (!['hours', 'minutes', 'seconds', 'ms'].includes(scale.unit) || startOfDay(date).valueOf() === timestamp) {
         returnValue += `${date.toLocaleString('default', {
-          month: scale.unit !== 'years' && (startOfMonth(date).valueOf() === timestamp || scale.unit === 'days' || (startOfDay(date).valueOf() === timestamp) && !(scale.unit === 'months' && scale.step === 0.25)) ? 'short' : undefined,
+          month: scale.unit !== 'years' && (startOfMonth(date).valueOf() === timestamp || scale.unit === 'days' || ((startOfDay(date).valueOf() === timestamp) && !(scale.unit === 'months' && scale.step === 0.25))) ? 'short' : undefined,
           year: startOfYear(date).valueOf() === timestamp ? 'numeric' : undefined,
           era: startOfYear(date).valueOf() === timestamp && startOfYear(date).getFullYear() <= 0 ? 'short' : undefined,
           day: scale.unit !== 'years' && !(scale.unit === 'months' && scale.step >= 1) && startOfDay(date).valueOf() === timestamp ? 'numeric' : undefined,
@@ -219,6 +222,7 @@
     fixedLabels: false,
     minTimestampWidth: 100,
     maxZoomSpeed: 60,
+    momentum: () => ({}),
     activeItems: () => [],
     maxOffsetOutsideViewport: 50,
     weekStartsOn: 0,
@@ -279,12 +283,12 @@
   });
 
   watch(() => props.items, (value) => {
-    if (value.some((item) => item.id === undefined)) {
+    if (value.some(item => item.id === undefined)) {
       console.error(`[vue-timeline-chart] Some items are missing an \`id\` property. Please provide a unique ID for each item.`);
     }
   }, { immediate: true });
   watch(() => props.markers, (value) => {
-    if (value.some((marker) => marker.id === undefined)) {
+    if (value.some(marker => marker.id === undefined)) {
       console.error(`[vue-timeline-chart] Some markers are missing an \`id\` property. Please provide a unique ID for each marker.`);
     }
   }, { immediate: true });
@@ -333,10 +337,10 @@
     setViewport(props.initialViewportStart, props.initialViewportEnd);
   });
 
-  const visibleItems = computed(() => props.items.filter((item) => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start) || []);
-  const visibleMarkers = computed(() => props.markers.filter((item) => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
-  const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter((item) => !item.group));
-  const visibleBackgroundsWithoutGroup = computed(() => visibleItems.value.filter((item) => item.type === 'background' && !item.group));
+  const visibleItems = computed(() => props.items.filter(item => item.start < viewportEnd.value && (item.end ?? item.start) > viewportStart.value).sort((a, b) => a.start - b.start) || []);
+  const visibleMarkers = computed(() => props.markers.filter(item => item.start < viewportEnd.value && item.start > viewportStart.value).sort((a, b) => a.start - b.start) || []);
+  const visibleMarkersWithoutGroup = computed(() => visibleMarkers.value.filter(item => !item.group));
+  const visibleBackgroundsWithoutGroup = computed(() => visibleItems.value.filter(item => item.type === 'background' && !item.group));
 
   const {
     groupStyles,
@@ -350,15 +354,15 @@
     pxPerMs,
   });
 
-  watch(laneCountsByGroup, (counts) => emit('changeStacking', counts), { immediate: true });
+  watch(laneCountsByGroup, counts => emit('changeStacking', counts), { immediate: true });
 
   /** Visible non-background items per group, each paired with its resolved stacking (looked up once). */
   const itemsByGroup = computed(() => {
-    const map = new Map<TimelineGroup['id'], { item: GTimelineItem; stacking: LaneAssignment | undefined }[]>();
+    const map = new Map<TimelineGroup['id'], { item: GTimelineItem; laneAssignment: LaneAssignment | undefined }[]>();
     for (const group of props.groups) {
-      const stacking = stackingByGroup.value.get(group.id);
-      const filteredItems = visibleItems.value.filter((item) => item.group === group.id && item.type !== 'background');
-      map.set(group.id, filteredItems.map((item) => ({ item, stacking: stacking?.laneAssignmentsByItem.get(item.id) })));
+      const groupStackingResult = stackingByGroup.value.get(group.id);
+      const filteredItems = visibleItems.value.filter(item => item.group === group.id && item.type !== 'background');
+      map.set(group.id, filteredItems.map(item => ({ item, laneAssignment: groupStackingResult?.laneAssignmentsByItem.get(item.id) })));
     }
     return map;
   });
@@ -391,11 +395,11 @@
   });
 
   function styleObject (item: TimelineItem) {
-    const stacking = item.group ? stackingByGroup.value.get(item.group)?.laneAssignmentsByItem.get(item.id) : undefined;
+    const laneAssignment = item.group ? stackingByGroup.value.get(item.group)?.laneAssignmentsByItem.get(item.id) : undefined;
     return {
       '--_left': `${getLeftPos(item.start, item.end)}px`,
       '--_width': item.end !== undefined ? `${getItemWidth(item.start, item.end)}px` : undefined,
-      ...(stacking ? { '--_lane': stacking.lane, '--_stack-count': stacking.stackSize } : {}),
+      ...(laneAssignment ? { '--_lane': laneAssignment.lane, '--_stack-count': laneAssignment.stackSize } : {}),
       ...item.cssVariables,
     } satisfies CSSProperties;
   }
@@ -413,7 +417,7 @@
 
   const maxLabelsInView = computed(() => containerWidth.value / props.minTimestampWidth);
   const { visibleTimestamps, scale } = useScale(viewportStart, viewportEnd, viewportDuration, maxLabelsInView, computed(() => props.scales), computed(() => props.weekStartsOn));
-  const timestampLeftPositions = computed(() => visibleTimestamps.value.map((timestamp) => getLeftPos(timestamp)));
+  const timestampLeftPositions = computed(() => visibleTimestamps.value.map(timestamp => getLeftPos(timestamp)));
 
   watch(scale, (newVal, oldVal) => {
     if (newVal.step === oldVal?.step && newVal.unit === oldVal?.unit) {
@@ -465,13 +469,14 @@
     return Math.min(actualItemWidth, maxItemWidth.value);
   }
 
-  function scrollHorizontal (delta: number, event: WheelEvent | TouchEvent) {
+  /** Returns true if the viewport was scrolled, false if it was not. */
+  function scrollHorizontal (delta: number, event?: WheelEvent | TouchEvent): boolean {
     const deltaMs = (delta / containerWidth.value) * viewportDuration.value;
     if (delta > 0 && props.viewportMax !== undefined && viewportEnd.value >= props.viewportMax) {
-      return;
+      return false;
     }
     if (delta < 0 && props.viewportMin !== undefined && viewportStart.value <= props.viewportMin) {
-      return;
+      return false;
     }
 
     let proposedStart = viewportStart.value + deltaMs;
@@ -492,9 +497,10 @@
 
     setViewport(proposedStart, proposedEnd);
 
-    if (event.type === 'wheel') {
+    if (event?.type === 'wheel') {
       onMouseMove(event as WheelEvent);
     }
+    return true;
   }
 
   function checkValidityOfProps () {
@@ -541,6 +547,7 @@
 
   function onWheel (e: WheelEvent) {
     checkValidityOfProps();
+    momentum.stop();
     emit('wheel', e);
 
     if (e.deltaY === 0) {
@@ -571,7 +578,7 @@
     zoom(zoomDelta, mousePosXPercentage, e);
   }
 
-  function zoom (zoomDeltaInMs: number, mousePosXPercentage = .5, event: WheelEvent) {
+  function zoom (zoomDeltaInMs: number, mousePosXPercentage = 0.5, event: WheelEvent) {
     // limit zoomDelta so that it can never zoom with more ms than the viewportDuration:
     if (zoomDeltaInMs > 0) {
       // zooming in
@@ -622,6 +629,11 @@
 
   const { state: touchState, setLastTouchX, setInitialTouchList } = useTouchEvents({ viewportStart, viewportEnd });
 
+  const momentum = useMomentum({
+    onFling: scrollHorizontal,
+    config: () => props.momentum,
+  });
+
   function onTouchMove (event: TouchEvent) {
     if (event.touches.length === 2 && touchState.initialPinchDistance !== null && touchState.initialTouchViewportStart !== null && touchState.initialTouchViewportEnd !== null) {
       const [touch1, touch2] = [...event.touches].sort((a, b) => a.clientX - b.clientX);
@@ -660,12 +672,20 @@
         scrollHorizontal(deltaX, event);
         setLastTouchX(event);
       }
+      momentum.track(touch.clientX, event.timeStamp);
     }
 
     emit('touchmove', { time: getPositionInMsOfUIEvent(event), event });
   }
 
   function onTouchStart (event: TouchEvent) {
+    // A new touch catches an ongoing fling; a single finger also seeds sampling.
+    if (event.touches.length === 1) {
+      momentum.reset(event.touches[0].clientX, event.timeStamp);
+    }
+    else {
+      momentum.stop();
+    }
     setInitialTouchList(event);
     setLastTouchX(event);
 
@@ -673,10 +693,28 @@
   }
 
   function onTouchEnd (event: TouchEvent) {
-    setLastTouchX(event);
-    setInitialTouchList(event);
+    if (event.touches.length === 0) {
+      momentum.release(event.timeStamp);
+    }
+    reseedTouchState(event);
 
     emit('touchend', { event });
+  }
+
+  // A cancelled gesture resets like touchend, but never flings.
+  function onTouchCancel (event: TouchEvent) {
+    momentum.stop();
+    reseedTouchState(event);
+  }
+
+  function reseedTouchState (event: TouchEvent) {
+    // Dropping from a pinch to one finger: reseed so the remaining finger's
+    // position doesn't register as a velocity spike.
+    if (event.touches.length === 1) {
+      momentum.reset(event.touches[0].clientX, event.timeStamp);
+    }
+    setLastTouchX(event);
+    setInitialTouchList(event);
   }
 
   function onPointerDown (event: PointerEvent, item: GTimelineItem | GTimelineMarker | null = null) {

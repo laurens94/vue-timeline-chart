@@ -10,6 +10,9 @@
   let previousDragTimePos = 0;
   let currentDragAction: 'resize-start' | 'resize-both' | 'resize-end' | undefined;
   const draggingId = ref<string | null>(null);
+  // Pointers currently down, so a drag only runs with a single finger (a second
+  // finger is a pinch-zoom, not a resize).
+  const activePointers = new Set<number>();
   // Item starts captured at grab time, used to freeze the lane order while dragging.
   let frozenStartById = new Map<string, number>();
 
@@ -24,6 +27,12 @@
 
   function handleItemDrag ({ time, event, item }) {
     if (event.type === 'pointerdown') {
+      activePointers.add(event.pointerId);
+      // A second finger means a pinch — cancel any drag and don't start one.
+      if (activePointers.size > 1) {
+        draggingId.value = null;
+        return;
+      }
       if (!event.target.dataset.action) {
         return;
       }
@@ -47,9 +56,20 @@
     }
   }
 
-  window.addEventListener('pointerup', () => {
+  function endPointer (event: PointerEvent) {
+    activePointers.delete(event.pointerId);
     draggingId.value = null;
-  }, { capture: true });
+  }
+  window.addEventListener('pointerup', endPointer, { capture: true });
+  window.addEventListener('pointercancel', endPointer, { capture: true });
+
+  // Suppress viewport panning for a single-finger drag, but let multi-touch
+  // through so pinch-zoom still works.
+  function onItemTouch (event: TouchEvent) {
+    if (event.touches.length === 1) {
+      event.stopPropagation();
+    }
+  }
 </script>
 
 <template>
@@ -63,7 +83,11 @@
     @pointerdown="handleItemDrag"
   >
     <template #item>
-      <div class="draggable" data-action="resize-both">
+      <div
+        class="draggable"
+        data-action="resize-both"
+        @touchmove="onItemTouch"
+      >
         <div class="draggable-handle" data-action="resize-start"></div>
         <div class="draggable-handle" data-action="resize-end"></div>
       </div>
@@ -78,10 +102,12 @@
     display: flex;
     justify-content: space-between;
     cursor: move;
+    touch-action: none;
 
     .draggable-handle {
       width: 1rem;
       cursor: ew-resize;
+      touch-action: none;
       background: rgba(255, 255, 255, 0.4);
 
       &:hover {

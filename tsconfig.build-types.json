@@ -4,7 +4,8 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "rootDir": "./src"
   },
   "include": [
     "src/**/*"
@@ -13,6 +14,8 @@
     "node_modules",
     "**/*.cy.ts",
     "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.bench.ts",
     "**/__tests__/**/*"
   ]
 }

@@ -6,8 +6,6 @@
   <a href="https://github.com/laurens94/vue-timeline-chart"><img src="https://badgen.net/github/release/laurens94/vue-timeline-chart" alt="GitHub release"></a>
   <a href="https://www.npmjs.com/package/vue-timeline-chart"><img src="https://badgen.net/npm/v/vue-timeline-chart" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/vue-timeline-chart"><img src="https://badgen.net/npm/dm/vue-timeline-chart" alt="downloads/month"></a>
-  <a href="https://bundlephobia.com/package/vue-timeline-chart"><img src="https://badgen.net/bundlephobia/min/vue-timeline-chart" alt="minified size"></a>
-  <a href="https://bundlephobia.com/package/vue-timeline-chart"><img src="https://badgen.net/bundlephobia/dependency-count/vue-timeline-chart" alt="dependency count"></a>
   <a href="https://github.com/laurens94/vue-timeline-chart/blob/main/LICENSE"><img src="https://badgen.net/github/license/laurens94/vue-timeline-chart" alt="license"></a>
 </p>
 <p align="center">
@@ -32,7 +30,7 @@
 - **Infinite scrolling** — native horizontal scroll events *(shift+scroll to convert vertical to horizontal)*
 - **Flexible data** — plot ranges, points, markers and backgrounds
 - **Stacking** — overlapping items can be dynamically stacked
-- **Touch support** — smooth pinch-to-zoom and up to 2-finger panning
+- **Touch support** — smooth pinch-to-zoom and up to 2-finger panning (with momentum)
 - **Adjustable labels** — timestamp labels adapt per scale
 - **Minimal styling** — staying out of your way
 - **Customizable** — use events, slots, methods and CSS variables to adapt to your needs

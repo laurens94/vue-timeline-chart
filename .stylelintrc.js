@@ -5,12 +5,13 @@ export default {
     'stylelint-config-recommended-vue',
   ],
   plugins: [
-    "@stylistic/stylelint-plugin"
+    '@stylistic/stylelint-plugin',
   ],
+  ignoreFiles: ['**/dist/**', '**/coverage/**', '**/docs/.vitepress/cache/**'],
   rules: {
     'no-descending-specificity': null,
-    "@stylistic/selector-combinator-space-before": "always",
-    "@stylistic/max-line-length": null,
+    '@stylistic/selector-combinator-space-before': 'always',
+    '@stylistic/max-line-length': null,
     'custom-property-pattern': [
       '^_?(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)*)$',
       {
@@ -18,16 +19,16 @@ export default {
       },
     ],
   },
-  defaultSeverity: "warning",
+  defaultSeverity: 'warning',
   overrides: [
     {
       files: [
-        "**/*.vue"
+        '**/*.vue',
       ],
       rules: {
-        "@stylistic/indentation": [2, { baseIndentLevel: 1 }],
+        '@stylistic/indentation': [2, { baseIndentLevel: 1 }],
       },
-      customSyntax: "postcss-html"
-    }
-  ]
-}
+      customSyntax: 'postcss-html',
+    },
+  ],
+};

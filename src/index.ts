@@ -13,4 +13,5 @@ export type {
   TimelineScale,
   TimelineScales,
   TimelineStackingOptions,
+  TimelineMomentumOptions,
 } from './types/timeline.ts';

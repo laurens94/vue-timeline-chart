@@ -39,7 +39,7 @@ const DEFAULT_STACKING: EffectiveStackingOptions = {
 /** Merge component options, group options and defaults. */
 export function mergeStackingOptions (
   componentOptions: TimelineStackingOptions | undefined,
-  groupOptions: TimelineStackingOptions | undefined,
+  groupOptions: TimelineStackingOptions | undefined
 ): EffectiveStackingOptions {
   return { ...DEFAULT_STACKING, ...componentOptions, ...groupOptions };
 }
@@ -65,12 +65,12 @@ function effectiveItemSpan (item: TimelineItem, minSpanMs: number) {
  */
 export function assignLanes (
   items: TimelineItem[],
-  options: { compare?: (a: TimelineItem, b: TimelineItem) => number; minSpanMs?: number; maxLanes?: number } = {},
+  options: { compare?: (a: TimelineItem, b: TimelineItem) => number; minSpanMs?: number; maxLanes?: number } = {}
 ): GroupStackingResult {
   const minSpanMs = options.minSpanMs ?? 0;
   const maxLanes = Math.max(1, Math.floor(options.maxLanes ?? Infinity));
 
-  const intervals = items.map((item) => ({
+  const intervals = items.map(item => ({
     item,
     ...effectiveItemSpan(item, minSpanMs),
     lane: 0,
