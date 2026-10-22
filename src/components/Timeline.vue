@@ -170,6 +170,7 @@
   import { useElementBounding } from '@vueuse/core';
   import type { TimelineItem, TimelineGroup, TimelineMarker, TimelineScale, TimelineScales, TimelineStackingOptions, TimelineMomentumOptions } from '../types/timeline.ts';
   import { getDistance } from '../helpers/getDistance.ts';
+  import { findRowIndexAtPoint } from '../helpers/findRowIndexAtPoint.ts';
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
   import { useMomentum } from '../composables/useMomentum.ts';
   import { useStacking } from '../composables/useStacking.ts';
@@ -638,13 +639,14 @@
 
   /**
    * Returns the group at the position where the mouse, pointer or touch event occurred, or null if there is no group at that position.
-   * Touch events only return a group for a single touch point. For touchend, the removed touch point is used.
+   * Touch events only return a group for a single touch point. For touchend, the removed touch point is used when no other touch point remains.
    */
   function getGroupOfUIEvent (event: MouseEvent | PointerEvent | TouchEvent) {
     let point: { clientX: number; clientY: number };
     if ('touches' in event) {
-      const touches = event.type === 'touchend' ? event.changedTouches : event.touches;
-      if (touches.length !== 1) {
+      const isTouchEnd = event.type === 'touchend';
+      const touches = isTouchEnd ? event.changedTouches : event.touches;
+      if (touches.length !== 1 || (isTouchEnd && event.touches.length > 0)) {
         return null;
       }
       point = touches[0];
@@ -652,27 +654,11 @@
     else {
       point = event;
     }
-    // binary search to find the group at the given point
-    const rows = groupsEl.value?.children;
-    if (!rows) {
+    if (!groupsEl.value) {
       return null;
     }
-    let low = 0;
-    let high = props.groups.length - 1;
-    while (low <= high) {
-      const middle = Math.floor((low + high) / 2);
-      const rect = rows[middle].getBoundingClientRect();
-      if (point.clientY < rect.top) {
-        high = middle - 1;
-      }
-      else if (point.clientY >= rect.bottom) {
-        low = middle + 1;
-      }
-      else {
-        return point.clientX >= rect.left && point.clientX < rect.right ? props.groups[middle] : null;
-      }
-    }
-    return null;
+    const index = findRowIndexAtPoint(groupsEl.value.children, props.groups.length, point);
+    return props.groups[index] ?? null;
   }
 
   const { state: touchState, setLastTouchX, setInitialTouchList } = useTouchEvents({ viewportStart, viewportEnd });

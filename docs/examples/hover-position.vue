@@ -1,6 +1,6 @@
 // @noErrors
 <script setup>
-  import { computed, ref } from 'vue';
+  import { computed, shallowRef } from 'vue';
 
   const groups = [
     { id: 'group1', label: 'Group 1' },
@@ -14,8 +14,8 @@
     } : null].filter(Boolean);
   });
 
-  const mouseHoverPosition = ref(null);
-  const mouseHoverGroup = ref(null);
+  const mouseHoverPosition = shallowRef(null);
+  const mouseHoverGroup = shallowRef(null);
   function onMousemoveTimeline ({ time, group }) {
     mouseHoverPosition.value = time;
     mouseHoverGroup.value = group;
