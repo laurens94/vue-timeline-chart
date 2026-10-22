@@ -35,6 +35,7 @@
     :markers="markers"
     @mousemoveTimeline="onMousemoveTimeline"
     @mouseleaveTimeline="onMouseleaveTimeline"
+    @touchmove="onMousemoveTimeline"
   >
     <template #marker="{item}">
       <div class="marker-content">
