@@ -36,6 +36,7 @@
     @mousemoveTimeline="onMousemoveTimeline"
     @mouseleaveTimeline="onMouseleaveTimeline"
     @touchmove="onMousemoveTimeline"
+    @touchend="onMouseleaveTimeline"
   >
     <template #marker="{item}">
       <div class="marker-content">
