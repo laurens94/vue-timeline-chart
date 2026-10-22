@@ -355,17 +355,17 @@
     debug.firedEvents.push(message);
   }
 
-  function onTimelineEvent ({ time, event, item }: { time?: number; event: MouseEvent | TouchEvent; item?: TimelineItem | null }) {
-    logEvent(`${event.type} (${time ?? '—'}) ${item?.id ?? ''}`);
+  function onTimelineEvent ({ time, event, item, group }: { time?: number; event: MouseEvent | TouchEvent; item?: TimelineItem | null; group?: TimelineGroup | null }) {
+    logEvent(`${event.type} (${time ?? '—'}) ${item?.id ?? ''} ${group?.id ?? ''}`);
   }
 
   function onWheel (event: WheelEvent) {
     logEvent(`wheel (Δy: ${event.deltaY}, Δx: ${event.deltaX})`);
   }
 
-  function onMousemoveTimeline ({ time }: { time: number }) {
+  function onMousemoveTimeline ({ time, group }: { time: number; group: TimelineGroup | null }) {
     mouseHoverPosition.value = time;
-    logEvent(`mousemoveTimeline (${time})`);
+    logEvent(`mousemoveTimeline (${time}) ${group?.id ?? ''}`);
     document.body.classList.add('disable-overscroll-behavior-x');
   }
 
