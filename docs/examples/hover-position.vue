@@ -1,10 +1,10 @@
 // @noErrors
 <script setup>
-  import { computed, ref } from 'vue';
+  import { computed, shallowRef } from 'vue';
 
   const groups = [
-    { id: 'group1' },
-    { id: 'group2' },
+    { id: 'group1', label: 'Group 1' },
+    { id: 'group2', label: 'Group 2' },
   ];
   const markers = computed(() => {
     return [mouseHoverPosition.value ? {
@@ -14,12 +14,15 @@
     } : null].filter(Boolean);
   });
 
-  const mouseHoverPosition = ref(null);
-  function onMousemoveTimeline ({ time }) {
+  const mouseHoverPosition = shallowRef(null);
+  const mouseHoverGroup = shallowRef(null);
+  function onMousemoveTimeline ({ time, group }) {
     mouseHoverPosition.value = time;
+    mouseHoverGroup.value = group;
   }
   function onMouseleaveTimeline () {
     mouseHoverPosition.value = null;
+    mouseHoverGroup.value = null;
   }
 </script>
 
@@ -32,6 +35,8 @@
     :markers="markers"
     @mousemoveTimeline="onMousemoveTimeline"
     @mouseleaveTimeline="onMouseleaveTimeline"
+    @touchmove="onMousemoveTimeline"
+    @touchend="onMouseleaveTimeline"
   >
     <template #marker="{item}">
       <div class="marker-content">
@@ -41,6 +46,7 @@
   </Timeline>
 
   {{ mouseHoverPosition ? new Date(mouseHoverPosition).toLocaleString() : 'Hover over the timeline to see the hover time' }}
+  {{ mouseHoverGroup ? `(${mouseHoverGroup.label})` : '' }}
 </template>
 
 <style scoped>
