@@ -284,7 +284,7 @@
     /** Group label */
     'group-label'?: (props: { group: GTimelineGroup }) => unknown;
     /** Items of a group within the viewport */
-    [name: `items-${string}`]: (props: { group: GTimelineGroup; itemsInViewport: GTimelineItem[]; viewportStart: number; viewportEnd: number; stacking: GroupStackingResult | undefined }) => unknown;
+    [name: `items-${string}`]: ((props: { group: GTimelineGroup; itemsInViewport: GTimelineItem[]; viewportStart: number; viewportEnd: number; stacking: GroupStackingResult | undefined }) => unknown) | undefined;
     /** Item */
     'item'?: (props: { item: GTimelineItem; lane: number; stackSize: number; isStacked: boolean }) => unknown;
   }>();
