@@ -46,7 +46,7 @@
         </div>
 
         <div
-          v-for="(item) in visibleItems.filter((item) => item.group === '_timestamps' && item.type === 'marker')"
+          v-for="(item) in visibleItems.filter((item): item is Extract<GTimelineItem, TimelineMarker> => item.group === '_timestamps' && item.type === 'marker')"
           :key="item.id"
           :data-item-id="item.id"
           :style="getStyle(item)"
