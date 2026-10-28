@@ -1,4 +1,4 @@
-import { bench, describe } from 'vitest';
+import { test } from 'vitest';
 import { assignLanes } from './stacking.ts';
 import type { TimelineItem } from '../types/timeline.ts';
 
@@ -13,16 +13,19 @@ function makeItems (count: number, maxOverlap: number): TimelineItem[] {
   return items;
 }
 
-describe('assignLanes performance', () => {
-  bench('1000 items, shallow overlap', () => {
-    assignLanes(makeItems(1000, 2));
-  }, benchOpts);
+test('assignLanes performance', async ({ bench }) => {
+  await bench.compare(
+    bench('1000 items, shallow overlap', () => {
+      assignLanes(makeItems(1000, 2));
+    }),
 
-  bench('1000 items, deep overlap', () => {
-    assignLanes(makeItems(1000, 20));
-  }, benchOpts);
+    bench('1000 items, deep overlap', () => {
+      assignLanes(makeItems(1000, 20));
+    }),
 
-  bench('5000 items, shallow overlap', () => {
-    assignLanes(makeItems(5000, 2));
-  }, benchOpts);
+    bench('5000 items, shallow overlap', () => {
+      assignLanes(makeItems(5000, 2));
+    }),
+    benchOpts
+  );
 });

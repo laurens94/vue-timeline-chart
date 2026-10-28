@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { mount, type ComponentMountingOptions } from '@vue/test-utils';
 import { nextTick, h } from 'vue';
 import Timeline from './Timeline.vue';
 import type { TimelineGroup, TimelineItem, TimelineMarker } from '../types/timeline.ts';
@@ -46,7 +46,7 @@ const baseMarkers: TimelineMarker[] = [
   { id: 'marker-ts', type: 'marker', start: now + hour, group: '_timestamps' },
 ];
 
-function mountTimeline (props: Record<string, unknown> = {}, slots?: Record<string, unknown>) {
+function mountTimeline (props: Record<string, unknown> = {}, slots?: ComponentMountingOptions<typeof Timeline>['slots']) {
   return mount(Timeline, {
     props: {
       groups: baseGroups,

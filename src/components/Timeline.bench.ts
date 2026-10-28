@@ -1,6 +1,5 @@
-import { bench, describe } from 'vitest';
+import { test, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { vi } from 'vitest';
 import { nextTick } from 'vue';
 import Timeline from './Timeline.vue';
 import type { TimelineGroup, TimelineItem, TimelineMarker } from '../types/timeline.ts';
@@ -66,66 +65,72 @@ function mountWith (items: TimelineItem[]) {
 
 const benchOpts = { time: 5000, warmupTime: 1000, warmupIterations: 10 };
 
-describe('Timeline mount performance', () => {
-  bench('mount with 100 items', async () => {
-    const wrapper = mountWith(items100);
-    await nextTick();
-    wrapper.unmount();
-  }, benchOpts);
+test('Timeline mount performance', async ({ bench }) => {
+  await bench.compare(
+    bench('mount with 100 items', async () => {
+      const wrapper = mountWith(items100);
+      await nextTick();
+      wrapper.unmount();
+    }),
 
-  bench('mount with 1,000 items', async () => {
-    const wrapper = mountWith(items1k);
-    await nextTick();
-    wrapper.unmount();
-  }, benchOpts);
+    bench('mount with 1,000 items', async () => {
+      const wrapper = mountWith(items1k);
+      await nextTick();
+      wrapper.unmount();
+    }),
 
-  bench('mount with 10,000 items', async () => {
-    const wrapper = mountWith(items10k);
-    await nextTick();
-    wrapper.unmount();
-  }, benchOpts);
+    bench('mount with 10,000 items', async () => {
+      const wrapper = mountWith(items10k);
+      await nextTick();
+      wrapper.unmount();
+    }),
+    benchOpts
+  );
 });
 
-describe('Timeline viewport panning performance', () => {
-  bench('pan 50 steps with 1,000 items', async () => {
-    const wrapper = mountWith(items1k);
-    await nextTick();
+test('Timeline viewport panning performance', async ({ bench }) => {
+  await bench.compare(
+    bench('pan 50 steps with 1,000 items', async () => {
+      const wrapper = mountWith(items1k);
+      await nextTick();
 
-    const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
-    const step = hour * 0.2;
-    let start = now;
-    let end = now + hour * 4;
+      const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
+      const step = hour * 0.2;
+      let start = now;
+      let end = now + hour * 4;
 
-    for (let i = 0; i < 50; i++) {
-      start += step;
-      end += step;
-      vm.setViewport(start, end);
-    }
-    await nextTick();
-    wrapper.unmount();
-  }, benchOpts);
+      for (let i = 0; i < 50; i++) {
+        start += step;
+        end += step;
+        vm.setViewport(start, end);
+      }
+      await nextTick();
+      wrapper.unmount();
+    }),
 
-  bench('pan 50 steps with 10,000 items', async () => {
-    const wrapper = mountWith(items10k);
-    await nextTick();
+    bench('pan 50 steps with 10,000 items', async () => {
+      const wrapper = mountWith(items10k);
+      await nextTick();
 
-    const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
-    const step = hour * 0.2;
-    let start = now;
-    let end = now + hour * 4;
+      const vm = wrapper.vm as unknown as { setViewport: (start?: number, end?: number) => void };
+      const step = hour * 0.2;
+      let start = now;
+      let end = now + hour * 4;
 
-    for (let i = 0; i < 50; i++) {
-      start += step;
-      end += step;
-      vm.setViewport(start, end);
-    }
-    await nextTick();
-    wrapper.unmount();
-  }, benchOpts);
+      for (let i = 0; i < 50; i++) {
+        start += step;
+        end += step;
+        vm.setViewport(start, end);
+      }
+      await nextTick();
+      wrapper.unmount();
+    }),
+    benchOpts
+  );
 });
 
-describe('Timeline zoom performance', () => {
-  bench('zoom in/out 50 steps with 1,000 items', async () => {
+test('Timeline zoom performance', async ({ bench }) => {
+  await bench('zoom in/out 50 steps with 1,000 items', async () => {
     const wrapper = mountWith(items1k);
     await nextTick();
 
@@ -145,5 +150,5 @@ describe('Timeline zoom performance', () => {
     }
     await nextTick();
     wrapper.unmount();
-  }, benchOpts);
+  }).run(benchOpts);
 });
