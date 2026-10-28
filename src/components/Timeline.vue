@@ -283,7 +283,7 @@
     'marker'?: (props: { item: GTimelineMarker | Extract<GTimelineItem, TimelineMarker> }) => unknown;
     /** Group label */
     'group-label'?: (props: { group: GTimelineGroup }) => unknown;
-    /** All items of a group */
+    /** Items of a group within the viewport */
     [name: `items-${string}`]: (props: { group: GTimelineGroup; itemsInViewport: GTimelineItem[]; viewportStart: number; viewportEnd: number; stacking: GroupStackingResult | undefined }) => unknown;
     /** Item */
     'item'?: (props: { item: GTimelineItem; lane: number; stackSize: number; isStacked: boolean }) => unknown;
