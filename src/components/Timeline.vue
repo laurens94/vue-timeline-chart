@@ -174,7 +174,7 @@
   import { useTouchEvents } from '../composables/useTouchEvents.ts';
   import { useMomentum } from '../composables/useMomentum.ts';
   import { useStacking } from '../composables/useStacking.ts';
-  import type { LaneAssignment } from '../helpers/stacking.ts';
+  import type { GroupStackingResult, LaneAssignment } from '../helpers/stacking.ts';
 
   type Props = {
     groups?: GTimelineGroup[];
@@ -270,6 +270,25 @@
     changeStacking: [value: Record<TimelineGroup['id'], { laneCount: number }>];
   }>();
   // #endregion Events
+
+  // #region Slots
+  defineSlots<{
+    /** Content before the timestamps */
+    'timestamps-before'?: (props: { scale: TimelineScale }) => unknown;
+    /** Timestamp label */
+    'timestamp'?: (props: { timestamp: number; scale: TimelineScale }) => unknown;
+    /** Content after the timestamps */
+    'timestamps-after'?: (props: { scale: TimelineScale }) => unknown;
+    /** Marker, from `markers` or a marker in `items` */
+    'marker'?: (props: { item: GTimelineMarker | Extract<GTimelineItem, TimelineMarker> }) => unknown;
+    /** Group label */
+    'group-label'?: (props: { group: GTimelineGroup }) => unknown;
+    /** All items of a group */
+    [name: `items-${string}`]: (props: { group: GTimelineGroup; itemsInViewport: GTimelineItem[]; viewportStart: number; viewportEnd: number; stacking: GroupStackingResult | undefined }) => unknown;
+    /** Item */
+    'item'?: (props: { item: GTimelineItem; lane: number; stackSize: number; isStacked: boolean }) => unknown;
+  }>();
+  // #endregion Slots
 
   defineExpose({
     setViewport,
