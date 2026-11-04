@@ -805,10 +805,12 @@
   }
 
   .timeline-wrapper {
-    touch-action: pan-y;
-    overflow: hidden;
     position: relative;
+    display: flow-root;
+    overflow: hidden;
+    overflow: clip;
     user-select: none;
+    touch-action: pan-y;
     font-family: var(--font-family, inherit);
 
     @media print {
