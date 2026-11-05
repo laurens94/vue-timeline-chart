@@ -1,7 +1,8 @@
 import { transformerTwoslash } from '@shikijs/vitepress-twoslash';
-import { defineConfig } from 'vitepress';
+import { defineConfig, type HeadConfig } from 'vitepress';
 
 const base = process.env.DOCS_BASE ?? '/vue-timeline-chart/';
+const { DOCS_ANALYTICS_SCRIPT_URL, DOCS_ANALYTICS_WEBSITE_ID, DOCS_BANNER_SCRIPT_URL } = process.env;
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -13,7 +14,12 @@ export default defineConfig({
     ['script', { src: 'https://unpkg.com/d3@7.9.0/dist/d3.min.js', integrity: 'sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i', crossorigin: 'anonymous', defer: 'true' }],
     ['script', { src: 'https://unpkg.com/@popperjs/core@2.11.8/dist/umd/popper.min.js', integrity: 'sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r', crossorigin: 'anonymous', defer: 'true' }],
     ['script', { src: 'https://unpkg.com/tippy.js@6.3.7/dist/tippy-bundle.umd.min.js', integrity: 'sha384-AiTRpehQ7zqeua0Ypfa6Q4ki/ddhczZxrKtiQbTQUlJIhBkTeyoZP9/W/5ulFt29', crossorigin: 'anonymous', defer: 'true' }],
-    ['script', { src: 'https://media.bitterbrains.com/main.js?from=Laurens&type=top', async: 'true' }],
+    ...(DOCS_BANNER_SCRIPT_URL
+      ? [['script', { src: DOCS_BANNER_SCRIPT_URL, async: 'true' }] satisfies HeadConfig]
+      : []),
+    ...(DOCS_ANALYTICS_SCRIPT_URL && DOCS_ANALYTICS_WEBSITE_ID
+      ? [['script', { 'src': DOCS_ANALYTICS_SCRIPT_URL, 'data-website-id': DOCS_ANALYTICS_WEBSITE_ID, 'defer': 'true' }] satisfies HeadConfig]
+      : []),
   ],
   markdown: {
     codeTransformers: [

@@ -44,7 +44,9 @@ jobs:
         run: pnpm install
       - name: Build with VitePress
         env:
-          VITE_DOCS_TRACKING_PIXEL_URL: ${{ vars.VITE_DOCS_TRACKING_PIXEL_URL }}
+          DOCS_ANALYTICS_SCRIPT_URL: ${{ vars.DOCS_ANALYTICS_SCRIPT_URL }}
+          DOCS_ANALYTICS_WEBSITE_ID: ${{ vars.DOCS_ANALYTICS_WEBSITE_ID }}
+          DOCS_BANNER_SCRIPT_URL: ${{ vars.DOCS_BANNER_SCRIPT_URL }}
         run: |
           pnpm docs:build
           touch docs/.vitepress/dist/.nojekyll
