@@ -1,6 +1,6 @@
 // @noErrors
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { onMounted, onUnmounted, ref } from 'vue';
 
   const timeline = ref(null);
 
@@ -44,9 +44,12 @@
     }
   }
 
-  window.addEventListener('pointerup', () => {
+  function stopDragging () {
     isDraggingMapViewport = false;
-  }, { capture: true });
+  }
+
+  onMounted(() => window.addEventListener('pointerup', stopDragging, { capture: true }));
+  onUnmounted(() => window.removeEventListener('pointerup', stopDragging, { capture: true }));
 
   function onMapWheel (event: WheelEvent) {
     timeline.value?.onWheel(event);

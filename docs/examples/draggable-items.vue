@@ -1,6 +1,6 @@
 // @noErrors
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed, onMounted, onUnmounted, ref } from 'vue';
 
   const items = ref([
     { id: 'a', group: 'g', type: 'range', cssVariables: { '--item-background': 'var(--color-2)' }, start: 2000000, end: 5000000 },
@@ -60,8 +60,14 @@
     activePointers.delete(event.pointerId);
     draggingId.value = null;
   }
-  window.addEventListener('pointerup', endPointer, { capture: true });
-  window.addEventListener('pointercancel', endPointer, { capture: true });
+  onMounted(() => {
+    window.addEventListener('pointerup', endPointer, { capture: true });
+    window.addEventListener('pointercancel', endPointer, { capture: true });
+  });
+  onUnmounted(() => {
+    window.removeEventListener('pointerup', endPointer, { capture: true });
+    window.removeEventListener('pointercancel', endPointer, { capture: true });
+  });
 
   // Suppress viewport panning for a single-finger drag, but let multi-touch
   // through so pinch-zoom still works.
