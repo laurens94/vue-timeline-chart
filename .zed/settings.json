@@ -1,0 +1,51 @@
+{
+  "languages": {
+    "JavaScript": {
+      "format_on_save": "on",
+      "formatter": [
+        { "code_action": "source.fixAll.oxc" },
+        { "code_action": "source.fixAll.eslint" }
+      ]
+    },
+    "TypeScript": {
+      "format_on_save": "on",
+      "formatter": [
+        { "code_action": "source.fixAll.oxc" },
+        { "code_action": "source.fixAll.eslint" }
+      ]
+    },
+    "TSX": {
+      "format_on_save": "on",
+      "formatter": [
+        { "code_action": "source.fixAll.oxc" },
+        { "code_action": "source.fixAll.eslint" }
+      ]
+    },
+    "Vue.js": {
+      "format_on_save": "on",
+      "formatter": [
+        { "code_action": "source.fixAll.oxc" },
+        { "code_action": "source.fixAll.eslint" },
+        { "code_action": "source.fixAll.stylelint" }
+      ]
+    },
+    "CSS": {
+      "format_on_save": "on",
+      "formatter": [{ "code_action": "source.fixAll.stylelint" }]
+    },
+    "SCSS": {
+      "format_on_save": "on",
+      "formatter": [{ "code_action": "source.fixAll.stylelint" }]
+    }
+  },
+  "lsp": {
+    "stylelint-lsp": {
+      "settings": {
+        "stylelint": {
+          "packageManager": "pnpm",
+          "validate": ["css", "scss", "postcss", "vue.js"]
+        }
+      }
+    }
+  }
+}
