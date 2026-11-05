@@ -10,7 +10,7 @@ import Example from './basic-example.vue'
 
 <<< ./basic-example-with-imports.vue{vue twoslash}
 
-::: tip
+::: tip {no-title}
 Setting the `viewportMin` and `viewportMax` is useful for determining the initial zoom level.  
 It also prevents scrolling outside of the given range.
 :::

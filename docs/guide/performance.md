@@ -15,7 +15,7 @@ Some measures are implemented to improve performance:
 
 - Items have the [`contain: strict`](https://developer.mozilla.org/en-US/docs/Web/CSS/contain) CSS declaration set.
 
-::: tip
+::: tip {no-title}
 When dealing with a large number of items, consider rendering them using a canvas-based rendering approach. See the [Custom Charts or Canvas Rendering example](/examples/custom-charts-or-canvas-rendering) for inspiration how to implement such a component.
 :::
 

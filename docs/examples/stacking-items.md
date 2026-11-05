@@ -4,8 +4,9 @@ import Example from './stacking-items.vue'
 
 # Stacking items
 
->[!TIP]
+::: tip {no-title}
 See the [TimelineStackingOptions](/reference/types#timelinestackingoptions) type for more details.
+:::
 
 Time-overlapping items in a group can be stacked into vertical lanes instead of drawing on top of each other.
 
