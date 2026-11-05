@@ -1,7 +1,6 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
-head: [['link', { rel: 'icon', href: '/vue-timeline-chart/favicon.svg' }]]
 
 hero:
   name: "vue-timeline-chart"
