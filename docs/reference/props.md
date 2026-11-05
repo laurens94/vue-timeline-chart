@@ -153,4 +153,6 @@ Enable and configure vertical stacking of time-overlapping items. Overridable pe
 - **Type:** `number`
 - **Default:** `50` (px)
 
-Items are clamped this many pixels outside the viewport, [so that they cannot become too large](https://github.com/laurens94/vue-timeline-chart/issues/8).
+Items are clamped this many pixels outside the viewport, so that they cannot become too large.[^max-offset]
+
+[^max-offset]: See [issue #8](https://github.com/laurens94/vue-timeline-chart/issues/8).
