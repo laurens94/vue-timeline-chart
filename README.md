@@ -13,7 +13,7 @@
   Zoom in/out, scroll horizontally and update content dynamically.
 </p>
 <p align="center">
-  <a href="https://laurens94.github.io/vue-timeline-chart/examples/basic-example.html"><strong>Live Demo</strong></a> · <a href="https://laurens94.github.io/vue-timeline-chart/reference/props.html"><strong>Documentation</strong></a> · <a href="https://github.com/laurens94/vue-timeline-chart/issues/new">Report Issue</a> · <a href="https://github.com/laurens94/vue-timeline-chart/discussions/new/choose">Discussions</a>
+  <a href="https://laurens94.github.io/vue-timeline-chart/examples/basic-example.html"><strong>Live Demo</strong></a> · <a href="https://laurens94.github.io/vue-timeline-chart/reference/props.html"><strong>Documentation</strong></a> · <a href="https://github.com/laurens94/vue-timeline-chart/issues/new">Report Issue</a> · <a href="https://github.com/laurens94/vue-timeline-chart/discussions/new/choose">Discussions</a> · <a href="https://ko-fi.com/lauwerens">Buy me a coffee</a>
 </p>
 
 ---
@@ -91,5 +91,5 @@ pnpm dev
 ```
 
 <p align="center">
-  <a href='https://ko-fi.com/L3L0BR8QG' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+  <a href='https://ko-fi.com/lauwerens' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 </p>

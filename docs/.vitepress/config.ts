@@ -94,6 +94,7 @@ export default defineConfig({
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/laurens94/vue-timeline-chart' },
+      { icon: 'kofi', link: 'https://ko-fi.com/lauwerens', ariaLabel: 'Support on Ko-fi' },
     ],
   },
 });
