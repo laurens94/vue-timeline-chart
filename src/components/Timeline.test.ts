@@ -348,6 +348,21 @@ describe('Timeline rendering', () => {
       const timestampsSection = wrapper.find('.timestamps');
       expect(timestampsSection.findAll('.marker').length).toBeGreaterThanOrEqual(1);
     });
+
+    it('moves a _timestamps marker each time its start changes', async () => {
+      const wrapper = mountTimeline();
+      await nextTick();
+      const getLeft = () => (wrapper.find('.timestamps [data-item-id="marker-ts"]').element as HTMLElement).style.getPropertyValue('--_left');
+      const moveMarker = (offset: number) => wrapper.setProps({
+        markers: baseMarkers.map(m => (m.id === 'marker-ts' ? { ...m, start: m.start + offset } : m)),
+      });
+
+      await moveMarker(hour * 0.5);
+      const firstLeft = getLeft();
+      await moveMarker(hour);
+
+      expect(getLeft()).not.toBe(firstLeft);
+    });
   });
 
   describe('ungrouped backgrounds', () => {

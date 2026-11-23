@@ -39,7 +39,7 @@
           v-for="(item) in visibleMarkers.filter((item) => item.group === '_timestamps')"
           :key="item.id"
           :data-item-id="item.id"
-          :style="getStyle(item)"
+          :style="getStyle(item, true)"
           :class="[item.type, item.className]"
         >
           <slot name="marker" :item="item"></slot>
